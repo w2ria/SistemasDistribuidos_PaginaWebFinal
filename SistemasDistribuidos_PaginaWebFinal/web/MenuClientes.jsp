@@ -86,91 +86,10 @@
 
         </style>
     </head>
-    <%
-        response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-        if (session.getAttribute("user") == null) {
-            response.sendRedirect("Login.jsp");
-        }
-        
-        String XD = (String) request.getAttribute("Nombre");
-
-        // Obtener el ID del usuario de la sesión
-        String idUsuario = (String) session.getAttribute("Id_Usuario");
-        
-        System.out.println("El nombre en jsp es: "+XD);
-        // Verificar si el usuario es administrador
-        boolean esAdmin = idUsuario != null && idUsuario.startsWith("A");
-    %>
 
     <body style="display: flex">    
-        <div id="sidebar1" class="btnDesplegable" style="background-color: #f0f0f0">
-            <form class="cajas" onclick="toggleSidebar()">
-                <i class="fa-solid fa-bars"></i>
-            </form>
-            <form class="cajas" style="background-color: #87ceeb">
-                <i class="fa-solid fa-clipboard"></i>
-                <h1>Clientes</h1>
-            </form>
-            <a class="cajas" href="ControlerProducto?Op=Listar&idUsuario=<%= idUsuario %>&Nombre=<%= XD %>" style="text-decoration: none; color: black">
-                <i class="fa-solid fa-bottle-water"></i>
-                <h1>Productos</h1>
-            </a>
-            <form class="cajas">
-                <i class="fa-solid fa-cart-shopping"></i>
-                <h1>Pedidos</h1>
-            </form>
-            <% if (esAdmin) { %> 
-            <a class="cajas" href="ControlerUsuario?Op=Listar&idUsuario=<%= idUsuario %>&Nombre=<%= XD %>" style="text-decoration: none; color: black">
-                <i class="fa-solid fa-user"></i>
-                <h1>Usuarios</h1>
-            </a>
-            <% } %>
-            <a class="cajas" style="text-decoration: none; color: black" href="CerrarSesion">
-                <i class="fa-solid fa-power-off"></i>
-                <h1>Cerrar Sesion</h1>
-            </a>            
-        </div>
-
-        <div id="sidebar2" class="btnDesplegable" style="transform: translateX(-100%); width: 12%; background-color: #f0f0f0">
-            <form class="cajas" onclick="toggleSidebar()">
-                <i class="fa-solid fa-bars"></i>
-            </form>
-            <form class="cajas" style="flex-direction: row; background-color: #87ceeb">
-                <i class="fa-solid fa-clipboard"></i>
-                <h1 style="font-size: 3.5vh;">Clientes</h1>
-            </form>
-            <a class="cajas"style="flex-direction: row; text-decoration: none; color: black" href="ControlerProducto?Op=Listar&idUsuario=<%= idUsuario %>&Nombre=<%= XD %>">
-                <i class="fa-solid fa-bottle-water"></i>
-                <h1 style="font-size: 3.5vh;">Productos</h1>
-            </a>
-            <form class="cajas" style="flex-direction: row">
-                <i class="fa-solid fa-cart-shopping"></i>
-                <h1 style="font-size: 3.5vh;">Pedidos</h1>
-            </form>
-
-            <% if (esAdmin) { %>
-            <a class="cajas" style="flex-direction: row; text-decoration: none; color: black" href="ControlerUsuario?Op=Listar&idUsuario=<%= idUsuario %>&Nombre=<%= XD %>">
-                <i class="fa-solid fa-user"></i>
-                <h1 style="font-size: 3.5vh;">Usuarios</h1>
-            </a>
-            <% }%>
-            <a class="cajas"style="flex-direction: row; text-decoration: none; color: black" href="CerrarSesion">
-                <i class="fa-solid fa-power-off"></i>
-                <h1 style="font-size: 3vh;">Cerrar Sesion</h1>
-            </a>            
-        </div>
-
-
+        <%@ include file="NavBar.jsp" %>
         <div class="navMasContenido">
-            <nav class="navegador" style="padding-left: 6%; background-color: #ffd700">
-                <div class="imagen">
-                    <img src="https://www.logogenio.es/icons/preview/11175">
-                </div>
-                <div class="datos">
-                    <h2>Bienvenido</h2>
-                    <h1><%= XD%></h1>
-                </div>
-            </nav>
             <div class="Contenido" style="padding-left: 6%; background-color: #87ceeb; display: flex; justify-content: center"><!--Poner TODO ACA-->            
                 <div class="tabla" style=" width: 70%">
                     <div class="titulo" style="font-size: 10vh; text-align: center">LISTA CLIENTES</div>

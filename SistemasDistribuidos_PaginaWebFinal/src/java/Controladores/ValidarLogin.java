@@ -25,37 +25,8 @@ public class ValidarLogin extends HttpServlet {
 
     private static final int MAX_INTENTOS = 4;
     private static final long BLOQUEO_TIEMPO_MS = 10000; // 10 segundos
-    
+
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        
-    }
-
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /**
-     * Handles the HTTP <code>GET</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        processRequest(request, response);
-    }
-
-    /**
-     * Handles the HTTP <code>POST</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         Conexion.Conexion conBD = new Conexion.Conexion();
         Connection conn = conBD.Conexion();
@@ -89,8 +60,8 @@ public class ValidarLogin extends HttpServlet {
             rs = ps.executeQuery();
 
             if (rs.next()) {
-                String contraseñaAlmacenadaEncriptada  = rs.getString("Passwd");
-                String nombre=rs.getString("Nombres");
+                String contraseñaAlmacenadaEncriptada = rs.getString("Passwd");
+                String nombre = rs.getString("Nombres");
                 String estadoUsuario = rs.getString("Estado");
 
                 if ("activo".equalsIgnoreCase(estadoUsuario)) {
@@ -99,15 +70,15 @@ public class ValidarLogin extends HttpServlet {
                         // Autenticación exitosa
                         Usuario nuser = new Usuario(usuario, contraseña);
                         session.setAttribute("user", nuser);
-                        session.setAttribute("Id_Usuario", usuario); // Asegúrate de que el ID del usuario se configura en la sesión
+                        session.setAttribute("IdUsuario", usuario); // Asegúrate de que el ID del usuario se configura en la sesión
+                        session.setAttribute("Nombre", nombre);
                         session.removeAttribute("intentosFallidos_" + usuario);
-                        session.removeAttribute("tiempoBloqueo_" + usuario);                      
-                        
+                        session.removeAttribute("tiempoBloqueo_" + usuario);
+
                         //session.setMaxInactiveInterval(5); // se le da 10 segundos, sino al hacer una accion se cierra, le di 5 segundos mas para q no haya problemas al contar y espere que llegue a 0 el contador de js                     
-                        
                         //request.getRequestDispatcher("MenuClientes.jsp").forward(request, response);
-                        System.out.println("EL NOMBRE DESDE LA BD ES:" +nombre);
-                        response.sendRedirect("ControlerCliente?Op=Listar&Nombre="+nombre+"");
+                        System.out.println("EL NOMBRE DESDE LA BD ES:" + nombre);
+                        response.sendRedirect("ControlerCliente?Op=Listar");
                     } else {
                         // Contraseña incorrecta
                         intentosFallidos++;
@@ -130,6 +101,35 @@ public class ValidarLogin extends HttpServlet {
         } catch (SQLException ex) {
             System.out.println("Error de SQL..." + ex.getMessage());
         }
+    }
+
+    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+    /**
+     * Handles the HTTP <code>GET</code> method.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        processRequest(request, response);
+    }
+
+    /**
+     * Handles the HTTP <code>POST</code> method.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        processRequest(request, response);
     }
 
     /**

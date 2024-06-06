@@ -16,6 +16,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 /**
  *
@@ -45,8 +46,10 @@ public class ControlerProducto extends HttpServlet {
         
         switch (opcion) {
             case "Listar":
-                String nombre = request.getParameter("Nombre");
-                String id = request.getParameter("idUsuario");
+                HttpSession session = request.getSession();
+                String id = (String) session.getAttribute("IdUsuario");
+                String nombre = (String) session.getAttribute("Nombre");
+                System.out.println("EL NOMBRE que llega al servlet es ES:" +nombre);
                 System.out.println("EL id traido es: "+id);
                 try {
                 sql = "SELECT * FROM t_producto";

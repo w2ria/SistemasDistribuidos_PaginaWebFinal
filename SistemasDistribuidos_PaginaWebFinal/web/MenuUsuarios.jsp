@@ -86,138 +86,62 @@
 
         </style>
     </head>
-    <%
-        response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-        if (session.getAttribute("user") == null) {
-            response.sendRedirect("Login.jsp");
-        }
-        String XD = (String) request.getAttribute("Nombre");
-        // Obtener el ID del usuario de la sesión
-        String idUsuario = (String) session.getAttribute("Id_Usuario");
-        // Verificar si el usuario es administrador
-        boolean esAdmin = idUsuario != null && idUsuario.startsWith("A");
-    %>
-
     <body style="display: flex">    
-        <div id="sidebar1" class="btnDesplegable" style="background-color: #f0f0f0">
-            <form class="cajas" onclick="toggleSidebar()">
-                <i class="fa-solid fa-bars"></i>
-            </form>
-            <a class="cajas" href="ControlerCliente?Op=Listar&idUsuario=<%= idUsuario %>&Nombre=<%= XD %>" style="text-decoration: none; color: black">
-                <i class="fa-solid fa-clipboard"></i>
-                <h1>Clientes</h1>
-            </a>
-            <a class="cajas" href="ControlerProducto?Op=Listar&idUsuario=<%= idUsuario %>&Nombre=<%= XD %>" style="text-decoration: none; color: black">
-                <i class="fa-solid fa-bottle-water"></i>
-                <h1>Productos</h1>
-            </a>
-            <form class="cajas">
-                <i class="fa-solid fa-cart-shopping"></i>
-                <h1>Pedidos</h1>
-            </form>
-            <% if (esAdmin) { %> 
-            <form class="cajas"style="background-color: #87ceeb">
-                <i class="fa-solid fa-user"></i>
-                <h1>Usuarios</h1>
-            </form>
-            <% } %>
-            <a class="cajas" style="text-decoration: none; color: black" href="CerrarSesion">
-                <i class="fa-solid fa-power-off"></i>
-                <h1>Cerrar Sesion</h1>
-            </a>            
-        </div>
-
-        <div id="sidebar2" class="btnDesplegable" style="transform: translateX(-100%); width: 12%; background-color: #f0f0f0">
-            <form class="cajas" onclick="toggleSidebar()">
-                <i class="fa-solid fa-bars"></i>
-            </form>
-            <a class="cajas" style="flex-direction: row;text-decoration: none; color: black" href="ControlerCliente?Op=Listar&idUsuario=<%= idUsuario %>&Nombre=<%= XD %>">
-                <i class="fa-solid fa-clipboard"></i>
-                <h1 style="font-size: 3.5vh;">Clientes</h1>
-            </a>
-            <a class="cajas"style="flex-direction: row; text-decoration: none; color: black" href="ControlerProducto?Op=Listar&idUsuario=<%= idUsuario %>&Nombre=<%= XD %>">
-                <i class="fa-solid fa-bottle-water"></i>
-                <h1 style="font-size: 3.5vh;">Productos</h1>
-            </a>
-            <form class="cajas" style="flex-direction: row">
-                <i class="fa-solid fa-cart-shopping"></i>
-                <h1 style="font-size: 3.5vh;">Pedidos</h1>
-            </form>
-
-            <% if (esAdmin) { %>
-            <a class="cajas" style="flex-direction: row; text-decoration: none; color: black; background-color: #87ceeb">
-                <i class="fa-solid fa-user"></i>
-                <h1 style="font-size: 3.5vh;">Usuarios</h1>
-            </a>
-            <% }%>
-            <a class="cajas"style="flex-direction: row; text-decoration: none; color: black" href="CerrarSesion">
-                <i class="fa-solid fa-power-off"></i>
-                <h1 style="font-size: 3vh;">Cerrar Sesion</h1>
-            </a>            
-        </div>
-
-
+        <%@ include file="NavBar.jsp" %>
         <div class="navMasContenido">
-            <nav class="navegador" style="padding-left: 6%; background-color: #ffd700">
-                <div class="imagen">
-                    <img src="https://www.logogenio.es/icons/preview/11175">
-                </div>
-                <div class="datos">
-                    <h2>Bienvenido</h2>
-                    <h1><%= XD%></h1>
-                </div>
-            </nav>
-            <div class="Contenido" style="padding-left: 6%; background-color: #87ceeb; display: flex; justify-content: center"><!--Poner TODO ACA-->            
+            <div class="Contenido" style="padding-left: 6%; background-color: #87ceeb; display: flex; justify-content: center; width: 100%;"><!--Poner TODO ACA-->            
                 <div class="tabla" style=" width: 90%">
                     <div class="titulo" style="font-size: 10vh; text-align: center">LISTA USUARIOS</div>
                     <a  style="margin: 1vh" href="#" class="Agregar btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal" data-id="" data-tipo="" data-raza="" data-nombre="" data-fecha="" data-edad="" data-color="" data-peso="" data-tamano="" data-genero=""><i class="fa-solid fa-user-plus" style="padding: 0px 0.5vh"></i>Agregar</a>
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-
-                                <th scope="col">idUsuario</th>
-                                <th scope="col">Contraseña</th>
-                                <th scope="col">Apellidos</th>
-                                <th scope="col">Nombres</th>
-                                <th scope="col">Imagen</th>
-                                <th scope="col">Direccion</th>
-                                <th scope="col">Dni</th>
-                                <th scope="col">Telefono</th>
-                                <th scope="col">Movil</th>
-                                <th scope="col">En Linea</th>
-                                <th scope="col">Estado</th>
-                                
-                                <th scope="col">Editar</th>
-                                <th scope="col">Eliminar</th>
-                            </tr>
-                        </thead>
-                        <c:forEach var="campo" items="${Lista}">
-                            <tbody>   
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
                                 <tr>
-                                    <td>${campo.id_usuario}</td>
-                                    <td>${campo.contraseña}</td>
-                                    <td>${campo.apellidos}</td>
-                                    <td>${campo.nombres}</td>
-                                    <td>${campo.imagen}</td>
-                                    <td>${campo.direccion}</td>                                    
-                                    <td>${campo.DNI}</td>
-                                    <td>${campo.telefono}</td>
-                                    <td>${campo.movil}</td>
-                                    <td>${campo.enLinea}</td>
-                                    <td>${campo.estado}</td>
-                                    
-                                    <td>
-                                        <a href="#" class="Actualizar btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal" data-idUsuario="${campo.id_usuario}" data-contraseña="${campo.contraseña}" data-ape="${campo.apellidos}" data-nom="${campo.nombres}" data-imagen="${campo.imagen}" data-direc="${campo.direccion}" data-dni="${campo.DNI}" data-telef="${campo.telefono}" data-movil="${campo.movil}"><i class="fas fa-edit"></i>Actualizar</a>
-                                    </td>
-                                    <td>
-                                        <a href="ControlerUsuario?Op=Eliminar&Id=${campo.id_usuario}" class="btn btn-danger" onclick="return confirm('¿Estás seguro de que deseas eliminar este cliente?');">
-                                            <i class="fas fa-trash-alt"></i> Eliminar
-                                        </a>
-                                    </td>
-                                </tr>        
-                            </tbody>
-                        </c:forEach>
-                    </table>
+
+                                    <th scope="col">idUsuario</th>
+                                    <th scope="col">Contraseña</th>
+                                    <th scope="col">Apellidos</th>
+                                    <th scope="col">Nombres</th>
+                                    <th scope="col">Imagen</th>
+                                    <th scope="col">Direccion</th>
+                                    <th scope="col">Dni</th>
+                                    <th scope="col">Telefono</th>
+                                    <th scope="col">Movil</th>
+                                    <th scope="col">En Linea</th>
+                                    <th scope="col">Estado</th>
+
+                                    <th scope="col">Editar</th>
+                                    <th scope="col">Eliminar</th>
+                                </tr>
+                            </thead>
+                            <c:forEach var="campo" items="${Lista}">
+                                <tbody>   
+                                    <tr>
+                                        <td>${campo.id_usuario}</td>
+                                        <td>${campo.contraseña}</td>
+                                        <td>${campo.apellidos}</td>
+                                        <td>${campo.nombres}</td>
+                                        <td>${campo.imagen}</td>
+                                        <td>${campo.direccion}</td>                                    
+                                        <td>${campo.DNI}</td>
+                                        <td>${campo.telefono}</td>
+                                        <td>${campo.movil}</td>
+                                        <td>${campo.enLinea}</td>
+                                        <td>${campo.estado}</td>
+
+                                        <td>
+                                            <a href="#" class="Actualizar btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal" data-idUsuario="${campo.id_usuario}" data-contraseña="${campo.contraseña}" data-ape="${campo.apellidos}" data-nom="${campo.nombres}" data-imagen="${campo.imagen}" data-direc="${campo.direccion}" data-dni="${campo.DNI}" data-telef="${campo.telefono}" data-movil="${campo.movil}"><i class="fas fa-edit"></i>Actualizar</a>
+                                        </td>
+                                        <td>
+                                            <a href="ControlerUsuario?Op=Eliminar&Id=${campo.id_usuario}" class="btn btn-danger" onclick="return confirm('¿Estás seguro de que deseas eliminar este cliente?');">
+                                                <i class="fas fa-trash-alt"></i> Eliminar
+                                            </a>
+                                        </td>
+                                    </tr>        
+                                </tbody>
+                            </c:forEach>
+                        </table>
+                    </div>
 
                 </div>
 

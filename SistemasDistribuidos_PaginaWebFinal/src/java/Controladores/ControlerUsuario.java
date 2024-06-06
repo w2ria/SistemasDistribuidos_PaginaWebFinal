@@ -16,6 +16,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 /**
  *
@@ -43,9 +44,11 @@ public class ControlerUsuario extends HttpServlet {
         String sql;
         switch (opcion) {
             case "Listar":
-                String nombrex = request.getParameter("Nombre");
-                String idk = request.getParameter("idUsuario");
-                System.out.println("EL id traido es: "+idk);
+                HttpSession session = request.getSession();
+                String id = (String) session.getAttribute("IdUsuario");
+                String nombre = (String) session.getAttribute("Nombre");
+                System.out.println("EL NOMBRE que llega al servlet es ES:" +nombre);
+                System.out.println("EL id traido es: "+id);
                 try {
                 sql = "SELECT * FROM t_usuario";
                 ps = conn.prepareStatement(sql);
@@ -66,8 +69,8 @@ public class ControlerUsuario extends HttpServlet {
                     
                     Lista.add(usuario);
                 }
-                request.setAttribute("Nombre", nombrex);
-                request.setAttribute("IdUsuario", idk);
+                request.setAttribute("Nombre", nombre);
+                request.setAttribute("IdUsuario", id);
                 request.setAttribute("Lista", Lista);
                 request.getRequestDispatcher("MenuUsuarios.jsp").forward(request, response);
             } catch (SQLException ex) {
@@ -128,7 +131,7 @@ public class ControlerUsuario extends HttpServlet {
                 sql1 = "SELECT * FROM t_usuario where Id_Usuario='"+idUsuari+"'";
                 ps1 = conn.prepareStatement(sql1);
                 rs1 = ps1.executeQuery();
-                String id=null;
+                id=null;
                 while (rs1.next()) {
                     Usuario usuario = new Usuario();
                     usuario.setId_usuario(rs1.getString("Passwd"));   
@@ -162,7 +165,7 @@ public class ControlerUsuario extends HttpServlet {
                 
                 
                 String apellido = request.getParameter("apellidos");
-                String nombre = request.getParameter("nombres");
+                nombre = request.getParameter("nombres");
                 String image = request.getParameter("imagen");
                 String direccio = request.getParameter("direccion");
                 String dn = request.getParameter("dni");
