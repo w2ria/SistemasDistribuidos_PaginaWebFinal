@@ -98,7 +98,7 @@
                         <thead>
                             <tr>
 
-                                <th scope="col">idCliente</th>
+                                <th scope="col">idCliente </th>
                                 <th scope="col">Apellidos</th>
                                 <th scope="col">Nombres</th>
                                 <th scope="col">Direccion</th>
