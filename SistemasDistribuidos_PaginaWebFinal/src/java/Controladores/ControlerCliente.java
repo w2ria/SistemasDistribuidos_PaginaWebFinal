@@ -55,7 +55,7 @@ public class ControlerCliente extends HttpServlet {
                     
                 }
                 request.setAttribute("Nombre", nombre);
-                request.setAttribute("IdUsuario", id);
+                request.setAttribute("Id_Usuario", id);
                 request.setAttribute("Lista", Lista);
                 request.getRequestDispatcher("MenuClientes.jsp").forward(request, response);
             } catch (SQLException ex) {

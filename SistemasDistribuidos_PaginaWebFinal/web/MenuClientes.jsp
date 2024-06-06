@@ -88,6 +88,8 @@
     </head>
 
     <body style="display: flex">    
+        <%String idUsuario4 = (String) request.getAttribute("Id_Usuario");
+        System.out.println("Usuario traido hacia jsp"+idUsuario4);%>
         <%@ include file="NavBar.jsp" %>
         <div class="navMasContenido">
             <div class="Contenido" style="padding-left: 6%; background-color: #87ceeb; display: flex; justify-content: center"><!--Poner TODO ACA-->            

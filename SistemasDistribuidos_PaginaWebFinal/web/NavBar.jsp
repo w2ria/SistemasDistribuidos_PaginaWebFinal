@@ -5,9 +5,10 @@
     }
 
     String XD = (String) request.getAttribute("Nombre");
-    String idUsuario = (String) session.getAttribute("Id_Usuario");
+    String idUsuario = (String) request.getAttribute("Id_Usuario");
 
     System.out.println("El nombre en jsp es: " + XD);
+    System.out.println("El ID USUARIOS ES==================================="+idUsuario);
 
     // Verificar si el usuario es administrador
     boolean esAdmin = idUsuario != null && idUsuario.startsWith("A");
