@@ -13,6 +13,7 @@ public class Usuario {
     private String contraseña;
     private String apellidos;
     private String nombres;
+    private String imagen;
     private String direccion;
     private String DNI;
     private String telefono;
@@ -30,11 +31,12 @@ public class Usuario {
         this.contraseña = contraseña;
     }
 
-    public Usuario(String id_usuario, String contraseña, String apellidos, String nombres, String direccion, String DNI, String telefono, String movil, String enLinea, String estado) {
+    public Usuario(String id_usuario, String contraseña, String apellidos, String nombres, String imagen, String direccion, String DNI, String telefono, String movil, String enLinea, String estado) {
         this.id_usuario = id_usuario;
         this.contraseña = contraseña;
         this.apellidos = apellidos;
         this.nombres = nombres;
+        this.imagen = imagen;
         this.direccion = direccion;
         this.DNI = DNI;
         this.telefono = telefono;
@@ -47,8 +49,8 @@ public class Usuario {
         return id_usuario;
     }
 
-    public void setId_usuario(String Id_usuario) {
-        this.id_usuario = Id_usuario;
+    public void setId_usuario(String id_usuario) {
+        this.id_usuario = id_usuario;
     }
 
     public String getContraseña() {
@@ -73,6 +75,14 @@ public class Usuario {
 
     public void setNombres(String nombres) {
         this.nombres = nombres;
+    }
+
+    public String getImagen() {
+        return imagen;
+    }
+
+    public void setImagen(String imagen) {
+        this.imagen = imagen;
     }
 
     public String getDireccion() {
@@ -111,7 +121,7 @@ public class Usuario {
         return enLinea;
     }
 
-    public void setEnlinea(String enLinea) {
+    public void setEnLinea(String enLinea) {
         this.enLinea = enLinea;
     }
 
@@ -122,6 +132,9 @@ public class Usuario {
     public void setEstado(String estado) {
         this.estado = estado;
     }
+
+    
+    
 
     
     

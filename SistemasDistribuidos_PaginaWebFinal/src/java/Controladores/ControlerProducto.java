@@ -4,8 +4,9 @@
  */
 package Controladores;
 
-import Entidades.Cliente;
+import Entidades.Producto;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -16,46 +17,57 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-public class ControlerCliente extends HttpServlet {
+/**
+ *
+ * @author danie
+ */
+public class ControlerProducto extends HttpServlet {
 
+    /**
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
+     * methods.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
-        String opcion = request.getParameter("Op");
-        ArrayList<Cliente> Lista = new ArrayList<>();
+                String opcion = request.getParameter("Op");
+        ArrayList<Producto> Lista = new ArrayList<>();
         Conexion.Conexion conBD = new Conexion.Conexion();
         Connection conn = conBD.Conexion();
         PreparedStatement ps = null;
         ResultSet rs;
         String sql;
+        
+        
         switch (opcion) {
             case "Listar":
-                String id = request.getParameter("idUsuario");
                 String nombre = request.getParameter("Nombre");
-                System.out.println("EL NOMBRE que llega al servlet es ES:" +nombre);
+                String id = request.getParameter("idUsuario");
                 System.out.println("EL id traido es: "+id);
                 try {
-                sql = "SELECT * FROM t_cliente";
+                sql = "SELECT * FROM t_producto";
                 ps = conn.prepareStatement(sql);
                 rs = ps.executeQuery();
                 while (rs.next()) {
-                    Cliente client = new Cliente();
-                    client.setId(rs.getString("Id_Cliente"));
-                    client.setApellidos(rs.getString("Apellidos"));
-                    client.setNombres(rs.getString("Nombres"));
-                    client.setDNI(rs.getString("DNI"));
-                    client.setDireccion(rs.getString("Direccion"));
-                    client.setTelefono(rs.getString("Telefono"));
-                    client.setMovil(rs.getString("Movil"));
-                    client.setEstado(rs.getString("Estado"));
-                    client.setEnLinea(rs.getString("EnLinea"));
-                    Lista.add(client);
-                    
+                    Producto producto = new Producto();
+                    producto.setIdProd(rs.getString("Id_Prod"));
+                    producto.setDescripcion(rs.getString("Descripcion"));
+                    producto.setImagen(rs.getString("imagen"));
+                    producto.setCosto(rs.getDouble("costo"));
+                    producto.setPrecio(rs.getDouble("precio"));
+                    producto.setCantidad(rs.getInt("cantidad"));
+                    producto.setEstado(rs.getString("estado"));
+                    Lista.add(producto);
                 }
-                request.setAttribute("Nombre", nombre);
                 request.setAttribute("IdUsuario", id);
+                request.setAttribute("Nombre", nombre);
                 request.setAttribute("Lista", Lista);
-                request.getRequestDispatcher("MenuClientes.jsp").forward(request, response);
+                
+                request.getRequestDispatcher("MenuProductos.jsp").forward(request, response);
             } catch (SQLException ex) {
                 System.out.println("Error de SQL..." + ex.getMessage());
             } finally {
@@ -66,7 +78,7 @@ public class ControlerCliente extends HttpServlet {
             case "Eliminar":
                 try {
                 String Id = request.getParameter("Id");
-                String sqlGetEstado = "SELECT estado FROM t_cliente WHERE Id_Cliente = ?";
+                String sqlGetEstado = "SELECT estado FROM t_producto WHERE Id_Prod = ?";
                 String sqlUpdateEstado = "";
 
                 conn = conBD.Conexion();
@@ -80,9 +92,9 @@ public class ControlerCliente extends HttpServlet {
 
                     // Si el estado actual es 'activo', cambia a 'inactivo'; si es 'inactivo', cambia a 'activo'
                     if (estadoActual == null || estadoActual.isEmpty() || estadoActual.equals("activo")) {
-                        sqlUpdateEstado = "UPDATE t_cliente SET estado = 'inactivo' WHERE Id_Cliente = ?";
+                        sqlUpdateEstado = "UPDATE t_producto SET estado = 'inactivo' WHERE Id_Prod = ?";
                     } else if (estadoActual.equals("inactivo")) {
-                        sqlUpdateEstado = "UPDATE t_cliente SET estado = 'activo' WHERE Id_Cliente = ?";
+                        sqlUpdateEstado = "UPDATE t_producto SET estado = 'activo' WHERE Id_Prod = ?";
                     }
 
                     // Ejecutar la actualización de estado
@@ -91,7 +103,7 @@ public class ControlerCliente extends HttpServlet {
                     ps.executeUpdate();
                 }
 
-                response.sendRedirect("ControlerCliente?Op=Listar");
+                response.sendRedirect("ControlerProducto?Op=Listar");
 
             } catch (SQLException ex) {
                 System.out.println("Error de SQL..." + ex.getMessage());
@@ -99,35 +111,35 @@ public class ControlerCliente extends HttpServlet {
                 conBD.Discconet();
             }
             break;
+            
             case "Actualizar":
-                String Id = request.getParameter("cod");
-                String Apellidos = request.getParameter("apellidos");
-                String Nombres = request.getParameter("nombres");
-                String Direccion = request.getParameter("direccion");
-                String DNI = request.getParameter("dni");
-                String Telefono = request.getParameter("telefono");
-                String Movil = request.getParameter("movil");
-                Cliente client = new Cliente();
+                String Id = request.getParameter("codProd");
+                String descrip = request.getParameter("descripcion");
+                String image = request.getParameter("imagen");
+                String costo = request.getParameter("costo");
+                String precio = request.getParameter("precio");
+                String cantidad = request.getParameter("cantidad");
+                
+                Producto producto = new Producto();
 
-                client.setId(Id);
-                client.setApellidos(Apellidos);
-                client.setNombres(Nombres);
-                client.setDNI(DNI);
-                client.setDireccion(Direccion);
-                client.setTelefono(Telefono);
-                client.setMovil(Movil);
+                producto.setIdProd(Id);
+                producto.setDescripcion(descrip);
+                producto.setImagen(image);
+                producto.setCosto(Double.parseDouble(costo));
+                producto.setPrecio(Double.parseDouble(precio));
+                producto.setCantidad(Integer.parseInt(cantidad));
+                
 
-                sql = "update t_cliente set apellidos=?, nombres=?, DNI=?, direccion=?, telefono=?, movil=? where Id_Cliente=?";
+                sql = "update t_producto set Descripcion=?, imagen=?, costo=?, precio=?, cantidad=? where Id_Prod=?";
 
                 try {
                     ps = conn.prepareStatement(sql);
-                    ps.setString(1, client.getApellidos());
-                    ps.setString(2, client.getNombres());
-                    ps.setString(3, client.getDNI());
-                    ps.setString(4, client.getDireccion());
-                    ps.setString(5, client.getTelefono());
-                    ps.setString(6, client.getMovil());
-                    ps.setString(7, client.getId());
+                    ps.setString(1, producto.getDescripcion());
+                    ps.setString(2, producto.getImagen());
+                    ps.setDouble(3, producto.getCosto());
+                    ps.setDouble(4, producto.getPrecio());
+                    ps.setInt(5, producto.getCantidad());                    
+                    ps.setString(6, producto.getIdProd());
                     ps.executeUpdate();
                 } catch (SQLException ex) {
                     System.out.println("Error actualizando tabla..." + ex.getMessage());
@@ -135,38 +147,38 @@ public class ControlerCliente extends HttpServlet {
                     conBD.Discconet();
                 }
                 //response.sendRedirect("MenuClientes.jsp");   
-                response.sendRedirect("ControlerCliente?Op=Listar");
+                response.sendRedirect("ControlerProducto?Op=Listar");
 
                 break;
 
             case "Guardar":
-                String idCliente = GenerarnuevoId();
-                String apellidos = request.getParameter("apellidos");
-                String nombres = request.getParameter("nombres");
-                String direccion = request.getParameter("direccion");
-                String dni = request.getParameter("dni");
-                String telefono = request.getParameter("telefono");
-                String movil = request.getParameter("movil");
+                String idProd = GenerarnuevoId();
+                String descri = request.getParameter("descripcion");
+                String imag = request.getParameter("imagen");
+                String cost = request.getParameter("costo");
+                String preci = request.getParameter("precio");
+                String cantida = request.getParameter("cantidad");
                 String estado = "activo";
+                
+                
 
-                sql = "INSERT INTO t_cliente (Id_Cliente, Apellidos, Nombres, Direccion, DNI, Telefono, Movil, Estado, EnLinea) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                sql = "INSERT INTO t_producto (Id_Prod, Descripcion, imagen, costo, precio, cantidad, estado) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
                 try {
                     ps = conn.prepareStatement(sql);
-                    ps.setString(1, idCliente);
-                    ps.setString(2, apellidos);
-                    ps.setString(3, nombres);
-                    ps.setString(4, direccion);
-                    ps.setString(5, dni);
-                    ps.setString(6, telefono);
-                    ps.setString(7, movil);
-                    ps.setString(8, estado);
-                    ps.setInt(9, 0);
+                    ps.setString(1, idProd);
+                    ps.setString(2, descri);
+                    ps.setString(3, imag);
+                    ps.setString(4, cost);
+                    ps.setString(5, preci);
+                    ps.setString(6, cantida);
+                    ps.setString(7, estado);
+                    
 
                     int rowsAffected = ps.executeUpdate();
                     if (rowsAffected > 0) {
                         //response.sendRedirect("MenuClientes.jsp");
-                        response.sendRedirect("ControlerCliente?Op=Listar");
+                        response.sendRedirect("ControlerProducto?Op=Listar");
 
                     } else {
                         response.sendRedirect("Error.jsp");
@@ -185,12 +197,12 @@ public class ControlerCliente extends HttpServlet {
                     }
                 }
                 break;
+            
             default:
 
         }
-
     }
-
+    
     private String GenerarnuevoId() {
         Conexion.Conexion conBD = new Conexion.Conexion();
         Connection conn = conBD.Conexion();
@@ -198,17 +210,17 @@ public class ControlerCliente extends HttpServlet {
         ResultSet rs = null;
 
         try {
-            String sqlLastId = "SELECT Id_Cliente FROM t_cliente ORDER BY Id_Cliente DESC LIMIT 1";
+            String sqlLastId = "SELECT Id_Prod FROM t_producto ORDER BY Id_Prod DESC LIMIT 1";
             ps = conn.prepareStatement(sqlLastId);
             rs = ps.executeQuery();
 
             if (rs.next()) {
-                String lastIdWithPrefix = rs.getString("Id_Cliente");
+                String lastIdWithPrefix = rs.getString("Id_Prod");
                 int num = Integer.parseInt(lastIdWithPrefix.substring(1));
                 String nextId = String.format("%05d", num + 1);
-                return "C" + nextId;
+                return "P" + nextId;
             } else {
-                return "C00001";
+                return "P00001";
             }
         } catch (SQLException ex) {
             ex.printStackTrace();
@@ -228,18 +240,40 @@ public class ControlerCliente extends HttpServlet {
         }
     }
 
+    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+    /**
+     * Handles the HTTP <code>GET</code> method.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         processRequest(request, response);
     }
 
+    /**
+     * Handles the HTTP <code>POST</code> method.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         processRequest(request, response);
     }
 
+    /**
+     * Returns a short description of the servlet.
+     *
+     * @return a String containing servlet description
+     */
     @Override
     public String getServletInfo() {
         return "Short description";

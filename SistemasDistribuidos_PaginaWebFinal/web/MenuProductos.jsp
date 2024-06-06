@@ -91,8 +91,9 @@
         if (session.getAttribute("user") == null) {
             response.sendRedirect("Login.jsp");
         }
+        String XD = (String) request.getAttribute("Nombre");
         // Obtener el ID del usuario de la sesión
-        String idUsuario = (String) session.getAttribute("IdUsuario");
+        String idUsuario = (String) session.getAttribute("Id_Usuario");
         // Verificar si el usuario es administrador
         boolean esAdmin = idUsuario != null && idUsuario.startsWith("A");
     %>
@@ -102,10 +103,10 @@
             <form class="cajas" onclick="toggleSidebar()">
                 <i class="fa-solid fa-bars"></i>
             </form>
-            <form class="cajas">
+            <a class="cajas" href="ControlerCliente?Op=Listar&idUsuario=<%= idUsuario %>&Nombre=<%= XD %>" style="text-decoration: none; color: black">
                 <i class="fa-solid fa-clipboard"></i>
                 <h1>Clientes</h1>
-            </form>
+            </a>
             <form class="cajas" style="background-color: #87ceeb">
                 <i class="fa-solid fa-bottle-water"></i>
                 <h1>Productos</h1>
@@ -115,10 +116,10 @@
                 <h1>Pedidos</h1>
             </form>
             <% if (esAdmin) { %> 
-            <form class="cajas">
+            <a class="cajas" href="ControlerUsuario?Op=Listar&idUsuario=<%= idUsuario %>&Nombre=<%= XD %>" style="text-decoration: none; color: black">
                 <i class="fa-solid fa-user"></i>
                 <h1>Usuarios</h1>
-            </form>
+            </a>
             <% } %>
             <a class="cajas" style="text-decoration: none; color: black" href="CerrarSesion">
                 <i class="fa-solid fa-power-off"></i>
@@ -130,11 +131,11 @@
             <form class="cajas" onclick="toggleSidebar()">
                 <i class="fa-solid fa-bars"></i>
             </form>
-            <form class="cajas" style="flex-direction: row; background-color: #87ceeb">
+            <a class="cajas" style="flex-direction: row; text-decoration: none; color: black" href="ControlerCliente?Op=Listar&idUsuario=<%= idUsuario %>&Nombre=<%= XD %>">
                 <i class="fa-solid fa-clipboard"></i>
                 <h1 style="font-size: 3.5vh;">Clientes</h1>
-            </form>
-            <form class="cajas"style="flex-direction: row">
+            </a>
+            <form class="cajas"style="flex-direction: row; background-color: #87ceeb">
                 <i class="fa-solid fa-bottle-water"></i>
                 <h1 style="font-size: 3.5vh;">Productos</h1>
             </form>
@@ -144,10 +145,10 @@
             </form>
 
             <% if (esAdmin) { %>
-            <form class="cajas" style="flex-direction: row">
+            <a class="cajas" style="flex-direction: row; text-decoration: none; color: black" href="ControlerUsuario?Op=Listar&idUsuario=<%= idUsuario %>&Nombre=<%= XD %>">
                 <i class="fa-solid fa-user"></i>
                 <h1 style="font-size: 3.5vh;">Usuarios</h1>
-            </form>
+            </a>
             <% }%>
             <a class="cajas"style="flex-direction: row; text-decoration: none; color: black" href="CerrarSesion">
                 <i class="fa-solid fa-power-off"></i>
@@ -163,7 +164,7 @@
                 </div>
                 <div class="datos">
                     <h2>Bienvenido</h2>
-                    <h1>DANIEL</h1>
+                    <h1><%= XD%></h1>
                 </div>
             </nav>
             <div class="Contenido" style="padding-left: 6%; background-color: #87ceeb; display: flex; justify-content: center"><!--Poner TODO ACA-->            
@@ -174,15 +175,14 @@
                         <thead>
                             <tr>
 
-                                <th scope="col">idCliente</th>
-                                <th scope="col">Apellidos</th>
-                                <th scope="col">Nombres</th>
-                                <th scope="col">Direccion</th>
-                                <th scope="col">Dni</th>
-                                <th scope="col">Telefono</th>
-                                <th scope="col">Movil</th>
+                                <th scope="col">idProducto</th>
+                                <th scope="col">Descripcion</th>
+                                <th scope="col">Imagen</th>
+                                <th scope="col">Costo</th>
+                                <th scope="col">Precio</th>
+                                <th scope="col">Cantidad</th>
                                 <th scope="col">Estado</th>
-                                <th scope="col">En Linea</th>
+                                
                                 <th scope="col">Editar</th>
                                 <th scope="col">Eliminar</th>
                             </tr>
@@ -190,20 +190,19 @@
                         <c:forEach var="campo" items="${Lista}">
                             <tbody>   
                                 <tr>
-                                    <td>${campo.id}</td>
-                                    <td>${campo.apellidos}</td>
-                                    <td>${campo.nombres}</td>
-                                    <td>${campo.direccion}</td>
-                                    <td>${campo.DNI}</td>
-                                    <td>${campo.telefono}</td>
-                                    <td>${campo.movil}</td>
+                                    <td>${campo.idProd}</td>
+                                    <td>${campo.descripcion}</td>
+                                    <td>${campo.imagen}</td>
+                                    <td>${campo.costo}</td>
+                                    <td>${campo.precio}</td>
+                                    <td>${campo.cantidad}</td>
                                     <td>${campo.estado}</td>
-                                    <td>${campo.enLinea}</td>
+                                    
                                     <td>
-                                        <a href="#" class="Actualizar btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal" data-id="${campo.id}" data-ape="${campo.apellidos}" data-nom="${campo.nombres}" data-direc="${campo.direccion}" data-dni="${campo.DNI}" data-telef="${campo.telefono}" data-movil="${campo.movil}"><i class="fas fa-edit"></i>Actualizar</a>
+                                        <a href="#" class="Actualizar btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal" data-idProd="${campo.idProd}" data-desc="${campo.descripcion}" data-imag="${campo.imagen}" data-costo="${campo.costo}" data-prec="${campo.precio}" data-cant="${campo.cantidad}"><i class="fas fa-edit"></i>Actualizar</a>
                                     </td>
                                     <td>
-                                        <a href="ControlerCliente?Op=Eliminar&Id=${campo.id}" class="btn btn-danger" onclick="return confirm('¿Estás seguro de que deseas eliminar este cliente?');">
+                                        <a href="ControlerProducto?Op=Eliminar&Id=${campo.idProd}" class="btn btn-danger" onclick="return confirm('¿Estás seguro de que deseas eliminar este cliente?');">
                                             <i class="fas fa-trash-alt"></i> Eliminar
                                         </a>
                                     </td>
@@ -218,7 +217,7 @@
         </div>
 
         <!-- Modal -->
-        <form action="ControlerCliente" method="Post" class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" style="z-index: 1000000"> <!--enctype="multipart/form-data"-->
+        <form action="ControlerProducto" method="Post" class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" style="z-index: 1000000"> <!--enctype="multipart/form-data"-->
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -229,34 +228,31 @@
                     <div class="modal-body">
                         <div id="updateForm">
                             <div class="mb-3">
-                                <label for="idMascota" class="form-label">ID Cliente</label>
-                                <input type="text" class="form-control" id="idCliente" name="cod" readonly="">
+                                <label for="idMascota" class="form-label">ID Producto</label>
+                                <input type="text" class="form-control" id="idProd" name="codProd" readonly="">
                             </div>
                             <div class="mb-3">
-                                <label for="tipoMascota" class="form-label">Apellidos</label>
-                                <input type="text" class="form-control" id="apellidos" name="apellidos">
+                                <label for="tipoMascota" class="form-label">Descripcion</label>
+                                <input type="text" class="form-control" id="desc" name="descripcion">
                             </div>
                             <div class="mb-3">
-                                <label for="raza" class="form-label">Nombres</label>
-                                <input type="text" class="form-control" id="nombres"  name="nombres">
+                                <label for="raza" class="form-label">Imagen</label>
+                                <input type="text" class="form-control" id="imag"  name="imagen">
                             </div>
                             <div class="mb-3">
-                                <label for="nombre" class="form-label">Direccion</label>
-                                <input type="text" class="form-control" id="direccion" name="direccion">
+                                <label for="nombre" class="form-label">Costo</label>
+                                <input type="text" class="form-control" id="costo" name="costo">
                             </div>
 
                             <div class="mb-3">
-                                <label for="fechaNacimiento" class="form-label">DNI</label>
-                                <input type="text" class="form-control" id="dni" name="dni">
+                                <label for="fechaNacimiento" class="form-label">Precio</label>
+                                <input type="text" class="form-control" id="prec" name="precio">
                             </div>
                             <div class="mb-3">
-                                <label for="edad" class="form-label">Telefono</label>
-                                <input type="text" class="form-control" id="telefono" name="telefono">
+                                <label for="edad" class="form-label">Cantidad</label>
+                                <input type="text" class="form-control" id="cant" name="cantidad">
                             </div>
-                            <div class="mb-3">
-                                <label for="color" class="form-label">Movil</label>
-                                <input type="text" class="form-control" id="movil" name="movil">
-                            </div>   
+                            
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -292,13 +288,13 @@
                     tituloEditar.style.display = "none";
                     tituloAgregar.style.display = "block";
                     // Limpiar los campos del formulario
-                    document.getElementById('idCliente').value = "";
-                    document.getElementById('apellidos').value = "";
-                    document.getElementById('nombres').value = "";
-                    document.getElementById('direccion').value = "";
-                    document.getElementById('dni').value = "";
-                    document.getElementById('telefono').value = "";
-                    document.getElementById('movil').value = "";
+                    document.getElementById('idProd').value = "";
+                    document.getElementById('desc').value = "";
+                    document.getElementById('imag').value = "";
+                    document.getElementById('costo').value = "";
+                    document.getElementById('prec').value = "";
+                    document.getElementById('cant').value = "";
+                    
                 });
 
                 // Agregar evento clic a cada enlace Actualizar
@@ -310,22 +306,22 @@
                         tituloEditar.style.display = "block";
 
                         // Obtener los datos del cliente del enlace
-                        const id = enlace.getAttribute('data-id');
-                        const ape = enlace.getAttribute('data-ape');
-                        const nom = enlace.getAttribute('data-nom');
-                        const direc = enlace.getAttribute('data-direc');
-                        const dni = enlace.getAttribute('data-dni');
-                        const telef = enlace.getAttribute('data-telef');
-                        const movil = enlace.getAttribute('data-movil');
+                        const idProd = enlace.getAttribute('data-idProd');
+                        const desc = enlace.getAttribute('data-desc');
+                        const imag = enlace.getAttribute('data-imag');
+                        const costo = enlace.getAttribute('data-costo');
+                        const prec = enlace.getAttribute('data-prec');
+                        const cant = enlace.getAttribute('data-cant');
+                        
 
                         // Asignar los datos a los campos del formulario
-                        document.getElementById('idCliente').value = id;
-                        document.getElementById('apellidos').value = ape;
-                        document.getElementById('nombres').value = nom;
-                        document.getElementById('direccion').value = direc;
-                        document.getElementById('dni').value = dni;
-                        document.getElementById('telefono').value = telef;
-                        document.getElementById('movil').value = movil;
+                        document.getElementById('idProd').value = idProd;
+                        document.getElementById('desc').value = desc;
+                        document.getElementById('imag').value = imag;
+                        document.getElementById('costo').value = costo;
+                        document.getElementById('prec').value = prec;
+                        document.getElementById('cant').value = cant;
+                        
                     });
                 });
             });

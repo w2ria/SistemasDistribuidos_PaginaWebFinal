@@ -82,7 +82,7 @@ public class ValidarLogin extends HttpServlet {
         }
 
         try {
-            String sql = "SELECT * FROM t_usuario WHERE IdUsuario=? ";
+            String sql = "SELECT * FROM t_usuario WHERE Id_Usuario=? ";
             ps = conn.prepareStatement(sql);
             ps.setString(1, usuario);
 
@@ -90,6 +90,7 @@ public class ValidarLogin extends HttpServlet {
 
             if (rs.next()) {
                 String contraseñaAlmacenadaEncriptada  = rs.getString("Passwd");
+                String nombre=rs.getString("Nombres");
                 String estadoUsuario = rs.getString("Estado");
 
                 if ("activo".equalsIgnoreCase(estadoUsuario)) {
@@ -98,14 +99,15 @@ public class ValidarLogin extends HttpServlet {
                         // Autenticación exitosa
                         Usuario nuser = new Usuario(usuario, contraseña);
                         session.setAttribute("user", nuser);
-                        session.setAttribute("IdUsuario", usuario); // Asegúrate de que el ID del usuario se configura en la sesión
+                        session.setAttribute("Id_Usuario", usuario); // Asegúrate de que el ID del usuario se configura en la sesión
                         session.removeAttribute("intentosFallidos_" + usuario);
                         session.removeAttribute("tiempoBloqueo_" + usuario);                      
                         
                         //session.setMaxInactiveInterval(5); // se le da 10 segundos, sino al hacer una accion se cierra, le di 5 segundos mas para q no haya problemas al contar y espere que llegue a 0 el contador de js                     
                         
                         //request.getRequestDispatcher("MenuClientes.jsp").forward(request, response);
-                        response.sendRedirect("ControlerCliente?Op=Listar");
+                        System.out.println("EL NOMBRE DESDE LA BD ES:" +nombre);
+                        response.sendRedirect("ControlerCliente?Op=Listar&Nombre="+nombre+"");
                     } else {
                         // Contraseña incorrecta
                         intentosFallidos++;
