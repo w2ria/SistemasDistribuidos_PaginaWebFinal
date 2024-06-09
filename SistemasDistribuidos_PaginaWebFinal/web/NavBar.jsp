@@ -37,6 +37,10 @@
             <i class="fa-solid fa-cart-shopping"></i>
             <h1>Pedidos</h1>
         </form>
+        <form class="cajas" href="MenuVentas.jsp" style="text-decoration: none; color: black">
+            <i class="fa-solid fa-clipboard"></i>
+            <h1>Ventas</h1>
+        </form>
         <% if (esAdmin) {%>
         <a class="cajas" href="ControlerUsuario?Op=Listar" style="text-decoration: none; color: black; <%= isUsuarios ? "background-color: #87ceeb" : ""%>">
             <i class="fa-solid fa-user"></i>
@@ -64,6 +68,10 @@
         <form class="cajas" style="flex-direction: row; text-decoration: none; color: black; <%= isPedidos ? "background-color: #87ceeb" : ""%>">
             <i class="fa-solid fa-cart-shopping"></i>
             <h1 style="font-size: 3.5vh;">Pedidos</h1>
+        </form>
+        <form class="cajas" style="flex-direction: row; text-decoration: none; color: black" href="MenuVentas.jsp">
+            <i class="fa-solid fa-clipboard"></i>
+            <h1 style="font-size: 3.5vh;">Ventas</h1>
         </form>
         <% if (esAdmin) {%>
         <a class="cajas" style="flex-direction: row; text-decoration: none; color: black; <%= isUsuarios ? "background-color: #87ceeb" : ""%>" href="ControlerUsuario?Op=Listar">
