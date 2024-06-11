@@ -147,7 +147,7 @@
                                         <input type="hidden" name="Op" value="BuscarProducto"> 
                                         <div class="form-group row" style="margin:5px">
                                             <div class="col-sm-8">
-                                                <input type="text" id="nombreProducto" name="nombreProducto" class="form-control" placeholder="Nombre del Producto">
+                                                <input type="text" id="nombreProducto" name="nombreProducto" class="form-control" placeholder="Nombre del Producto" value="${nombreProducto}">
                                             </div>
                                             <div class="col-sm-4">
                                                 <input type="submit" name="accion" value="Buscar" class="btn btn-outline-info btn-block">

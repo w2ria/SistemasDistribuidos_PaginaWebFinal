@@ -214,6 +214,7 @@ public class ControlerProducto extends HttpServlet {
                         String codigoProducto = rs.getString("Id_Prod");
                         String precioProducto = rs.getString("precio");
                         String stockProducto = rs.getString("cantidad");
+                        request.setAttribute("nombreProducto", nombreProducto); 
                         request.setAttribute("codigoProducto", codigoProducto); 
                         request.setAttribute("precioProducto", precioProducto); 
                         request.setAttribute("stockProducto", stockProducto); 
