@@ -187,6 +187,36 @@ public class ControlerCliente extends HttpServlet {
                     }
                 }
                 break;
+
+                
+                case "BuscarProducto":
+                String nombreProducto = request.getParameter("nombreProducto");
+                try {
+                    sql = "SELECT Id_Prod, precio, cantidad FROM t_producto WHERE Descripcion = ?";
+                    ps = conn.prepareStatement(sql);
+                    ps.setString(1, nombreProducto);
+                    rs = ps.executeQuery();
+                    if (rs.next()) {
+                        String codigoProducto = rs.getString("Id_Prod");
+                        String precioProducto = rs.getString("precio");
+                        String stockProducto = rs.getString("cantidad");
+                        request.setAttribute("codigoProducto", codigoProducto); 
+                        request.setAttribute("precioProducto", precioProducto); 
+                        request.setAttribute("stockProducto", stockProducto); 
+                    } else {
+                        request.setAttribute("codigoProducto", ""); 
+                        request.setAttribute("precioProducto", ""); 
+                        request.setAttribute("stockProducto", ""); 
+                    }
+                    
+                    request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
+                } catch (SQLException ex) {
+                    System.out.println("Error de SQL..." + ex.getMessage());
+                } finally {
+                    conBD.Discconet();
+                }
+                break;
+                
             default:
 
         }
