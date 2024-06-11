@@ -80,16 +80,16 @@
         }
         .tabla {
             width: 70%;
-            margin: 20px 0; /* Add margin to separate the tables */
+            margin: 20px 0; 
         }
         .titulo {
             font-size: 10vh;
             text-align: center;
-            margin-bottom: 20px; /* Add margin to separate the title */
+            margin-bottom: 20px; 
         }
         .content-container {
             display: flex;
-            justify-content: space-around; /* Change to space-around for better spacing */
+            justify-content: space-around;
             width: 100%;
         }
         .card {
@@ -102,7 +102,7 @@
         }
         
         .table td{
-            padding: 15px; /* Add padding to table cells for more space */
+            padding: 15px; 
         }
     </style>
 </head>
@@ -138,37 +138,38 @@
                                         </div>
                                     </div>
                                 </form>
-                                <form action="ControlerProducto" method="post">
+                                
                                     <div class="card-body">
                                         <div class="form-group">
                                             <label>Datos del Producto</label>
                                         </div>
+                                        <form action="ControlerProducto" method="post">
                                         <input type="hidden" name="Op" value="BuscarProducto"> 
                                         <div class="form-group row" style="margin:5px">
                                             <div class="col-sm-8">
-                                                <input type="text" name="nombreProducto" class="form-control" placeholder="Nombre del Producto">
+                                                <input type="text" id="nombreProducto" name="nombreProducto" class="form-control" placeholder="Nombre del Producto">
                                             </div>
                                             <div class="col-sm-4">
                                                 <input type="submit" name="accion" value="Buscar" class="btn btn-outline-info btn-block">
                                             </div>
                                             <div class="col-sm-8" style="margin-top:10px;">
-                                                <input type="text" name="codigo" class="form-control" placeholder="Código del Producto" value="${codigoProducto}">
+                                                <input type="text" id="codigo" name="codigo" class="form-control" placeholder="Código del Producto" value="${codigoProducto}">
                                             </div>
                                             <div class="col-sm-8" style="margin-top:10px;">
-                                                <input type="text" name="precio" class="form-control" placeholder="Precio del Producto" value="${precioProducto}">
+                                                <input type="text" id="precio" name="precio" class="form-control" placeholder="Precio del Producto" value="${precioProducto}">
                                             </div>
                                             <div class="col-sm-3">
-                                                <input type="number" value="1" name="cant" placeholder="" class="form-control">
+                                                <input type="number" id="cant" value="1" name="cant" placeholder="" class="form-control">
                                             </div>
                                             <div class="col-sm-8" style="margin-top:10px;">
-                                                <input type="text" name="stock" class="form-control" placeholder="Stock del Producto" value="${stockProducto}">
+                                                <input type="text" id="stock" name="stock" class="form-control" placeholder="Stock del Producto" value="${stockProducto}">
                                             </div>
                                         </div>
                                             
-                                            <!<!-- BOTON AGREGAR PRODUCTO AL REGISTRO -->
-                                        <div class="form-group">
-                                           
-                                            <button type="submit" name="accion" value="Agregar" class="btn btn-outline-primary">AgregarProducto</button>
+                                            
+                                        <!-- BOTON AGREGAR PRODUCTO AL REGISTRO -->
+                                        <div class="form-group">                                            
+                                            <button type="button" onclick="agregarProducto();" class="btn btn-outline-primary">Agregar Producto</button>
                                         </div>
                                     </div>
                                 </form>
@@ -183,27 +184,27 @@
                                     <input type="text" name="" class="form-control">
                                 </div>
                                 <br>
-                                <table class="table table-hover">
+                                <table id="cuerpoTabla" class="table table-hover">
                                     <thead>
                                         <tr>
                                             <th>Nro</th>
                                             <th>Codigo</th>
-                                            <th>Descripcion</th>
+                                            <th>Nombre</th>
                                             <th>Precio</th>
                                             <th>Cantidad</th>
                                             <th>SubTotal</th>
                                             <th>Acciones</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
+                                    <tbody style="display: none;" id="filaOculta">
                                         <tr>
-                                            <td></td>
-                                            <td></td>
-                                            <td></td>
-                                            <td></td>
-                                            <td></td>
-                                            <td></td>
-                                            <td></td>
+                                            <td class="numero"></td>
+                                            <td class="codigo"></td>
+                                            <td class="nombreProducto"></td>
+                                            <td class="precio"></td>
+                                            <td class="cantidad"></td>
+                                            <td class="subtotal"></td>
+                                            <td class="acciones"></td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -223,6 +224,36 @@
             </div>
         </div>
     </div>
+    <script>
+    var numeroFila = 1;
+
+function agregarProducto() {
+    var codigoProducto = document.querySelector('input[name="codigo"]').value;
+    var nombreProducto = document.querySelector('input[name="nombreProducto"]').value;
+    var precioProducto = document.querySelector('input[name="precio"]').value;
+    var cantidadProducto = document.querySelector('input[name="cant"]').value;
+    var stockProducto = document.querySelector('input[name="stock"]').value;
+
+    // Crear una nueva fila de producto
+    var nuevaFila = "<tr>" +
+        "<td>" + numeroFila + "</td>" + 
+        "<td>" + codigoProducto + "</td>" +
+        "<td>" + nombreProducto + "</td>" +
+        "<td>" + precioProducto + "</td>" +
+        "<td>" + cantidadProducto + "</td>" +
+        "<td>" + (precioProducto * cantidadProducto) + "</td>" +
+        "<td><button onclick='eliminarFila(this)' class='btn btn-danger'>Eliminar</button></td>" +
+        "</tr>";
+
+    // Incrementar el número de fila
+    numeroFila++;
+
+    // Agregar la nueva fila a la tabla
+    document.getElementById('cuerpoTabla').insertAdjacentHTML('beforeend', nuevaFila);
+}
+</script>
+
+
     <%@ include file="ModalSesionExpirada.jsp" %>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
