@@ -189,24 +189,21 @@ public class ControlerCliente extends HttpServlet {
                 break;
 
                 
-                case "BuscarProducto":
-                String nombreProducto = request.getParameter("nombreProducto");
+                case "BuscarCliente":
+                String dniCliente = request.getParameter("dni");
                 try {
-                    sql = "SELECT Id_Prod, precio, cantidad FROM t_producto WHERE Descripcion = ?";
+                    sql = "SELECT Nombres, Apellidos FROM t_cliente WHERE DNI = ?";
                     ps = conn.prepareStatement(sql);
-                    ps.setString(1, nombreProducto);
+                    ps.setString(1, dniCliente);
                     rs = ps.executeQuery();
                     if (rs.next()) {
-                        String codigoProducto = rs.getString("Id_Prod");
-                        String precioProducto = rs.getString("precio");
-                        String stockProducto = rs.getString("cantidad");
-                        request.setAttribute("codigoProducto", codigoProducto); 
-                        request.setAttribute("precioProducto", precioProducto); 
-                        request.setAttribute("stockProducto", stockProducto); 
+                        String nombreCliente = rs.getString("Nombres");
+                        String apellidosCliente = rs.getString("Apellidos");
+                        request.setAttribute("nombreCliente", nombreCliente);
+                        request.setAttribute("apellidosCliente", apellidosCliente); 
                     } else {
-                        request.setAttribute("codigoProducto", ""); 
-                        request.setAttribute("precioProducto", ""); 
-                        request.setAttribute("stockProducto", ""); 
+                        request.setAttribute("nombreCliente", ""); 
+                        request.setAttribute("apellidosCliente", ""); 
                     }
                     
                     request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
