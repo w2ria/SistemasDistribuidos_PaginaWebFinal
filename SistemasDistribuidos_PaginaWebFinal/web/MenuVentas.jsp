@@ -107,9 +107,8 @@
     </style>
 </head>
 
+
 <body>
-    <% String idUsuario4 = (String) request.getAttribute("Id_Usuario");
-    System.out.println("Usuario traido hacia jsp: " + idUsuario4); %>
     <%@ include file="NavBar.jsp" %>
     <div class="navMasContenido">
         <div class="Contenido">
@@ -118,44 +117,62 @@
                 <div class="content-container">
                     <div class="col-sm-4">
                         <div class="card">
-                            <form action="" method="Post">
-                                <div class="card-body">
-                                    <div class="form-group">
-                                        <label>Datos del Cliente</label>
-                                    </div>
-                                    
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <label>Datos del Cliente</label>
+                                </div>
+                                <form action="ControlerCliente" method="post"> 
+                                    <input type="hidden" name="Op" value="BuscarCliente"> 
                                     <div class="form-group row" style="margin:5px">
-                                        <div class="col-sm-8" >
+                                        <div class="col-sm-8">
                                             <input type="text" name="dni" class="form-control" placeholder="DNI del Cliente">
                                         </div>
-                                        <div class="col-sm-4" >
+                                        <div class="col-sm-4">
                                             <input type="submit" name="accion" value="Buscar" class="btn btn-outline-info btn-block">
                                         </div>
-                                    </div>
-                                    <div class="form-group" style="margin:10px">
-                                        <label>Datos Productos</label>
-                                    </div>
-                                    <div class="form-group row" style="margin:5px">
-                                        <div class="col-sm-8" >
-                                            <input type="text" name="producto" class="form-control" placeholder="Producto">
+                                        <div class="col-sm-8">
+                                            <input type="text" name="nombre" class="form-control" placeholder="Nombre del Cliente" value="${nombreCliente}">
                                         </div>
-                                        <div class="col-sm-4" >
-                                            <input type="submit" name="accion" value="Buscar" class="btn btn-outline-info btn-block">
+                                        <div class="col-sm-8" style="margin-top:10px;">
+                                            <input type="text" name="apellidos" class="form-control" placeholder="Apellidos del Cliente" value="${apellidosCliente}">
                                         </div>
                                     </div>
-                                    <div class="form-group row" style="margin:5px">
-                                        <div class="col-sm-6 d-flex">
-                                            <input type="text" name="precio" class="form-control" placeholder="S/.0.00">
+                                </form>
+                                <form action="ControlerProducto" method="post">
+                                    <div class="card-body">
+                                        <div class="form-group">
+                                            <label>Datos del Producto</label>
                                         </div>
-                                        <div class="col-sm-3">
-                                            <input type="number" name="cant" placeholder="" class="form-control">
+                                        <input type="hidden" name="Op" value="BuscarProducto"> 
+                                        <div class="form-group row" style="margin:5px">
+                                            <div class="col-sm-8">
+                                                <input type="text" name="nombreProducto" class="form-control" placeholder="Nombre del Producto">
+                                            </div>
+                                            <div class="col-sm-4">
+                                                <input type="submit" name="accion" value="Buscar" class="btn btn-outline-info btn-block">
+                                            </div>
+                                            <div class="col-sm-8" style="margin-top:10px;">
+                                                <input type="text" name="codigo" class="form-control" placeholder="Código del Producto" value="${codigoProducto}">
+                                            </div>
+                                            <div class="col-sm-8" style="margin-top:10px;">
+                                                <input type="text" name="precio" class="form-control" placeholder="Precio del Producto" value="${precioProducto}">
+                                            </div>
+                                            <div class="col-sm-3">
+                                                <input type="number" value="1" name="cant" placeholder="" class="form-control">
+                                            </div>
+                                            <div class="col-sm-8" style="margin-top:10px;">
+                                                <input type="text" name="stock" class="form-control" placeholder="Stock del Producto" value="${stockProducto}">
+                                            </div>
+                                        </div>
+                                            
+                                            <!<!-- BOTON AGREGAR PRODUCTO AL REGISTRO -->
+                                        <div class="form-group">
+                                           
+                                            <button type="submit" name="accion" value="Agregar" class="btn btn-outline-primary">AgregarProducto</button>
                                         </div>
                                     </div>
-                                    <div class="form-group">
-                                        <input type="submit" name="accion" value="Agregar" class="btn btn-outline-info">
-                                    </div>
-                                </div>
-                            </form>
+                                </form>
+                            </div>
                         </div>
                     </div>
                     <div class="col-sm-7">
@@ -168,26 +185,26 @@
                                 <br>
                                 <table class="table table-hover">
                                     <thead>
-                                    <tr>
-                                        <th>Nro</th>
-                                        <th>Codigo</th>
-                                        <th>Descripcion</th>
-                                        <th>Precio</th>
-                                        <th>Cantidad</th>
-                                        <th>SubTotal</th>
-                                        <th>Acciones</th>
-                                    </tr>
+                                        <tr>
+                                            <th>Nro</th>
+                                            <th>Codigo</th>
+                                            <th>Descripcion</th>
+                                            <th>Precio</th>
+                                            <th>Cantidad</th>
+                                            <th>SubTotal</th>
+                                            <th>Acciones</th>
+                                        </tr>
                                     </thead>
                                     <tbody>
-                                    <tr>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                    </tr>
+                                        <tr>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
                                     </tbody>
                                 </table>
                             </div>
