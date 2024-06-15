@@ -431,19 +431,22 @@
         window.location.href = "MenuVentas.jsp"; // Redireccionar a menu ventas
     }
     
-     function limpiarCliente() {
-            $.ajax({
-                url: 'ControlerVenta',
-                type: 'POST',
-                data: {
-                    Op: 'LimpiarCliente'
-                },
-                success: function(response) {
-                    // Recargar la página mostrase los cambios
-                    location.reload();
-                }
-            });
-        }
+      function limpiarCliente() {
+        $.ajax({
+            url: 'ControlerVenta',
+            type: 'POST',
+            data: {
+                Op: 'LimpiarCliente'
+            },
+            success: function(response) {
+                
+                document.getElementsByName('dni')[0].value = '';
+                document.getElementsByName('nombre')[0].value = '';
+                document.getElementsByName('apellidos')[0].value = '';
+                
+            }
+        });
+    }
     
 </script>
 
