@@ -69,8 +69,14 @@ public class ControlerUsuario extends HttpServlet {
                     
                     Lista.add(usuario);
                 }
-                request.setAttribute("Nombre", nombre);
-                request.setAttribute("IdUsuario", id);
+                
+                
+                String id2= request.getParameter("id");
+                String nom = request.getParameter("nom");
+                request.setAttribute("Nombre", nom);
+                request.setAttribute("Id_Usuario", id2);
+                
+                
                 request.setAttribute("Lista", Lista);
                 request.getRequestDispatcher("MenuUsuarios.jsp").forward(request, response);
             } catch (SQLException ex) {
