@@ -19,6 +19,7 @@
     boolean isProductos = currentPage.contains("MenuProductos.jsp");
     boolean isPedidos = currentPage.contains("MenuPedidos.jsp");
     boolean isUsuarios = currentPage.contains("MenuUsuarios.jsp");
+    boolean isVentas = currentPage.contains("MenuVentas.jsp");
 %>
 <body style="display: flex"> 
     <div id="sidebar1" class="btnDesplegable" style="background-color: #f0f0f0">
@@ -37,7 +38,7 @@
             <i class="fa-solid fa-cart-shopping"></i>
             <h1>Pedidos</h1>
         </a>
-        <a class="cajas" href="MenuVentas.jsp" style="text-decoration: none; color: black;">
+        <a class="cajas" href="MenuVentas.jsp" style="text-decoration: none; color: black; <%= isVentas ? "background-color: #87ceeb" : ""%>">
             <i class="fa-solid fa-clipboard"></i>
             <h1>Ventas</h1>
         </a>
@@ -69,7 +70,7 @@
             <i class="fa-solid fa-cart-shopping"></i>
             <h1 style="font-size: 3.5vh;">Pedidos</h1>
         </a>
-        <a class="cajas" href="MenuVentas.jsp" style="flex-direction: row; text-decoration: none; color: black;">
+        <a class="cajas" href="MenuVentas.jsp" style="flex-direction: row; text-decoration: none; color: black;<%= isVentas ? "background-color: #87ceeb" : ""%>">
             <i class="fa-solid fa-clipboard"></i>
             <h1 style="font-size: 3.5vh;">Ventas</h1>
         </a>
