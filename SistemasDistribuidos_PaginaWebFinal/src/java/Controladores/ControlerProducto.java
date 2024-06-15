@@ -50,7 +50,7 @@ public class ControlerProducto extends HttpServlet {
                 String id = (String) session.getAttribute("IdUsuario");
                 String nombre = (String) session.getAttribute("Nombre");
                 System.out.println("EL NOMBRE que llega al servlet es ES:" +nombre);
-                System.out.println("EL id traido es: "+id);
+                System.out.println("EL id traido es 500: "+id);
                 try {
                 sql = "SELECT * FROM t_producto";
                 ps = conn.prepareStatement(sql);
@@ -66,7 +66,7 @@ public class ControlerProducto extends HttpServlet {
                     producto.setEstado(rs.getString("estado"));
                     Lista.add(producto);
                 }
-                request.setAttribute("IdUsuario", id);
+                request.setAttribute("Id_Usuario", id);
                 request.setAttribute("Nombre", nombre);
                 request.setAttribute("Lista", Lista);
                 
