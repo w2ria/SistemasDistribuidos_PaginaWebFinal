@@ -1,5 +1,7 @@
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
+
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+
 
 <!DOCTYPE html>
 <html>
@@ -8,6 +10,7 @@
     <title>Ventas</title>
     <script src="https://kit.fontawesome.com/26a3cc7edf.js" crossorigin="anonymous"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <style>
         * {
             margin: 0px;
@@ -107,9 +110,11 @@
     </style>
 </head>
 
-
 <body>
+     <%String idUsuario4 = (String) request.getAttribute("Id_Usuario");
+     System.out.println("Usuario traido hacia jsp"+idUsuario4);%>
     <%@ include file="NavBar.jsp" %>
+    
     <div class="navMasContenido">
         <div class="Contenido">
             <div class="tabla">
@@ -121,58 +126,96 @@
                                 <div class="form-group">
                                     <label>Datos del Cliente</label>
                                 </div>
-                                <form action="ControlerCliente" method="post"> 
+                                <form action="ControlerVenta" method="post"> 
                                     <input type="hidden" name="Op" value="BuscarCliente"> 
                                     <div class="form-group row" style="margin:5px">
-                                        <div class="col-sm-8">
-                                            <input type="text" name="dni" class="form-control" placeholder="DNI del Cliente">
+                                         <div class="col-sm-8" style="margin-top:10px;">
+                                            <input type="text" name="dni" class="form-control" placeholder="DNI del Cliente" value="${sessionScope.dniCliente}">
                                         </div>
                                         <div class="col-sm-4">
                                             <input type="submit" name="accion" value="Buscar" class="btn btn-outline-info btn-block">
                                         </div>
+                                        
                                         <div class="col-sm-8">
-                                            <input type="text" name="nombre" class="form-control" placeholder="Nombre del Cliente" value="${nombreCliente}">
+                                            <input type="text" name="nombre" class="form-control" placeholder="Nombre del Cliente" value="${sessionScope.nombreCliente}">
                                         </div>
                                         <div class="col-sm-8" style="margin-top:10px;">
-                                            <input type="text" name="apellidos" class="form-control" placeholder="Apellidos del Cliente" value="${apellidosCliente}">
+                                            <input type="text" name="apellidos" class="form-control" placeholder="Apellidos del Cliente" value="${sessionScope.apellidosCliente}">
+                                        </div>
+                                       <div class="col-sm-4" style="margin-top:10px;">
+                                            <button type="button" class="btn btn-outline-secondary btn-block" onclick="limpiarCliente()" style="font-size: 95%;">Limpiar</button>
+                                        </div>
+
+                                       
+                                    </div>
+                                </form>
+                                        <!-- Modal Cliente no Registrado-->
+                                    <c:if test="${not empty requestScope.mensajeClienteNoRegistrado}">
+                                        <div class="modal_cli" id="clienteNoRegistradoModal" style="display: block;">
+                                            <div class="modal-content">
+                                                <span class="close">&times;</span>
+                                                <p>${requestScope.mensajeClienteNoRegistrado}</p>
+                                            </div>
+                                        </div>
+                                    </c:if>
+
+                                
+                                
+                                <div class="form-group">
+                                    <label>Buscar Producto</label>
+                                </div>
+                                <form action="ControlerVenta" method="post">
+                                    <input type="hidden" name="Op" value="BuscarProducto"> 
+                                    <div class="form-group row" style="margin:5px">
+                                        <div class="col-sm-8">
+                                            <input type="text" id="nombreProducto" name="nombreProducto" class="form-control" placeholder="Nombre del Producto" value="${nombreProducto}">
+                                        </div>
+                                        <div class="col-sm-4">
+                                            <input type="submit" name="accion" value="Buscar" class="btn btn-outline-info btn-block">
                                         </div>
                                     </div>
                                 </form>
-                                
-                                    <div class="card-body">
-                                        <div class="form-group">
-                                            <label>Datos del Producto</label>
+                                <!-- Modal Producto no Registrado-->
+                                    <c:if test="${not empty requestScope.mensajeProductoNoRegistrado}">
+                                        <div class="modal_cli" id="ProductoNoRegistradoModal" style="display: block;">
+                                            <div class="modal-content">
+                                                <span class="close">&times;</span>
+                                                <p>${requestScope.mensajeProductoNoRegistrado}</p>
+                                            </div>
                                         </div>
-                                        <form action="ControlerProducto" method="post">
-                                        <input type="hidden" name="Op" value="BuscarProducto"> 
+                                    </c:if>
+                                
+                                <%-- para mostar el producto seleccionado para agregar a la venta --%>
+                                <c:if test="${not empty nombreProducto}">
+                                    <div class="form-group">
+                                        <label>Datos del Producto</label>
+                                    </div>
+                                    <form action="ControlerVenta" method="post" onsubmit="return validarCantidadProducto()">
+                                        <input type="hidden" name="Op" value="AgregarProducto">
+                                        <input type="hidden" name="codigoProducto" value="${codigoProducto}">
+                                        <input type="hidden" name="nombreProducto" value="${nombreProducto}">
+                                        <input type="hidden" name="precioProducto" value="${precioProducto}">
+                                        <input type="hidden" name="stockProducto" value="${stockProducto}">
                                         <div class="form-group row" style="margin:5px">
                                             <div class="col-sm-8">
-                                                <input type="text" id="nombreProducto" name="nombreProducto" class="form-control" placeholder="Nombre del Producto" value="${nombreProducto}">
+                                                <input type="text" id="codigo" name="codigoProducto" class="form-control" placeholder="Código del Producto" value="${codigoProducto}">
                                             </div>
-                                            <div class="col-sm-4">
-                                                <input type="submit" name="accion" value="Buscar" class="btn btn-outline-info btn-block">
+                                            <div class="col-sm-8">
+                                                <input type="text" id="precio" name="precioProducto" class="form-control" placeholder="Precio del Producto" value="${precioProducto}">
                                             </div>
+                                          <div class="col-sm-3">
+                                            <input type="number" id="cant" value="1" name="cantidadProducto" placeholder="" class="form-control" style="width: 80px;">
+                                        </div>
+
                                             <div class="col-sm-8" style="margin-top:10px;">
-                                                <input type="text" id="codigo" name="codigo" class="form-control" placeholder="Código del Producto" value="${codigoProducto}">
-                                            </div>
-                                            <div class="col-sm-8" style="margin-top:10px;">
-                                                <input type="text" id="precio" name="precio" class="form-control" placeholder="Precio del Producto" value="${precioProducto}">
-                                            </div>
-                                            <div class="col-sm-3">
-                                                <input type="number" id="cant" value="1" name="cant" placeholder="" class="form-control">
-                                            </div>
-                                            <div class="col-sm-8" style="margin-top:10px;">
-                                                <input type="text" id="stock" name="stock" class="form-control" placeholder="Stock del Producto" value="${stockProducto}">
+                                                <input type="text" id="stock" name="stockProducto" class="form-control" placeholder="Stock del Producto" value="${stockProducto}">
                                             </div>
                                         </div>
-                                            
-                                            
-                                        <!-- BOTON AGREGAR PRODUCTO AL REGISTRO -->
                                         <div class="form-group">                                            
-                                            <button type="button" onclick="agregarProducto();" class="btn btn-outline-primary">Agregar Producto</button>
+                                            <button type="submit" class="btn btn-outline-primary">Agregar Producto</button>
                                         </div>
-                                    </div>
-                                </form>
+                                    </form>
+                                </c:if>
                             </div>
                         </div>
                     </div>
@@ -180,9 +223,10 @@
                         <div class="card">
                             <div class="card-body">
                                 <div class="d-flex col-sm-5 ml-auto">
-                                    <label>Nro.Serie: </label>
-                                    <input type="text" name="" class="form-control">
+                                    <label>Nro.Serie Anterior: </label>
+                                    <input type="text" name="" class="form-control" value="${sessionScope.idPedido}" readonly>
                                 </div>
+
                                 <br>
                                 <table id="cuerpoTabla" class="table table-hover">
                                     <thead>
@@ -196,66 +240,298 @@
                                             <th>Acciones</th>
                                         </tr>
                                     </thead>
-                                    <tbody style="display: none;" id="filaOculta">
-                                        <tr>
-                                            <td class="numero"></td>
-                                            <td class="codigo"></td>
-                                            <td class="nombreProducto"></td>
-                                            <td class="precio"></td>
-                                            <td class="cantidad"></td>
-                                            <td class="subtotal"></td>
-                                            <td class="acciones"></td>
-                                        </tr>
+                                    <tbody>
+                                        <c:forEach var="venta" items="${sessionScope.listaVentas}">
+                                            <tr>
+                                                <td>${venta.index}</td>
+                                                <td>${venta.codigoProducto}</td>
+                                                <td>${venta.nombreProducto}</td>
+                                                <td>${venta.precioProducto}</td>
+                                                <td>${venta.cantidadProducto}</td>
+                                                <td>${venta.subtotal}</td>
+                                               <td>
+                                                    <!-- Enlaces para editar y eliminar productos -->
+                                                    <a href="ControlerVenta?Op=EditarProducto&index=${venta.index}" class="btn btn-info btn-sm">Editar</a>
+                                                    <a href="ControlerVenta?Op=EliminarProducto&index=${venta.index}" class="btn btn-danger btn-sm">Eliminar</a>
+                                                </td>
+                                            </tr>
+                                        </c:forEach>
                                     </tbody>
                                 </table>
                             </div>
                             <div class="card-footer d-flex">
-                                <div class="col-sm-6">
-                                    <input type="submit" name="" value="Generar Venta" class="btn btn-success">
-                                    <input type="submit" name="" value="Cancelar" class="btn btn-danger">
-                                </div>
-                                <div class="col-sm-3 ml-auto">
-                                    <input type="text" name="" value="" class="form-control">
-                                </div>
+                                <form action="ControlerVenta" method="post" onsubmit="return validarFormulario()">
+                                    <input type="hidden" name="Op" value="GenerarVenta">
+                                    <input type="submit" value="Generar Venta" class="btn btn-success">
+                                </form>
+
+                                <form action="ControlerVenta" method="post" style="margin-left: 10px;">
+                                    <input type="hidden" name="Op" value="CancelarVenta">
+                                    <input type="submit" value="Cancelar" class="btn btn-danger">
+                                </form>
+                            <div class="col-sm-3 ml-auto">
+                                <input type="text" name="totalCompra" id="totalCompra" class="form-control" value="S/. ${totalCompra}0">
                             </div>
+                        </div>
+
+
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    
+        <div id="ventaGuardadaModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="cerrarModal('ventaGuardadaModal')">&times;</span>
+        <p>Venta generada correctamente.</p>
+    </div>
+</div>
+
+
+       <!-- Modal Campos Vacíos-->
+        <div class="modal" id="camposVaciosModal">
+    <div class="modal-content">
+        <span class="close" onclick="cerrarModal('camposVaciosModal')">&times;</span>
+        <p>Por favor, complete todos los campos antes de registrar la venta.</p>
+    </div>
+</div>
+
+
+         <!-- Modal Sin Productos -->
+    <c:if test="${not empty requestScope.mensajeSinProductos}">
+        <div id="productosVaciosModal" class="modal" style="display: block;">
+            <div class="modal-content">
+                <span class="close" onclick="cerrarModal('productosVaciosModal')">&times;</span>
+                <p>${requestScope.mensajeSinProductos}</p>
+            </div>
+        </div>
+    </c:if>
+         
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script>
-    var numeroFila = 1;
+         
+        document.addEventListener("DOMContentLoaded", function() {
+            // Mostrar modal de cliente no registrado si está presente
+            if ("${not empty requestScope.mensajeClienteNoRegistrado}") {
+                document.getElementById("clienteNoRegistradoModal").style.display = 'block';
+                setTimeout(function() {
+                    document.getElementById("clienteNoRegistradoModal").style.display = 'none';
+                }, 5000);
+            }
 
-function agregarProducto() {
-    var codigoProducto = document.querySelector('input[name="codigo"]').value;
-    var nombreProducto = document.querySelector('input[name="nombreProducto"]').value;
-    var precioProducto = document.querySelector('input[name="precio"]').value;
-    var cantidadProducto = document.querySelector('input[name="cant"]').value;
-    var stockProducto = document.querySelector('input[name="stock"]').value;
+            
+        });
+        
+        document.addEventListener("DOMContentLoaded", function() {
+            
+            // Mostrar modal de productos no encontrados
+            if ("${not empty requestScope.mensajeProductoNoRegistrado}") {
+                document.getElementById("ProductoNoRegistradoModal").style.display = 'block';
+                setTimeout(function() {
+                    document.getElementById("ProductoNoRegistradoModal").style.display = 'none';
+                }, 5000);
+            }
+        });
+        
+        document.addEventListener("DOMContentLoaded", function() {
+            
+            // Mostrar modal sin productos
+            if ("${not empty requestScope.mensajeSinProductos}") {
+                document.getElementById("productosVaciosModal").style.display = 'block';
+                setTimeout(function() {
+                    document.getElementById("productosVaciosModal").style.display = 'none';
+                }, 5000);
+            }
+        });
+        
+        document.addEventListener("DOMContentLoaded", function() {
+            document.getElementById("camposVaciosModal");
+            setTimeout(function() {
+                 document.getElementById("camposVaciosModal").style.display = 'none';
+            }, 5000); // 5000 milisegundos = 5 segundos
+        });
+        
+       
 
-    // Crear una nueva fila de producto
-    var nuevaFila = "<tr>" +
-        "<td>" + numeroFila + "</td>" + 
-        "<td>" + codigoProducto + "</td>" +
-        "<td>" + nombreProducto + "</td>" +
-        "<td>" + precioProducto + "</td>" +
-        "<td>" + cantidadProducto + "</td>" +
-        "<td>" + (precioProducto * cantidadProducto) + "</td>" +
-        "<td><button onclick='eliminarFila(this)' class='btn btn-danger'>Eliminar</button></td>" +
-        "</tr>";
+        function cerrarModal(idModal) {
+            var modal = document.getElementById(idModal);
+            modal.style.display = "none";
+        }
 
-    // Incrementar el número de fila
-    numeroFila++;
+        function validarFormulario() {
+            if (${sessionScope.listaVentas == null || sessionScope.listaVentas.isEmpty()}) {
+                document.getElementById("productosVaciosModal").style.display = 'block';
+                return false; // Evitar el envío del formulario
+            }
+            return true;
+        }
+    
+        document.addEventListener("DOMContentLoaded", function() {
+          const modal = document.getElementById("ventaGuardadaModal");
+          const span = document.getElementsByClassName("close")[0];
 
-    // Agregar la nueva fila a la tabla
-    document.getElementById('cuerpoTabla').insertAdjacentHTML('beforeend', nuevaFila);
+          // Mostrar el modal 
+          if (window.location.search.includes("ventaGuardada=true")) {
+            modal.style.display = "block";
+            setTimeout(function() {
+                modal.style.display = "none";
+
+                window.location.href = "MenuVentas.jsp";
+            }, 5000); 
+          }
+
+        // Cerrar el modal con la X
+        span.onclick = function() {
+          modal.style.display = "none";
+          window.location.href = "MenuVentas.jsp"; 
+        }
+
+        // Cerrar el modal con clic fuera del modal
+        window.onclick = function(event) {
+          if (event.target == modal) {
+            modal.style.display = "none";
+            window.location.href = "MenuVentas.jsp"; 
+          }
+        }
+    });
+
+    function validarCantidadProducto() {
+    var cantidad = parseInt(document.getElementsByName('cantidadProducto')[0].value);
+    var stock = parseInt("${stockProducto}");
+
+    if (cantidad > stock) {
+        alert("La cantidad que desea comprar es mayor al stock disponible (" + stock + ")");
+        return false; // Evitar que se envíe el formulario
+    }
+    return true; // Permitir el envío del formulario si todo está correcto
 }
+
+
+    function validarFormulario() {
+        // Verificar si los campos obligatorios están vacíos
+        var dni = document.getElementsByName('dni')[0].value;
+        var nombre = document.getElementsByName('nombre')[0].value;
+        var apellidos = document.getElementsByName('apellidos')[0].value;
+
+
+        if (dni === '' || nombre === '' || apellidos === '' ) {
+            // Mostrar el modal de campos vacíos
+            document.getElementById('camposVaciosModal').style.display = 'block';
+            return false; // Evitar que se envíe el formulario
+        }
+        return true; // Permitir el envío del formulario si todo está completo 
+    }
+    
+    function cerrarModal(idModal) {
+        var modal = document.getElementById(idModal);
+        modal.style.display = "none";
+        window.location.href = "MenuVentas.jsp"; // Redireccionar a menu ventas
+    }
+    
+     function limpiarCliente() {
+            $.ajax({
+                url: 'ControlerVenta',
+                type: 'POST',
+                data: {
+                    Op: 'LimpiarCliente'
+                },
+                success: function(response) {
+                    // Recargar la página mostrase los cambios
+                    location.reload();
+                }
+            });
+        }
+    
 </script>
 
+
+<!-- CSS Modal Venta Generada -->
+<style>
+.modal {
+  display: none; 
+  position: fixed; 
+  z-index: 1; 
+  left: 0;
+  top: 0;
+  width: 100%; 
+  height: 100%; 
+  overflow: auto; 
+  background-color: rgba(0, 0, 0, 0.5); /* Fondo transparente negro */
+}
+
+.modal-content {
+  background-color: #fefefe;
+  margin: 15% auto; /* Centrado verticalmente */
+  padding: 20px;
+  border: 1px solid #888;
+  width: 50%; 
+  height: 10%;
+  position: relative; /* Para posicionar el X */
+}
+
+.close {
+  color: #aaa;
+  position: absolute; 
+  top: 10px;
+  right: 10px;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+
+ /* css para modal */
+    .modal_cli {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0,0.4);
+    }
+
+    .modal_cli-content {
+        background-color: #fefefe;
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 30%;
+        text-align: center;
+    }
+
+    .close_cli {
+        color: #aaaaaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+    }
+
+    .close_cli:hover,
+    .close_cli:focus {
+        color: #000;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+</style>
+                
+</body>
 
     <%@ include file="ModalSesionExpirada.jsp" %>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-0pUGZvbkm6XF6gxjEnlmuGrJXVbNuzT9qBBavbLwCsOGabYfZo0T0to5eqruptLy" crossorigin="anonymous"></script>
-</body>
+    
 </html>
