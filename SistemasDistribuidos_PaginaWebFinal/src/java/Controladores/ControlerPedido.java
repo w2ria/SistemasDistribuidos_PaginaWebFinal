@@ -22,6 +22,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 @WebServlet(name = "ControlerPedido", urlPatterns = {"/ControlerPedido"})
 public class ControlerPedido extends HttpServlet {
@@ -33,14 +34,14 @@ public class ControlerPedido extends HttpServlet {
         ArrayList<DetallePedido> detalles = new ArrayList<>();
         Conexion conexion = new Conexion();
         Connection con = conexion.Conexion();
-
+        Pedido pedido = new Pedido();
         try {
             Statement stmt = con.createStatement();
             String sql = "SELECT * FROM t_pedido";
             ResultSet rs = stmt.executeQuery(sql);
-
+            
             while (rs.next()) {
-                Pedido pedido = new Pedido();
+                
                 pedido.setIdPedido(rs.getString("Id_Pedido"));
                 pedido.setIdCliente(rs.getString("Id_Cliente"));
                 pedido.setIdUsuario(rs.getString("Id_Usuario"));
@@ -50,7 +51,7 @@ public class ControlerPedido extends HttpServlet {
                 pedidos.add(pedido);
             }
             rs.close();
-
+            
             
             sql = "SELECT * FROM t_detalle_pedido";
             rs = stmt.executeQuery(sql);
@@ -72,7 +73,9 @@ public class ControlerPedido extends HttpServlet {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
+        String id = request.getParameter("id");
+        String nom = request.getParameter("nom");
+        System.out.println("FFFF= "+nom);
         System.out.println("Número de pedidos recuperados: " + pedidos.size());
 
         request.setAttribute("pedidos", pedidos);
@@ -82,6 +85,10 @@ public class ControlerPedido extends HttpServlet {
         if ("Exportar".equals(operation)) {
             exportarPDF(response, pedidos);
         } else {
+            
+            request.setAttribute("Nombre", nom);
+            request.setAttribute("Id_Usuario", id);
+            System.out.println("El nombre es: XXX+"+nom);
             request.getRequestDispatcher("MenuPedidos.jsp").forward(request, response);
         }
     }
