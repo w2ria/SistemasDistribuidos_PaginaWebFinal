@@ -449,7 +449,19 @@
     }
     
 </script>
-
+<script>
+        function toggleSidebar() {/*Para el menu*/
+                const sidebar1 = document.getElementById('sidebar1');
+                const sidebar2 = document.getElementById('sidebar2');
+                if (sidebar1.style.transform === 'translateX(-100%)') {
+                    sidebar1.style.transform = 'translateX(0)';
+                    sidebar2.style.transform = 'translateX(-100%)';
+                } else {
+                    sidebar1.style.transform = 'translateX(-100%)';
+                    sidebar2.style.transform = 'translateX(0)';
+                }
+            }
+    </script>
 
 <!-- CSS Modal Venta Generada -->
 <style>
