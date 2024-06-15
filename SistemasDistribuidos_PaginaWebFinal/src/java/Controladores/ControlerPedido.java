@@ -51,7 +51,7 @@ public class ControlerPedido extends HttpServlet {
             }
             rs.close();
 
-            // Obtener los detalles de los pedidos
+            
             sql = "SELECT * FROM t_detalle_pedido";
             rs = stmt.executeQuery(sql);
 
@@ -73,13 +73,11 @@ public class ControlerPedido extends HttpServlet {
             e.printStackTrace();
         }
 
-        // Mensaje de depuración para ver si hay pedidos
         System.out.println("Número de pedidos recuperados: " + pedidos.size());
 
         request.setAttribute("pedidos", pedidos);
         request.setAttribute("detalles", detalles);
 
-        // Verificar si se está solicitando la exportación a PDF
         String operation = request.getParameter("Op");
         if ("Exportar".equals(operation)) {
             exportarPDF(response, pedidos);

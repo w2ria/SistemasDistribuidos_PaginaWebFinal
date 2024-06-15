@@ -126,7 +126,7 @@
                     </tbody>
                 </table>
                 
-                <!-- Modales para detalles de pedidos -->
+                
                 <c:forEach var="pedido" items="${pedidos}">
                     <div class="modal fade" id="modalDetalles${pedido.idPedido}" tabindex="-1" role="dialog" aria-labelledby="modalDetalles${pedido.idPedido}Label" aria-hidden="true">
                         <div class="modal-dialog modal-xl" role="document">

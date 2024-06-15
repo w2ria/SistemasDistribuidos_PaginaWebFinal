@@ -8,8 +8,6 @@ public class DetallePedido {
     private double precio;
     private double totalDeta;
 
-    // Getters y Setters
-
     public String getIdDetallePedido() {
         return idDetallePedido;
     }
