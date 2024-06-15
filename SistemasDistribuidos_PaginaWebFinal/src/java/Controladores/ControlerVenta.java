@@ -42,7 +42,14 @@ public class ControlerVenta extends HttpServlet {
         String sql;
 
         switch (opcion) {
-                
+                case "VerPagina":
+                        String id = request.getParameter("id");
+                        String nom = request.getParameter("nom");
+                        request.setAttribute("Nombre", nom);
+                        request.setAttribute("Id_Usuario", id);
+                        
+                        request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
+                break;
                 case "BuscarCliente":
                     String dniCliente = request.getParameter("dni");
                     try {
@@ -71,7 +78,7 @@ public class ControlerVenta extends HttpServlet {
                             session.removeAttribute("apellidosCliente");
                             
                         }
-
+                        
                         request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
                     } catch (SQLException ex) {
                         System.out.println("Error de SQL..." + ex.getMessage());
@@ -175,7 +182,9 @@ public class ControlerVenta extends HttpServlet {
                 session = request.getSession();
                 listaVentas = (ArrayList<Venta>) session.getAttribute("listaVentas");
                 request.setAttribute("listaVentas", listaVentas);
-
+                
+                
+                
                 request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
                 break;
             
