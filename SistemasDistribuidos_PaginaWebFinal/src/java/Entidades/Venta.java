@@ -14,18 +14,20 @@ public class Venta {
     private String nombreProducto;
     private double precioProducto;
     private int cantidadProducto;
+    private double totalDeta;
     private double subtotal;
     private double total;
     private int stockProducto;
     public Venta() {
     }
 
-    public Venta(int index, String codigoProducto, String nombreProducto, double precioProducto, int cantidadProducto, double subtotal, double total, int stockProducto) {
+    public Venta(int index, String codigoProducto, String nombreProducto, double precioProducto, int cantidadProducto, double totalDeta, double subtotal, double total, int stockProducto) {
         this.index = index;
         this.codigoProducto = codigoProducto;
         this.nombreProducto = nombreProducto;
         this.precioProducto = precioProducto;
         this.cantidadProducto = cantidadProducto;
+        this.totalDeta = totalDeta;
         this.subtotal = subtotal;
         this.total = total;
         this.stockProducto = stockProducto;
@@ -64,6 +66,14 @@ public class Venta {
 
     public void setCantidadProducto(int cantidadProducto) {
         this.cantidadProducto = cantidadProducto;
+    }
+
+    public double getTotalDeta() {
+        return totalDeta;
+    }
+
+    public void setTotalDeta(double totalDeta) {
+        this.totalDeta = totalDeta;
     }
 
     public double getSubtotal() {

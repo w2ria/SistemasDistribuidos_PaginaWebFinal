@@ -11,6 +11,7 @@
     <script src="https://kit.fontawesome.com/26a3cc7edf.js" crossorigin="anonymous"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
     <style>
         * {
             margin: 0px;
@@ -236,7 +237,7 @@
                                             <th>Nombre</th>
                                             <th>Precio</th>
                                             <th>Cantidad</th>
-                                            <th>SubTotal</th>
+                                            <th>Importe</th>
                                             <th>Acciones</th>
                                         </tr>
                                     </thead>
@@ -248,7 +249,7 @@
                                                 <td>${venta.nombreProducto}</td>
                                                 <td>${venta.precioProducto}</td>
                                                 <td>${venta.cantidadProducto}</td>
-                                                <td>${venta.subtotal}</td>
+                                                <td>${venta.totalDeta}</td>
                                                <td>
                                                     <!-- Enlaces para editar y eliminar productos -->
                                                     <a href="ControlerVenta?Op=EditarProducto&index=${venta.index}" class="btn btn-info btn-sm">Editar</a>
@@ -258,6 +259,16 @@
                                         </c:forEach>
                                     </tbody>
                                 </table>
+                            </div>
+                            <div class="col-sm-6 ml-auto">
+                                <div class="form-group d-flex">
+                                    <label class="mr-4">SubTotal: </label>
+                                    <input type="text" name="subtotalCompra" id="subtotalCompra" class="form-control form-control-sm" style="width: 100px;" value="S/. ${subtotal}">
+                                </div>
+                                <div class="form-group d-flex">
+                                    <label class="mr-4">IGV 18%:</label>
+                                    <input type="text" name="IGV" id="IGV" class="form-control form-control-sm" style="width: 100px;" value="S/. ${igv}">
+                                </div>
                             </div>
                             <div class="card-footer d-flex">
                                 <form action="ControlerVenta" method="post" onsubmit="return validarFormulario()">
@@ -269,11 +280,10 @@
                                     <input type="hidden" name="Op" value="CancelarVenta">
                                     <input type="submit" value="Cancelar" class="btn btn-danger">
                                 </form>
-                            <div class="col-sm-3 ml-auto">
-                                <input type="text" name="totalCompra" id="totalCompra" class="form-control" value="S/. ${totalCompra}0">
+                                <div class="col-sm-3 ml-auto">
+                                    <input type="text" name="totalCompra" id="totalCompra" class="form-control" value="S/. ${totalCompra}0">
+                                </div>
                             </div>
-                        </div>
-
 
                         </div>
                     </div>
@@ -282,21 +292,21 @@
         </div>
     </div>
     
-        <div id="ventaGuardadaModal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="cerrarModal('ventaGuardadaModal')">&times;</span>
-        <p>Venta generada correctamente.</p>
+    <div id="ventaGuardadaModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="cerrarModal('ventaGuardadaModal')">&times;</span>
+            <p>Venta generada correctamente.</p>
+        </div>
     </div>
-</div>
 
 
        <!-- Modal Campos Vacíos-->
         <div class="modal" id="camposVaciosModal">
-    <div class="modal-content">
-        <span class="close" onclick="cerrarModal('camposVaciosModal')">&times;</span>
-        <p>Por favor, complete todos los campos antes de registrar la venta.</p>
-    </div>
-</div>
+            <div class="modal-content">
+                <span class="close" onclick="cerrarModal('camposVaciosModal')">&times;</span>
+                <p>Por favor, complete todos los campos antes de registrar la venta.</p>
+            </div>
+        </div>
 
 
          <!-- Modal Sin Productos -->
@@ -449,18 +459,19 @@
     }
     
 </script>
-<script>
+    <script>
         function toggleSidebar() {/*Para el menu*/
-                const sidebar1 = document.getElementById('sidebar1');
-                const sidebar2 = document.getElementById('sidebar2');
-                if (sidebar1.style.transform === 'translateX(-100%)') {
+            const sidebar1 = document.getElementById('sidebar1');
+            const sidebar2 = document.getElementById('sidebar2');
+            if (sidebar1.style.transform === 'translateX(-100%)') {
                     sidebar1.style.transform = 'translateX(0)';
                     sidebar2.style.transform = 'translateX(-100%)';
-                } else {
-                    sidebar1.style.transform = 'translateX(-100%)';
-                    sidebar2.style.transform = 'translateX(0)';
-                }
+            } else {
+                sidebar1.style.transform = 'translateX(-100%)';
+                sidebar2.style.transform = 'translateX(0)';
             }
+        }
+
     </script>
 
 <!-- CSS Modal Venta Generada -->

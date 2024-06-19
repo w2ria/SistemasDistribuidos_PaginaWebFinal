@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import java.text.DecimalFormat;
 
 /**
  *
@@ -28,8 +29,17 @@ import javax.servlet.http.HttpSession;
  */
 @WebServlet(name = "ControlerVenta", urlPatterns = {"/ControlerVenta"})
 public class ControlerVenta extends HttpServlet {
-
-     private int detallePedidoCounter = 0;
+    
+    private String formatearDecimal(double valor) {
+        DecimalFormat df = new DecimalFormat("#.00");
+        return df.format(valor);
+    }
+    private double redondearDecimal(double valor) {
+        DecimalFormat df = new DecimalFormat("#.00");
+        return Double.valueOf(df.format(valor));
+    }
+    
+    private int detallePedidoCounter = 0;
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException, SQLException {
         
@@ -86,8 +96,6 @@ public class ControlerVenta extends HttpServlet {
                         conBD.Discconet();
                     }
                 break;
-
-
                 
                 case "BuscarProducto":
                 String nombreProducto = request.getParameter("nombreProducto");
@@ -149,8 +157,8 @@ public class ControlerVenta extends HttpServlet {
                         // Producto ya existe, incrementar cantidad
                         int nuevaCantidad = venta.getCantidadProducto() + cantidadProducto;
                         venta.setCantidadProducto(nuevaCantidad);
-                        double nuevoSubtotal = nuevaCantidad * venta.getPrecioProducto();
-                        venta.setSubtotal(nuevoSubtotal);
+                        double nuevototalDeta = nuevaCantidad * venta.getPrecioProducto();
+                        venta.setTotalDeta(nuevototalDeta); // Recalcular el importe
                         productoExiste = true;
                         break;
                     }
@@ -163,19 +171,26 @@ public class ControlerVenta extends HttpServlet {
                     venta.setNombreProducto(nombreProductoAgregar);
                     venta.setPrecioProducto(precioProducto);
                     venta.setCantidadProducto(cantidadProducto);
-                    double subtotal = precioProducto * cantidadProducto;
-                    venta.setSubtotal(subtotal);
-                    venta.setIndex(listaVentas.size() + 1); // Set the index for display
+                    double totalDeta = redondearDecimal(precioProducto * cantidadProducto);
+                    venta.setTotalDeta(totalDeta);
+                    venta.setIndex(listaVentas.size() + 1); 
                     listaVentas.add(venta);
                 }
 
                 session.setAttribute("listaVentas", listaVentas);
+                
+                double subtotal = calcularSubtotal(listaVentas);
+                double igv = calcularIGV(subtotal);
+                double totalCompra = calcularTotal(subtotal, igv);
 
-                double totalCompra = calcularTotal(listaVentas);
-                request.setAttribute("totalCompra", totalCompra);
+                request.setAttribute("subtotal", redondearDecimal(subtotal));
+                request.setAttribute("igv", redondearDecimal(igv));
+                request.setAttribute("totalCompra", formatearDecimal(totalCompra));
+                
 
                 request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
             break;
+
 
 
             case "Listar":
@@ -220,43 +235,40 @@ public class ControlerVenta extends HttpServlet {
             }
             break;
 
-        case "ActualizarProducto":
-    String indexActualizarParameter = request.getParameter("indexEditar");
-    if (indexActualizarParameter != null && !indexActualizarParameter.isEmpty()) {
-        int indexActualizar = Integer.parseInt(indexActualizarParameter);
-        HttpSession sessionActualizar = request.getSession();
-        listaVentas = (ArrayList<Venta>) sessionActualizar.getAttribute("listaVentas");
+            
+            case "ActualizarProducto":
+                String indexActualizarParameter = request.getParameter("indexEditar");
+                if (indexActualizarParameter != null && !indexActualizarParameter.isEmpty()) {
+                    int indexActualizar = Integer.parseInt(indexActualizarParameter);
+                    HttpSession sessionActualizar = request.getSession();
+                    listaVentas = (ArrayList<Venta>) sessionActualizar.getAttribute("listaVentas");
 
-        double precioProductoActualizar = Double.parseDouble(request.getParameter("precioProducto"));
-        int cantidadProductoActualizar = Integer.parseInt(request.getParameter("cantidadProducto"));
-        int stockProductoActualizar = Integer.parseInt(request.getParameter("stockProducto")); // Aquí obtienes el stock actualizado
+                    double precioProductoActualizar = Double.parseDouble(request.getParameter("precioProducto"));
+                    int cantidadProductoActualizar = Integer.parseInt(request.getParameter("cantidadProducto"));
+                    String nombreProductoActualizar = request.getParameter("nombreProducto");
 
-        if (indexActualizar > 0 && indexActualizar <= listaVentas.size()) {
-            Venta ventaActualizar = listaVentas.get(indexActualizar - 1);
-            ventaActualizar.setPrecioProducto(precioProductoActualizar);
-            ventaActualizar.setCantidadProducto(cantidadProductoActualizar);
-            // No necesitas setear el stockProducto en el objeto Venta, solo usarlo para actualizar en la base de datos
+                    Venta ventaActualizar = listaVentas.get(indexActualizar - 1); 
+                    ventaActualizar.setNombreProducto(nombreProductoActualizar); 
+                    ventaActualizar.setPrecioProducto(precioProductoActualizar);
+                    ventaActualizar.setCantidadProducto(cantidadProductoActualizar);
+                    double nuevoTotalDeta = redondearDecimal(precioProductoActualizar * cantidadProductoActualizar);
+                    ventaActualizar.setTotalDeta(nuevoTotalDeta); // Actualizar el importe
 
-            // Actualizar el stock del producto en la base de datos
-            // (Implementación de actualizarStockProductos() debería usar stockProductoActualizar)
-            actualizarStockProductos(listaVentas, conn);
+                    sessionActualizar.setAttribute("listaVentas", listaVentas);
 
-            double subtotalActualizar = precioProductoActualizar * cantidadProductoActualizar;
-            ventaActualizar.setSubtotal(subtotalActualizar);
+                    double subtotalActualizar = calcularSubtotal(listaVentas);
+                    double igvActualizar = calcularIGV(subtotalActualizar);
+                    double totalCompraActualizar = calcularTotal(subtotalActualizar, igvActualizar);
 
-            sessionActualizar.setAttribute("listaVentas", listaVentas);
+                    request.setAttribute("subtotal", formatearDecimal(subtotalActualizar));
+                    request.setAttribute("igv", formatearDecimal(igvActualizar));
+                    request.setAttribute("totalCompra", formatearDecimal(totalCompraActualizar));
+                    
 
-            double totalCompraActualizar = calcularTotal(listaVentas);
-            request.setAttribute("totalCompra", totalCompraActualizar);
+                    request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
+                }
+                break;
 
-            request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
-        } else {
-            // Manejo de error si el índice no es válido
-        }
-    } else {
-        // Manejo de error si no se proporciona indexEditar
-    }
-    break;
 
 
             case "EliminarProducto":
@@ -276,9 +288,8 @@ public class ControlerVenta extends HttpServlet {
                 }
  
                 sessionEliminar.setAttribute("listaVentas", listaVentas);
-   
-                double totalCompraEliminar = calcularTotal(listaVentas);
-                request.setAttribute("totalCompra", totalCompraEliminar);
+                
+                //fvfvgbg
 
                 request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
                 break;
@@ -344,15 +355,19 @@ public class ControlerVenta extends HttpServlet {
             String idPedido = generarNuevoIdPedido();
             idCliente = (String) session.getAttribute("idCliente"); // Obtener ID del cliente desde la sesión
             String idUsuario = request.getParameter("idUsuario");
-            double totalCompra = calcularTotal(listaVentas);
+            
+             // Calcular subtotal y IGV
+            double subtotal = calcularSubtotal(listaVentas);
+            double igv = calcularIGV(subtotal);
+            double totalCompra = calcularTotal(subtotal, igv);
 
             String sqlPedido = "INSERT INTO t_pedido (Id_Pedido, Id_Cliente, Id_Usuario, Fecha, SubTotal, TotalVenta) VALUES (?, ?, ?, NOW(), ?, ?)";
             psPedido = conn.prepareStatement(sqlPedido);
             psPedido.setString(1, idPedido);
             psPedido.setString(2, idCliente);
             psPedido.setString(3, idUsuario);
-            psPedido.setDouble(4, totalCompra);
-            psPedido.setDouble(5, totalCompra);
+            psPedido.setDouble(4, subtotal); //corregir por SubTotal sin IGV
+            psPedido.setDouble(5, totalCompra); //corregir por Total con IGV
             psPedido.executeUpdate();
 
             String sqlDetalle = "INSERT INTO t_detalle_pedido (Id_DetallePedido, Id_Pedido, Id_Prod, cantidad, precio, TotalDeta) VALUES (?, ?, ?, ?, ?, ?)";
@@ -365,7 +380,7 @@ public class ControlerVenta extends HttpServlet {
                 psDetalle.setString(3, venta.getCodigoProducto());
                 psDetalle.setInt(4, venta.getCantidadProducto());
                 psDetalle.setDouble(5, venta.getPrecioProducto());
-                psDetalle.setDouble(6, venta.getSubtotal());
+                psDetalle.setDouble(6, venta.getTotalDeta());
                 psDetalle.addBatch();
             }
 
@@ -552,11 +567,21 @@ public class ControlerVenta extends HttpServlet {
         return "Short description";
     }
 
-    private double calcularTotal(ArrayList<Venta> listaVentas) {
-        double total = 0.0;
+    private double calcularSubtotal(ArrayList<Venta> listaVentas) {
+        double subtotal = 0.0;
         for (Venta venta : listaVentas) {
-            total += venta.getSubtotal();
+            subtotal += venta.getTotalDeta();
         }
-        return total;
+        return redondearDecimal(subtotal);
+    }
+    
+    private double calcularIGV(double subtotal) {
+        double igv = subtotal * 0.18; // 18% de IGV
+        return redondearDecimal(igv);
+    }
+    
+    private double calcularTotal(double subtotal, double igv) {
+        double total = subtotal + igv;
+        return redondearDecimal(total);
     }
 }
