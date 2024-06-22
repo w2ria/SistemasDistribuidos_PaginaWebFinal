@@ -683,7 +683,7 @@ public class ControlerVenta extends HttpServlet {
         JSONArray productos = new JSONArray();
         PreparedStatement ps = null;
         ResultSet rs = null;
-        String sql = "SELECT Descripcion FROM t_producto WHERE Descripcion LIKE ? LIMIT 10";
+        String sql = "SELECT Descripcion FROM t_producto WHERE Descripcion LIKE ? LIMIT 10";   //se limita a solo buscar 10 datos
 
         try {
             ps = conn.prepareStatement(sql);
