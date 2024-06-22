@@ -1,4 +1,3 @@
-
 package Controladores;
 
 import Entidades.Venta;
@@ -8,6 +7,8 @@ import java.util.ArrayList;
 import Entidades.Usuario;
 import java.io.IOException;
 import java.io.PrintWriter;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -34,6 +35,7 @@ public class ControlerVenta extends HttpServlet {
         DecimalFormat df = new DecimalFormat("#.00");
         return df.format(valor);
     }
+    
     private double redondearDecimal(double valor) {
         DecimalFormat df = new DecimalFormat("#.00");
         return Double.valueOf(df.format(valor));
@@ -48,8 +50,22 @@ public class ControlerVenta extends HttpServlet {
         Conexion.Conexion conBD = new Conexion.Conexion();
         Connection conn = conBD.Conexion();
         PreparedStatement ps = null;
-        ResultSet rs;
+        ResultSet rs = null;
         String sql;
+        
+        HttpSession session = request.getSession();
+        listaVentas = (ArrayList<Venta>) session.getAttribute("listaVentas");
+        if (listaVentas == null) {
+            listaVentas = new ArrayList<>();
+        }
+        
+        double subtotal = calcularSubtotal(listaVentas);
+        double igv = calcularIGV(subtotal);
+        double totalCompra = calcularTotal(subtotal, igv);
+
+        request.setAttribute("subtotal", formatearDecimal(subtotal));
+        request.setAttribute("igv", formatearDecimal(igv));
+        request.setAttribute("totalCompra", formatearDecimal(totalCompra));
 
         switch (opcion) {
                 case "VerPagina":
@@ -72,7 +88,6 @@ public class ControlerVenta extends HttpServlet {
                             String nombreCliente = rs.getString("Nombres");
                             String apellidosCliente = rs.getString("Apellidos");
 
-                            HttpSession session = request.getSession();
                             session.setAttribute("idCliente", idCliente);
                             session.setAttribute("dniCliente", dniCliente);
                             session.setAttribute("nombreCliente", nombreCliente);
@@ -81,12 +96,10 @@ public class ControlerVenta extends HttpServlet {
                         } else {
                             request.setAttribute("mensajeClienteNoRegistrado", "Cliente no encontrado con DNI: " + dniCliente);
                             // Limpiar datos del cliente de la sesión en caso de no encontrarlo
-                            HttpSession session = request.getSession();
                             session.removeAttribute("idCliente");
                             session.removeAttribute("dniCliente");
                             session.removeAttribute("nombreCliente");
                             session.removeAttribute("apellidosCliente");
-                            
                         }
                         
                         request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
@@ -96,54 +109,58 @@ public class ControlerVenta extends HttpServlet {
                         conBD.Discconet();
                     }
                 break;
+
+
                 
-                case "BuscarProducto":
-                String nombreProducto = request.getParameter("nombreProducto");
+            case "BuscarProducto":
+                    String nombreProducto = request.getParameter("nombreProducto");
 
-                try {
-                    
-                    conn.createStatement().execute("SET CHARACTER SET utf8");
+                    try {
+                        conn.createStatement().execute("SET CHARACTER SET utf8");
 
-                    // el LOWER() es para las mayusculas y minuscls
-                    sql = "SELECT Id_Prod, precio, cantidad FROM t_producto WHERE LOWER(Descripcion) = ?";
-                    ps = conn.prepareStatement(sql);
+                        sql = "SELECT Id_Prod, precio, cantidad FROM t_producto WHERE LOWER(Descripcion) = ?";
+                        ps = conn.prepareStatement(sql);
 
-                  
-                    ps.setString(1, nombreProducto.toLowerCase());
-                    rs = ps.executeQuery();
+                        ps.setString(1, nombreProducto.toLowerCase());
+                        rs = ps.executeQuery();
 
-                    if (rs.next()) {
-                        String codigoProducto = rs.getString("Id_Prod");
-                        String precioProducto = rs.getString("precio");
-                        String stockProducto = rs.getString("cantidad");
-                        request.setAttribute("nombreProducto", nombreProducto);
-                        request.setAttribute("codigoProducto", codigoProducto);
-                        request.setAttribute("precioProducto", precioProducto);
-                        request.setAttribute("stockProducto", stockProducto);
-                    } else {
-                        request.setAttribute("mensajeProductoNoRegistrado", "Producto no encontrado" );
-                        
-                        request.setAttribute("codigoProducto", "");
-                        request.setAttribute("precioProducto", "");
-                        request.setAttribute("stockProducto", "");
+                        if (rs.next()) {
+                            String codigoProducto = rs.getString("Id_Prod");
+                            String precioProducto = rs.getString("precio");
+                            int stockProducto = rs.getInt("cantidad");
+
+                            Integer stockTemporal = (Integer) session.getAttribute("stock_" + codigoProducto);
+                            if (stockTemporal != null) {
+                                stockProducto = stockTemporal;
+                            }
+
+                            request.setAttribute("nombreProducto", nombreProducto);
+                            request.setAttribute("codigoProducto", codigoProducto);
+                            request.setAttribute("precioProducto", precioProducto);
+                            request.setAttribute("stockProducto", stockProducto);
+                        } else {
+                            request.setAttribute("mensajeProductoNoRegistrado", "Producto no encontrado");
+                            request.setAttribute("codigoProducto", "");
+                            request.setAttribute("precioProducto", "");
+                            request.setAttribute("stockProducto", "");
+                        }
+
+                        request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
+                    } catch (SQLException ex) {
+                        System.out.println("Error de SQL..." + ex.getMessage());
+                    } finally {
+                        conBD.Discconet();
                     }
+                break;
 
-                    
-                    request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
-                } catch (SQLException ex) {
-                    System.out.println("Error de SQL..." + ex.getMessage());
-                } finally {
-                    conBD.Discconet();
-                }
-            break;
-   
+
+            
             case "AgregarProducto":
                 String codigoProducto = request.getParameter("codigoProducto");
                 String nombreProductoAgregar = request.getParameter("nombreProducto");
                 double precioProducto = Double.parseDouble(request.getParameter("precioProducto"));
                 int cantidadProducto = Integer.parseInt(request.getParameter("cantidadProducto"));
 
-                HttpSession session = request.getSession();
                 listaVentas = (ArrayList<Venta>) session.getAttribute("listaVentas");
                 if (listaVentas == null) {
                     listaVentas = new ArrayList<>();
@@ -171,26 +188,38 @@ public class ControlerVenta extends HttpServlet {
                     venta.setNombreProducto(nombreProductoAgregar);
                     venta.setPrecioProducto(precioProducto);
                     venta.setCantidadProducto(cantidadProducto);
-                    double totalDeta = redondearDecimal(precioProducto * cantidadProducto);
+                    double totalDeta = precioProducto * cantidadProducto;
                     venta.setTotalDeta(totalDeta);
-                    venta.setIndex(listaVentas.size() + 1); 
+                    venta.setIndex(listaVentas.size() + 1);
                     listaVentas.add(venta);
                 }
 
                 session.setAttribute("listaVentas", listaVentas);
-                
-                double subtotal = calcularSubtotal(listaVentas);
-                double igv = calcularIGV(subtotal);
-                double totalCompra = calcularTotal(subtotal, igv);
 
-                request.setAttribute("subtotal", redondearDecimal(subtotal));
-                request.setAttribute("igv", redondearDecimal(igv));
+                // Guardar el stock original si no está guardado ya
+                if (session.getAttribute("stockOriginal_" + codigoProducto) == null) {
+                    int stockProducto = Integer.parseInt(request.getParameter("stockProducto"));
+                    session.setAttribute("stockOriginal_" + codigoProducto, stockProducto);
+                }
+
+                // Actualizar el stock temporalmente en la sesión
+                Integer stockActual = (Integer) session.getAttribute("stock_" + codigoProducto);
+                if (stockActual == null) {
+                    stockActual = Integer.parseInt(request.getParameter("stockProducto"));
+                }
+                stockActual -= cantidadProducto;
+                session.setAttribute("stock_" + codigoProducto, stockActual);
+
+                subtotal = calcularSubtotal(listaVentas);
+                igv = calcularIGV(subtotal);
+                totalCompra = calcularTotal(subtotal, igv);
+
+                request.setAttribute("subtotal", formatearDecimal(subtotal));
+                request.setAttribute("igv", formatearDecimal(igv));
                 request.setAttribute("totalCompra", formatearDecimal(totalCompra));
-                
 
                 request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
-            break;
-
+                break;
 
 
             case "Listar":
@@ -208,33 +237,67 @@ public class ControlerVenta extends HttpServlet {
             String indexParameter = request.getParameter("index");
             if (indexParameter != null && !indexParameter.isEmpty()) {
                 int indexEditar = Integer.parseInt(indexParameter);
-
-                
                 HttpSession sessionEditar = request.getSession();
                 listaVentas = (ArrayList<Venta>) sessionEditar.getAttribute("listaVentas");
 
-                
-                if (indexEditar > 0 && indexEditar <= listaVentas.size()) {
-                    Venta ventaEditar = listaVentas.get(indexEditar - 1); // El índice -1 porque el índice comienza en 0 en Java
-                    request.setAttribute("indexEditar", indexEditar); 
+                if (listaVentas != null && indexEditar > 0 && indexEditar <= listaVentas.size()) {
+                    Venta ventaEditar = listaVentas.get(indexEditar - 1);
 
-                    
-                    request.setAttribute("codigoProductoEditar", ventaEditar.getCodigoProducto());
-                    request.setAttribute("nombreProductoEditar", ventaEditar.getNombreProducto());
-                    request.setAttribute("precioProductoEditar", ventaEditar.getPrecioProducto());
-                    request.setAttribute("cantidadProductoEditar", ventaEditar.getCantidadProducto());
-                    
-                    request.setAttribute("stockProductoEditar", ventaEditar.getStockProducto()); 
+                    try {
+                        // Consulta SQL para obtener información del producto
+                        String sqlEditar = "SELECT Id_Prod, cantidad FROM t_producto WHERE Id_Prod = ?";
+                        ps = conn.prepareStatement(sqlEditar);
+                        ps.setString(1, ventaEditar.getCodigoProducto());
+                        rs = ps.executeQuery();
 
-                    request.getRequestDispatcher("EditarProductoVenta.jsp").forward(request, response); 
+                        if (rs.next()) {
+                            int stockProducto = rs.getInt("cantidad");
+
+                            // Establecer atributos en el request para la página de edición
+                            request.setAttribute("indexEditar", indexEditar);
+                            request.setAttribute("codigoProductoEditar", ventaEditar.getCodigoProducto());
+                            request.setAttribute("nombreProductoEditar", ventaEditar.getNombreProducto());
+                            request.setAttribute("precioProductoEditar", ventaEditar.getPrecioProducto());
+                            request.setAttribute("cantidadProductoEditar", ventaEditar.getCantidadProducto());
+                            request.setAttribute("stockProductoEditar", stockProducto); // Asegúrate de pasar el stock correcto
+
+                            // Redirigir a la página de edición
+                            request.getRequestDispatcher("EditarProductoVenta.jsp").forward(request, response);
+                        } else {
+                            // Manejar caso de no encontrar el producto
+                            request.setAttribute("mensajeProductoNoEncontrado", "Producto no encontrado");
+                            request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
+                        }
+
+                    } catch (SQLException ex) {
+                        ex.printStackTrace();
+                        request.setAttribute("errorSQL", "Error al consultar producto: " + ex.getMessage());
+                        request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
+                    } finally {
+                        try {
+                            if (rs != null) {
+                                rs.close();
+                            }
+                            if (ps != null) {
+                                ps.close();
+                            }
+                        } catch (SQLException ex) {
+                            ex.printStackTrace();
+                        }
+                    }
+
                 } else {
-                   
+                    // Manejar caso de índice fuera de rango o listaVentas es null
+                    request.setAttribute("mensajeIndexInvalido", "Índice de producto no válido");
+                    request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
                 }
             } else {
-                
+                // Manejar caso de indexParameter vacío o null
+                request.setAttribute("mensajeIndexVacio", "Índice de producto vacío");
+                request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
             }
             break;
-
+            
             
             case "ActualizarProducto":
                 String indexActualizarParameter = request.getParameter("indexEditar");
@@ -245,54 +308,75 @@ public class ControlerVenta extends HttpServlet {
 
                     double precioProductoActualizar = Double.parseDouble(request.getParameter("precioProducto"));
                     int cantidadProductoActualizar = Integer.parseInt(request.getParameter("cantidadProducto"));
-                    String nombreProductoActualizar = request.getParameter("nombreProducto");
+                    int stockProductoActualizar = Integer.parseInt(request.getParameter("stockProducto"));
 
-                    Venta ventaActualizar = listaVentas.get(indexActualizar - 1); 
-                    ventaActualizar.setNombreProducto(nombreProductoActualizar); 
-                    ventaActualizar.setPrecioProducto(precioProductoActualizar);
-                    ventaActualizar.setCantidadProducto(cantidadProductoActualizar);
-                    double nuevoTotalDeta = redondearDecimal(precioProductoActualizar * cantidadProductoActualizar);
-                    ventaActualizar.setTotalDeta(nuevoTotalDeta); // Actualizar el importe
+                    if (indexActualizar > 0 && indexActualizar <= listaVentas.size()) {
+                        Venta ventaActualizar = listaVentas.get(indexActualizar - 1);
+                        ventaActualizar.setPrecioProducto(precioProductoActualizar);
+                        ventaActualizar.setCantidadProducto(cantidadProductoActualizar);
 
-                    sessionActualizar.setAttribute("listaVentas", listaVentas);
+                        // Recalcular el importe para el producto actualizado
+                        double totalDetaActualizar = precioProductoActualizar * cantidadProductoActualizar;
+                        ventaActualizar.setTotalDeta(totalDetaActualizar);
 
-                    double subtotalActualizar = calcularSubtotal(listaVentas);
-                    double igvActualizar = calcularIGV(subtotalActualizar);
-                    double totalCompraActualizar = calcularTotal(subtotalActualizar, igvActualizar);
+                        // Actualizar la lista de ventas en la sesión
+                        sessionActualizar.setAttribute("listaVentas", listaVentas);
 
-                    request.setAttribute("subtotal", formatearDecimal(subtotalActualizar));
-                    request.setAttribute("igv", formatearDecimal(igvActualizar));
-                    request.setAttribute("totalCompra", formatearDecimal(totalCompraActualizar));
-                    
+                        // Recalcular el subtotal, IGV y total de la compra
+                        double subtotalActualizar = calcularSubtotal(listaVentas);
+                        double igvActualizar = calcularIGV(subtotalActualizar);
+                        double totalCompraActualizar = calcularTotal(subtotalActualizar, igvActualizar);
 
+                        // Agregar estos valores como atributos de la solicitud para la vista
+                        request.setAttribute("subtotal", subtotalActualizar);
+                        request.setAttribute("igv", igvActualizar);
+                        request.setAttribute("totalCompra", totalCompraActualizar);
+
+                        request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
+                    } else {
+                        // Manejo de error si el índice no es válido
+                        request.setAttribute("errorMessage", "Índice de producto no válido.");
+                        request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
+                    }
+                } else {
+                    // Manejo de error si no se proporciona indexEditar
+                    request.setAttribute("errorMessage", "Índice de producto no proporcionado.");
                     request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
                 }
-                break;
+            break;
 
 
 
             case "EliminarProducto":
                 int indexEliminar = Integer.parseInt(request.getParameter("index"));
 
-               
                 HttpSession sessionEliminar = request.getSession();
                 listaVentas = (ArrayList<Venta>) sessionEliminar.getAttribute("listaVentas");
 
-                
-                // Suponiendo que indexEliminar es el índice que obtienes desde la solicitud para eliminar
-                listaVentas.remove(indexEliminar - 1); // Elimina el elemento en base al índice de usuario
+                if (listaVentas != null && indexEliminar > 0 && indexEliminar <= listaVentas.size()) {
+                    Venta ventaEliminar = listaVentas.remove(indexEliminar - 1); // Elimina el elemento en base al índice de usuario
 
-                // Actualizar índices después de eliminar
-                for (int i = 0; i < listaVentas.size(); i++) {
-                    listaVentas.get(i).setIndex(i + 1); // Actualiza el índice para que comience desde 1
+                    // Restaurar el stock al valor original guardado en la sesión
+                    String codigoProductoEliminar = ventaEliminar.getCodigoProducto();
+                    Integer stockOriginal = (Integer) sessionEliminar.getAttribute("stockOriginal_" + codigoProductoEliminar);
+                    if (stockOriginal != null) {
+                        sessionEliminar.setAttribute("stock_" + codigoProductoEliminar, stockOriginal);
+                    }
+
+                    // Actualizar índices después de eliminar
+                    for (int i = 0; i < listaVentas.size(); i++) {
+                        listaVentas.get(i).setIndex(i + 1); // Actualiza el índice para que comience desde 1
+                    }
+
+                    sessionEliminar.setAttribute("listaVentas", listaVentas);
+
+                    request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
+                } else {
+                    request.setAttribute("errorMessage", "Índice de producto no válido.");
+                    request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
                 }
- 
-                sessionEliminar.setAttribute("listaVentas", listaVentas);
-                
-                //fvfvgbg
+            break;
 
-                request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
-                break;
                 
             case "GenerarVenta":
                 detallePedidoCounter = 0;
@@ -311,6 +395,15 @@ public class ControlerVenta extends HttpServlet {
                 
             break;
             
+            
+            
+            case "BuscarProductosAutocompletado":
+                String term = request.getParameter("term");
+                JSONArray productos = buscarProductosPorNombre(term, conn);
+                response.setContentType("application/json");
+                response.getWriter().write(productos.toString());
+            break;
+
 
                 default:
                     break;
@@ -574,14 +667,46 @@ public class ControlerVenta extends HttpServlet {
         }
         return redondearDecimal(subtotal);
     }
-    
+
     private double calcularIGV(double subtotal) {
         double igv = subtotal * 0.18; // 18% de IGV
         return redondearDecimal(igv);
     }
-    
+
     private double calcularTotal(double subtotal, double igv) {
         double total = subtotal + igv;
         return redondearDecimal(total);
     }
+
+     // Funcionalidad para mostrar las coincidencias de los productos 
+    private JSONArray buscarProductosPorNombre(String term, Connection conn) {
+        JSONArray productos = new JSONArray();
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        String sql = "SELECT Descripcion FROM t_producto WHERE Descripcion LIKE ? LIMIT 10";
+
+        try {
+            ps = conn.prepareStatement(sql);
+            ps.setString(1, "%" + term + "%");
+            rs = ps.executeQuery();
+
+            while (rs.next()) {
+                String nombreProducto = rs.getString("Descripcion");
+                productos.put(nombreProducto);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (ps != null) ps.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return productos;
+    }
+
+
 }
