@@ -11,7 +11,6 @@
     <script src="https://kit.fontawesome.com/26a3cc7edf.js" crossorigin="anonymous"></script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-
     <style>
         * {
             margin: 0px;
@@ -161,21 +160,28 @@
                                     </c:if>
 
                                 
-                                
                                 <div class="form-group">
                                     <label>Buscar Producto</label>
                                 </div>
-                                <form action="ControlerVenta" method="post">
+                                <form action="ControlerVenta" method="post" id="formBuscarProducto">
                                     <input type="hidden" name="Op" value="BuscarProducto"> 
                                     <div class="form-group row" style="margin:5px">
                                         <div class="col-sm-8">
-                                            <input type="text" id="nombreProducto" name="nombreProducto" class="form-control" placeholder="Nombre del Producto" value="${nombreProducto}">
+                                            <input type="text" id="nombreProductoInput" name="nombreProducto" class="form-control" placeholder="Nombre del Producto" autocomplete="off">
+                                            <select id="nombreProductoSelect" name="nombreProductoSelect" class="form-control" style="display: none;">
+                                                <!-- Las opciones serán añadidas dinámicamente por JavaScript -->
+                                            </select>
+
                                         </div>
+
                                         <div class="col-sm-4">
                                             <input type="submit" name="accion" value="Buscar" class="btn btn-outline-info btn-block">
                                         </div>
                                     </div>
                                 </form>
+                                        
+                                        
+
                                 <!-- Modal Producto no Registrado-->
                                     <c:if test="${not empty requestScope.mensajeProductoNoRegistrado}">
                                         <div class="modal_cli" id="ProductoNoRegistradoModal" style="display: block;">
@@ -204,15 +210,14 @@
                                             <div class="col-sm-8">
                                                 <input type="text" id="precio" name="precioProducto" class="form-control" placeholder="Precio del Producto" value="${precioProducto}">
                                             </div>
-                                          <div class="col-sm-3">
-                                            <input type="number" id="cant" value="1" name="cantidadProducto" placeholder="" class="form-control" style="width: 80px;">
-                                        </div>
-
+                                            <div class="col-sm-3">
+                                                <input type="number" id="cant" value="1" name="cantidadProducto" placeholder="" class="form-control" style="width: 80px;" onchange="actualizarStock()">
+                                            </div>
                                             <div class="col-sm-8" style="margin-top:10px;">
-                                                <input type="text" id="stock" name="stockProducto" class="form-control" placeholder="Stock del Producto" value="${stockProducto}">
+                                                <input type="text" id="stock" name="stockProducto" class="form-control" placeholder="Stock del Producto" value="${stockProducto}" readonly>
                                             </div>
                                         </div>
-                                        <div class="form-group">                                            
+                                        <div class="form-group">
                                             <button type="submit" class="btn btn-outline-primary">Agregar Producto</button>
                                         </div>
                                     </form>
@@ -292,21 +297,21 @@
         </div>
     </div>
     
-    <div id="ventaGuardadaModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="cerrarModal('ventaGuardadaModal')">&times;</span>
-            <p>Venta generada correctamente.</p>
-        </div>
+        <div id="ventaGuardadaModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="cerrarModal('ventaGuardadaModal')">&times;</span>
+        <p>Venta generada correctamente.</p>
     </div>
+</div>
 
 
        <!-- Modal Campos Vacíos-->
         <div class="modal" id="camposVaciosModal">
-            <div class="modal-content">
-                <span class="close" onclick="cerrarModal('camposVaciosModal')">&times;</span>
-                <p>Por favor, complete todos los campos antes de registrar la venta.</p>
-            </div>
-        </div>
+    <div class="modal-content">
+        <span class="close" onclick="cerrarModal('camposVaciosModal')">&times;</span>
+        <p>Por favor, complete todos los campos antes de registrar la venta.</p>
+    </div>
+</div>
 
 
          <!-- Modal Sin Productos -->
@@ -322,7 +327,74 @@
 
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script>
-         
+        
+        function actualizarStock() {
+            const cantidadElement = document.getElementById('cant');
+            const stockElement = document.getElementById('stock');
+            const stockOriginal = parseInt(stockElement.defaultValue);
+            const cantidad = parseInt(cantidadElement.value);
+
+            if (!isNaN(stockOriginal) && !isNaN(cantidad)) {
+                const nuevoStock = stockOriginal - cantidad;
+                stockElement.value = nuevoStock < 0 ? 0 : nuevoStock;
+            }
+        }
+
+        // Validar que la cantidad no exceda el stock disponible
+        function validarCantidadProducto() {
+            const cantidadElement = document.getElementById('cant');
+            const stockElement = document.getElementById('stock');
+            const cantidad = parseInt(cantidadElement.value);
+            const stock = parseInt(stockElement.value);
+
+            if (cantidad > stock) {
+                alert('La cantidad no puede exceder el stock disponible.');
+                return false;
+            }
+            return true;
+        }
+        
+        
+  
+
+        document.addEventListener("DOMContentLoaded", function() {
+            $(document).ready(function() {
+                $('#nombreProductoInput').on('input', function() {
+                    var term = $(this).val();
+                    $.ajax({
+                        type: 'GET',
+                        url: 'ControlerVenta?Op=BuscarProductosAutocompletado&term=' + term,
+                        dataType: 'json',
+                        success: function(data) {
+                            $('#nombreProductoSelect').empty();
+                            if (data.length > 0) {
+                                // Mostrar el select si hay resultados
+                                $('#nombreProductoSelect').show();
+                                // Agregar una opción por defecto para indicar selección
+                                $('#nombreProductoSelect').append('<option value="">Selecciona un producto...</option>');
+                                $.each(data, function(index, value) {
+                                    $('#nombreProductoSelect').append('<option value="' + value + '">' + value + '</option>');
+                                });
+                            } else {
+                                // Ocultar el select si no hay resultados
+                                $('#nombreProductoSelect').hide();
+                                $('#nombreProductoSelect').append('<option value="">No se encontraron productos</option>');
+                            }
+                        }
+                    });
+                });
+
+                // Manejar el evento change del select
+                $('#nombreProductoSelect').on('change', function() {
+                    var selectedOption = $(this).val();
+                    $('#nombreProductoInput').val(selectedOption);
+                });
+            });
+        });
+
+        
+        
+        
         document.addEventListener("DOMContentLoaded", function() {
             // Mostrar modal de cliente no registrado si está presente
             if ("${not empty requestScope.mensajeClienteNoRegistrado}") {
@@ -459,19 +531,18 @@
     }
     
 </script>
-    <script>
+<script>
         function toggleSidebar() {/*Para el menu*/
-            const sidebar1 = document.getElementById('sidebar1');
-            const sidebar2 = document.getElementById('sidebar2');
-            if (sidebar1.style.transform === 'translateX(-100%)') {
+                const sidebar1 = document.getElementById('sidebar1');
+                const sidebar2 = document.getElementById('sidebar2');
+                if (sidebar1.style.transform === 'translateX(-100%)') {
                     sidebar1.style.transform = 'translateX(0)';
                     sidebar2.style.transform = 'translateX(-100%)';
-            } else {
-                sidebar1.style.transform = 'translateX(-100%)';
-                sidebar2.style.transform = 'translateX(0)';
+                } else {
+                    sidebar1.style.transform = 'translateX(-100%)';
+                    sidebar2.style.transform = 'translateX(0)';
+                }
             }
-        }
-
     </script>
 
 <!-- CSS Modal Venta Generada -->
