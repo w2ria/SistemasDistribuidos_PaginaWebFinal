@@ -234,69 +234,76 @@ public class ControlerVenta extends HttpServlet {
             
                 
             case "EditarProducto":
-            String indexParameter = request.getParameter("index");
-            if (indexParameter != null && !indexParameter.isEmpty()) {
-                int indexEditar = Integer.parseInt(indexParameter);
-                HttpSession sessionEditar = request.getSession();
-                listaVentas = (ArrayList<Venta>) sessionEditar.getAttribute("listaVentas");
+                String indexParameter = request.getParameter("index");
+                if (indexParameter != null && !indexParameter.isEmpty()) {
+                    int indexEditar = Integer.parseInt(indexParameter);
+                    HttpSession sessionEditar = request.getSession();
+                    listaVentas = (ArrayList<Venta>) sessionEditar.getAttribute("listaVentas");
 
-                if (listaVentas != null && indexEditar > 0 && indexEditar <= listaVentas.size()) {
-                    Venta ventaEditar = listaVentas.get(indexEditar - 1);
+                    if (listaVentas != null && indexEditar > 0 && indexEditar <= listaVentas.size()) {
+                        Venta ventaEditar = listaVentas.get(indexEditar - 1);
 
-                    try {
-                        // Consulta SQL para obtener información del producto
-                        String sqlEditar = "SELECT Id_Prod, cantidad FROM t_producto WHERE Id_Prod = ?";
-                        ps = conn.prepareStatement(sqlEditar);
-                        ps.setString(1, ventaEditar.getCodigoProducto());
-                        rs = ps.executeQuery();
-
-                        if (rs.next()) {
-                            int stockProducto = rs.getInt("cantidad");
-
-                            // Establecer atributos en el request para la página de edición
-                            request.setAttribute("indexEditar", indexEditar);
-                            request.setAttribute("codigoProductoEditar", ventaEditar.getCodigoProducto());
-                            request.setAttribute("nombreProductoEditar", ventaEditar.getNombreProducto());
-                            request.setAttribute("precioProductoEditar", ventaEditar.getPrecioProducto());
-                            request.setAttribute("cantidadProductoEditar", ventaEditar.getCantidadProducto());
-                            request.setAttribute("stockProductoEditar", stockProducto); // Asegúrate de pasar el stock correcto
-
-                            // Redirigir a la página de edición
-                            request.getRequestDispatcher("EditarProductoVenta.jsp").forward(request, response);
-                        } else {
-                            // Manejar caso de no encontrar el producto
-                            request.setAttribute("mensajeProductoNoEncontrado", "Producto no encontrado");
-                            request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
-                        }
-
-                    } catch (SQLException ex) {
-                        ex.printStackTrace();
-                        request.setAttribute("errorSQL", "Error al consultar producto: " + ex.getMessage());
-                        request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
-                    } finally {
                         try {
-                            if (rs != null) {
-                                rs.close();
+                            // Consulta SQL para obtener información del producto
+                            String sqlEditar = "SELECT Id_Prod FROM t_producto WHERE Id_Prod = ?";
+                            ps = conn.prepareStatement(sqlEditar);
+                            ps.setString(1, ventaEditar.getCodigoProducto());
+                            rs = ps.executeQuery();
+
+                            if (rs.next()) {
+                                // Obtener el stock temporalmente disminuido de la sesión
+                                Integer stockTemporal = (Integer) sessionEditar.getAttribute("stock_" + ventaEditar.getCodigoProducto());
+                                if (stockTemporal != null) {
+                                    // Establecer atributos en el request para la página de edición
+                                    request.setAttribute("indexEditar", indexEditar);
+                                    request.setAttribute("codigoProductoEditar", ventaEditar.getCodigoProducto());
+                                    request.setAttribute("nombreProductoEditar", ventaEditar.getNombreProducto());
+                                    request.setAttribute("precioProductoEditar", ventaEditar.getPrecioProducto());
+                                    request.setAttribute("cantidadProductoEditar", ventaEditar.getCantidadProducto());
+                                    request.setAttribute("stockProductoEditar", stockTemporal); // Usar el stock temporal
+
+                                    // Redirigir a la página de edición
+                                    request.getRequestDispatcher("EditarProductoVenta.jsp").forward(request, response);
+                                } else {
+                                    // Manejar caso donde no se encuentra el stock temporal
+                                    request.setAttribute("mensajeStockNoEncontrado", "Stock no encontrado temporalmente.");
+                                    request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
+                                }
+                            } else {
+                                // Manejar caso de no encontrar el producto en la base de datos
+                                request.setAttribute("mensajeProductoNoEncontrado", "Producto no encontrado.");
+                                request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
                             }
-                            if (ps != null) {
-                                ps.close();
-                            }
+
                         } catch (SQLException ex) {
                             ex.printStackTrace();
+                            request.setAttribute("errorSQL", "Error al consultar producto: " + ex.getMessage());
+                            request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
+                        } finally {
+                            try {
+                                if (rs != null) {
+                                    rs.close();
+                                }
+                                if (ps != null) {
+                                    ps.close();
+                                }
+                            } catch (SQLException ex) {
+                                ex.printStackTrace();
+                            }
                         }
-                    }
 
+                    } else {
+                        // Manejar caso de índice fuera de rango o listaVentas es null
+                        request.setAttribute("mensajeIndexInvalido", "Índice de producto no válido.");
+                        request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
+                    }
                 } else {
-                    // Manejar caso de índice fuera de rango o listaVentas es null
-                    request.setAttribute("mensajeIndexInvalido", "Índice de producto no válido");
+                    // Manejar caso de indexParameter vacío o null
+                    request.setAttribute("mensajeIndexVacio", "Índice de producto vacío.");
                     request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
                 }
-            } else {
-                // Manejar caso de indexParameter vacío o null
-                request.setAttribute("mensajeIndexVacio", "Índice de producto vacío");
-                request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
-            }
             break;
+
             
             
             case "ActualizarProducto":
@@ -308,10 +315,24 @@ public class ControlerVenta extends HttpServlet {
 
                     double precioProductoActualizar = Double.parseDouble(request.getParameter("precioProducto"));
                     int cantidadProductoActualizar = Integer.parseInt(request.getParameter("cantidadProducto"));
-                    int stockProductoActualizar = Integer.parseInt(request.getParameter("stockProducto"));
+                    int stockProductoOriginal = Integer.parseInt(request.getParameter("stockProducto"));
 
                     if (indexActualizar > 0 && indexActualizar <= listaVentas.size()) {
                         Venta ventaActualizar = listaVentas.get(indexActualizar - 1);
+
+                        // Obtener stock temporal disminuido
+                        Integer stockTemporal = (Integer) sessionActualizar.getAttribute("stock_" + ventaActualizar.getCodigoProducto());
+                        if (stockTemporal == null) {
+                            stockTemporal = stockProductoOriginal; // Usar stock original si no hay temporal
+                        }
+
+                        // Restaurar el stock original antes de actualizar
+                        int cantidadAnterior = ventaActualizar.getCantidadProducto();
+                        int cantidadDiferencia = cantidadAnterior - cantidadProductoActualizar;
+                        stockTemporal += cantidadDiferencia;
+                        sessionActualizar.setAttribute("stock_" + ventaActualizar.getCodigoProducto(), stockTemporal);
+
+                        // Actualizar la cantidad y precio del producto
                         ventaActualizar.setPrecioProducto(precioProductoActualizar);
                         ventaActualizar.setCantidadProducto(cantidadProductoActualizar);
 
@@ -328,9 +349,9 @@ public class ControlerVenta extends HttpServlet {
                         double totalCompraActualizar = calcularTotal(subtotalActualizar, igvActualizar);
 
                         // Agregar estos valores como atributos de la solicitud para la vista
-                        request.setAttribute("subtotal", subtotalActualizar);
-                        request.setAttribute("igv", igvActualizar);
-                        request.setAttribute("totalCompra", totalCompraActualizar);
+                        request.setAttribute("subtotal", formatearDecimal(subtotalActualizar));
+                        request.setAttribute("igv", formatearDecimal(igvActualizar));
+                        request.setAttribute("totalCompra", formatearDecimal(totalCompraActualizar));
 
                         request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
                     } else {
@@ -347,35 +368,48 @@ public class ControlerVenta extends HttpServlet {
 
 
 
+
             case "EliminarProducto":
-                int indexEliminar = Integer.parseInt(request.getParameter("index"));
+    int indexEliminar = Integer.parseInt(request.getParameter("index"));
 
-                HttpSession sessionEliminar = request.getSession();
-                listaVentas = (ArrayList<Venta>) sessionEliminar.getAttribute("listaVentas");
+    HttpSession sessionEliminar = request.getSession();
+    listaVentas = (ArrayList<Venta>) sessionEliminar.getAttribute("listaVentas");
 
-                if (listaVentas != null && indexEliminar > 0 && indexEliminar <= listaVentas.size()) {
-                    Venta ventaEliminar = listaVentas.remove(indexEliminar - 1); // Elimina el elemento en base al índice de usuario
+    if (listaVentas != null && indexEliminar > 0 && indexEliminar <= listaVentas.size()) {
+        Venta ventaEliminar = listaVentas.remove(indexEliminar - 1); // Elimina el elemento en base al índice de usuario
 
-                    // Restaurar el stock al valor original guardado en la sesión
-                    String codigoProductoEliminar = ventaEliminar.getCodigoProducto();
-                    Integer stockOriginal = (Integer) sessionEliminar.getAttribute("stockOriginal_" + codigoProductoEliminar);
-                    if (stockOriginal != null) {
-                        sessionEliminar.setAttribute("stock_" + codigoProductoEliminar, stockOriginal);
-                    }
+        // Restaurar el stock al valor original guardado en la sesión
+        String codigoProductoEliminar = ventaEliminar.getCodigoProducto();
+        Integer stockOriginal = (Integer) sessionEliminar.getAttribute("stockOriginal_" + codigoProductoEliminar);
+        if (stockOriginal != null) {
+            sessionEliminar.setAttribute("stock_" + codigoProductoEliminar, stockOriginal);
+        }
 
-                    // Actualizar índices después de eliminar
-                    for (int i = 0; i < listaVentas.size(); i++) {
-                        listaVentas.get(i).setIndex(i + 1); // Actualiza el índice para que comience desde 1
-                    }
+        // Actualizar índices después de eliminar
+        for (int i = 0; i < listaVentas.size(); i++) {
+            listaVentas.get(i).setIndex(i + 1); // Actualiza el índice para que comience desde 1
+        }
 
-                    sessionEliminar.setAttribute("listaVentas", listaVentas);
+        sessionEliminar.setAttribute("listaVentas", listaVentas);
 
-                    request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
-                } else {
-                    request.setAttribute("errorMessage", "Índice de producto no válido.");
-                    request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
-                }
-            break;
+        // Recalcular subtotal, IGV y total de la compra
+        double subtotalActualizar = calcularSubtotal(listaVentas);
+        double igvActualizar = calcularIGV(subtotalActualizar);
+        double totalCompraActualizar = calcularTotal(subtotalActualizar, igvActualizar);
+
+        // Agregar estos valores como atributos de la solicitud para la vista
+        request.setAttribute("subtotal", formatearDecimal(subtotalActualizar));
+        request.setAttribute("igv", formatearDecimal(igvActualizar));
+        request.setAttribute("totalCompra", formatearDecimal(totalCompraActualizar));
+
+        // Redirigir a la página de ventas con los nuevos cálculos
+        request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
+    } else {
+        request.setAttribute("errorMessage", "Índice de producto no válido.");
+        request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
+    }
+break;
+     
 
                 
             case "GenerarVenta":

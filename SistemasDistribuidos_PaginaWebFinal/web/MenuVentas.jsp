@@ -167,7 +167,7 @@
                                     <input type="hidden" name="Op" value="BuscarProducto"> 
                                     <div class="form-group row" style="margin:5px">
                                         <div class="col-sm-8">
-                                            <input type="text" id="nombreProductoInput" name="nombreProducto" class="form-control" placeholder="Nombre del Producto" autocomplete="off">
+                                            <input type="text" id="nombreProductoInput" name="nombreProducto" class="form-control" placeholder="Nombre del Producto" autocomplete="off" value="${nombreProducto}">
                                             <select id="nombreProductoSelect" name="nombreProductoSelect" class="form-control" style="display: none;">
                                                 <!-- Las opciones serán añadidas dinámicamente por JavaScript -->
                                             </select>
