@@ -354,9 +354,8 @@
             return true;
         }
         
-        
-  
 
+        
         document.addEventListener("DOMContentLoaded", function() {
             $(document).ready(function() {
                 $('#nombreProductoInput').on('input', function() {
@@ -368,15 +367,15 @@
                         success: function(data) {
                             $('#nombreProductoSelect').empty();
                             if (data.length > 0) {
-                                // Mostrar el select si hay resultados
+                               
                                 $('#nombreProductoSelect').show();
-                                // Agregar una opción por defecto para indicar selección
+                                
                                 $('#nombreProductoSelect').append('<option value="">Selecciona un producto...</option>');
                                 $.each(data, function(index, value) {
                                     $('#nombreProductoSelect').append('<option value="' + value + '">' + value + '</option>');
                                 });
                             } else {
-                                // Ocultar el select si no hay resultados
+                                
                                 $('#nombreProductoSelect').hide();
                                 $('#nombreProductoSelect').append('<option value="">No se encontraron productos</option>');
                             }
@@ -384,15 +383,27 @@
                     });
                 });
 
-                // Manejar el evento change del select
+                
                 $('#nombreProductoSelect').on('change', function() {
                     var selectedOption = $(this).val();
                     $('#nombreProductoInput').val(selectedOption);
                 });
+                
+                $('#nombreProductoSelect').on('change', function() {
+                    var selectedOption = $(this).val();
+                    // Función para eliminar tildes
+                    var textoSinTildes = eliminarTildes(selectedOption);
+                    $('#nombreProductoInput').val(textoSinTildes);
+                });
+
+                // elimina tildes de un texto
+                function eliminarTildes(texto) {
+                    return texto.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                }
+
             });
         });
 
-        
         
         
         document.addEventListener("DOMContentLoaded", function() {
