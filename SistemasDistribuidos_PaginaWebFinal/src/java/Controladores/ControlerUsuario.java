@@ -71,11 +71,9 @@ public class ControlerUsuario extends HttpServlet {
                 }
                 
                 
-                String id2= request.getParameter("id");
-                String nom = request.getParameter("nom");
-                request.setAttribute("Nombre", nom);
-                request.setAttribute("Id_Usuario", id2);
-                
+                request.setAttribute("Id_Usuario", id);
+                request.setAttribute("Nombre", nombre);
+
                 
                 request.setAttribute("Lista", Lista);
                 request.getRequestDispatcher("MenuUsuarios.jsp").forward(request, response);

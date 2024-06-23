@@ -73,9 +73,11 @@ public class ControlerPedido extends HttpServlet {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        String id = request.getParameter("id");
-        String nom = request.getParameter("nom");
-        System.out.println("FFFF= "+nom);
+        HttpSession session = request.getSession();
+        String id = (String) session.getAttribute("IdUsuario");
+        String nombre = (String) session.getAttribute("Nombre");
+        System.out.println("EL NOMBRE que llega al servlet es ES:" +nombre);
+        System.out.println("EL id traido es 500: "+id);
         System.out.println("Número de pedidos recuperados: " + pedidos.size());
 
         request.setAttribute("pedidos", pedidos);
@@ -86,9 +88,8 @@ public class ControlerPedido extends HttpServlet {
             exportarPDF(response, pedidos);
         } else {
             
-            request.setAttribute("Nombre", nom);
             request.setAttribute("Id_Usuario", id);
-            System.out.println("El nombre es: XXX+"+nom);
+            request.setAttribute("Nombre", nombre);
             request.getRequestDispatcher("MenuPedidos.jsp").forward(request, response);
         }
     }

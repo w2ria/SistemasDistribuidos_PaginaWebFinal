@@ -11,7 +11,8 @@
     System.out.println("El ID USUARIOS ES==================================="+idUsuario);
 
     // Verificar si el usuario es administrador
-    boolean esAdmin = idUsuario != null && idUsuario.startsWith("A");
+    boolean esAdmin = idUsuario != null && idUsuario.startsWith("A") || idUsuario.startsWith("a");
+    System.out.println("el admin es: "+ esAdmin);
 
     // Determinar la pÃ¡gina activa
     String currentPage = request.getRequestURI();
@@ -35,16 +36,16 @@
             <i class="fa-solid fa-bottle-water"></i>
             <h1>Productos</h1>
         </a>
-        <a class="cajas" href="ControlerPedido?Op=Listar&id=<%= idUsuario%>&nom=<%= XD%>" style="text-decoration: none; color: black; <%= isPedidos ? "background-color: #87ceeb" : ""%>">
+        <a class="cajas" href="ControlerPedido?Op=Listar" style="text-decoration: none; color: black; <%= isPedidos ? "background-color: #87ceeb" : ""%>">
             <i class="fa-solid fa-cart-shopping"></i>
             <h1>Pedidos</h1>
         </a>
-        <a class="cajas" href="ControlerVenta?Op=VerPagina&id=<%= idUsuario%>&nom=<%= XD%>" style="text-decoration: none; color: black; <%= isVentas ? "background-color: #87ceeb" : ""%>">
+        <a class="cajas" href="ControlerVenta?Op=VerPagina" style="text-decoration: none; color: black; <%= isVentas ? "background-color: #87ceeb" : ""%>">
             <i class="fa-solid fa-clipboard"></i>
             <h1>Ventas</h1>
         </a>
         <% if (esAdmin) {%>
-        <a class="cajas" href="ControlerUsuario?Op=Listar&id=<%= idUsuario%>&nom=<%= XD%>" style="text-decoration: none; color: black; <%= isUsuarios ? "background-color: #87ceeb" : ""%>">
+        <a class="cajas" href="ControlerUsuario?Op=Listar" style="text-decoration: none; color: black; <%= isUsuarios ? "background-color: #87ceeb" : ""%>">
             <i class="fa-solid fa-user"></i>
             <h1>Usuarios</h1>
         </a>
@@ -67,16 +68,16 @@
             <i class="fa-solid fa-bottle-water"></i>
             <h1 style="font-size: 3.5vh;">Productos</h1>
         </a>
-        <a class="cajas" href="ControlerPedido?Op=Listar&id=<%= idUsuario%>&nom=<%= XD%>" style="flex-direction: row; text-decoration: none; color: black; <%= isPedidos ? "background-color: #87ceeb" : ""%>">
+        <a class="cajas" href="ControlerPedido?Op=Listar" style="flex-direction: row; text-decoration: none; color: black; <%= isPedidos ? "background-color: #87ceeb" : ""%>">
             <i class="fa-solid fa-cart-shopping"></i>
             <h1 style="font-size: 3.5vh;">Pedidos</h1>
         </a>
-        <a class="cajas" href="ControlerVenta?Op=VerPagina&id=<%= idUsuario%>&nom=<%= XD%>" style="flex-direction: row; text-decoration: none; color: black; <%= isVentas ? "background-color: #87ceeb" : ""%>">
+        <a class="cajas" href="ControlerVenta?Op=VerPagina" style="flex-direction: row; text-decoration: none; color: black; <%= isVentas ? "background-color: #87ceeb" : ""%>">
             <i class="fa-solid fa-clipboard"></i>
             <h1 style="font-size: 3.5vh;">Ventas</h1>
         </a>
         <% if (esAdmin) {%>
-        <a class="cajas" href="ControlerUsuario?Op=Listar&id=<%= idUsuario%>&nom=<%= XD%>" style="flex-direction: row; text-decoration: none; color: black; <%= isUsuarios ? "background-color: #87ceeb" : ""%>">
+        <a class="cajas" href="ControlerUsuario?Op=Listar" style="flex-direction: row; text-decoration: none; color: black; <%= isUsuarios ? "background-color: #87ceeb" : ""%>">
             <i class="fa-solid fa-user"></i>
             <h1 style="font-size: 3.5vh;">Usuarios</h1>
         </a>

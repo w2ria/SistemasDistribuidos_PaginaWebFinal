@@ -54,6 +54,8 @@ public class ControlerVenta extends HttpServlet {
         String sql;
         
         HttpSession session = request.getSession();
+        String id = (String) session.getAttribute("IdUsuario");
+        String nombre = (String) session.getAttribute("Nombre");
         listaVentas = (ArrayList<Venta>) session.getAttribute("listaVentas");
         if (listaVentas == null) {
             listaVentas = new ArrayList<>();
@@ -69,11 +71,8 @@ public class ControlerVenta extends HttpServlet {
 
         switch (opcion) {
                 case "VerPagina":
-                        String id = request.getParameter("id");
-                        String nom = request.getParameter("nom");
-                        request.setAttribute("Nombre", nom);
                         request.setAttribute("Id_Usuario", id);
-                        
+                        request.setAttribute("Nombre", nombre);
                         request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
                 break;
                 case "BuscarCliente":
@@ -101,7 +100,8 @@ public class ControlerVenta extends HttpServlet {
                             session.removeAttribute("nombreCliente");
                             session.removeAttribute("apellidosCliente");
                         }
-                        
+                        request.setAttribute("Id_Usuario", id);
+                        request.setAttribute("Nombre", nombre);
                         request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
                     } catch (SQLException ex) {
                         System.out.println("Error de SQL..." + ex.getMessage());
@@ -144,7 +144,8 @@ public class ControlerVenta extends HttpServlet {
                             request.setAttribute("precioProducto", "");
                             request.setAttribute("stockProducto", "");
                         }
-
+                        request.setAttribute("Id_Usuario", id);
+                        request.setAttribute("Nombre", nombre);
                         request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
                     } catch (SQLException ex) {
                         System.out.println("Error de SQL..." + ex.getMessage());
@@ -217,7 +218,8 @@ public class ControlerVenta extends HttpServlet {
                 request.setAttribute("subtotal", formatearDecimal(subtotal));
                 request.setAttribute("igv", formatearDecimal(igv));
                 request.setAttribute("totalCompra", formatearDecimal(totalCompra));
-
+                request.setAttribute("Id_Usuario", id);
+                request.setAttribute("Nombre", nombre);
                 request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
                 break;
 
@@ -228,7 +230,8 @@ public class ControlerVenta extends HttpServlet {
                 request.setAttribute("listaVentas", listaVentas);
                 
                 
-                
+                request.setAttribute("Id_Usuario", id);
+                request.setAttribute("Nombre", nombre);
                 request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
                 break;
             
@@ -263,21 +266,29 @@ public class ControlerVenta extends HttpServlet {
                                     request.setAttribute("stockProductoEditar", stockTemporal); // Usar el stock temporal
 
                                     // Redirigir a la página de edición
+                                    request.setAttribute("Id_Usuario", id);
+                                    request.setAttribute("Nombre", nombre);
                                     request.getRequestDispatcher("EditarProductoVenta.jsp").forward(request, response);
                                 } else {
                                     // Manejar caso donde no se encuentra el stock temporal
                                     request.setAttribute("mensajeStockNoEncontrado", "Stock no encontrado temporalmente.");
+                                    request.setAttribute("Id_Usuario", id);
+                                    request.setAttribute("Nombre", nombre);
                                     request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
                                 }
                             } else {
                                 // Manejar caso de no encontrar el producto en la base de datos
                                 request.setAttribute("mensajeProductoNoEncontrado", "Producto no encontrado.");
+                                request.setAttribute("Id_Usuario", id);
+                                request.setAttribute("Nombre", nombre);
                                 request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
                             }
 
                         } catch (SQLException ex) {
                             ex.printStackTrace();
                             request.setAttribute("errorSQL", "Error al consultar producto: " + ex.getMessage());
+                            request.setAttribute("Id_Usuario", id);
+                            request.setAttribute("Nombre", nombre);
                             request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
                         } finally {
                             try {
@@ -295,11 +306,15 @@ public class ControlerVenta extends HttpServlet {
                     } else {
                         // Manejar caso de índice fuera de rango o listaVentas es null
                         request.setAttribute("mensajeIndexInvalido", "Índice de producto no válido.");
+                        request.setAttribute("Id_Usuario", id);
+                        request.setAttribute("Nombre", nombre);
                         request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
                     }
                 } else {
                     // Manejar caso de indexParameter vacío o null
                     request.setAttribute("mensajeIndexVacio", "Índice de producto vacío.");
+                    request.setAttribute("Id_Usuario", id);
+                    request.setAttribute("Nombre", nombre);
                     request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
                 }
             break;
@@ -352,16 +367,21 @@ public class ControlerVenta extends HttpServlet {
                         request.setAttribute("subtotal", formatearDecimal(subtotalActualizar));
                         request.setAttribute("igv", formatearDecimal(igvActualizar));
                         request.setAttribute("totalCompra", formatearDecimal(totalCompraActualizar));
-
+                        request.setAttribute("Id_Usuario", id);
+                        request.setAttribute("Nombre", nombre);
                         request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
                     } else {
                         // Manejo de error si el índice no es válido
                         request.setAttribute("errorMessage", "Índice de producto no válido.");
+                        request.setAttribute("Id_Usuario", id);
+                        request.setAttribute("Nombre", nombre);
                         request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
                     }
                 } else {
                     // Manejo de error si no se proporciona indexEditar
                     request.setAttribute("errorMessage", "Índice de producto no proporcionado.");
+                    request.setAttribute("Id_Usuario", id);
+                    request.setAttribute("Nombre", nombre);
                     request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
                 }
             break;
@@ -403,9 +423,13 @@ public class ControlerVenta extends HttpServlet {
         request.setAttribute("totalCompra", formatearDecimal(totalCompraActualizar));
 
         // Redirigir a la página de ventas con los nuevos cálculos
+        request.setAttribute("Id_Usuario", id);
+        request.setAttribute("Nombre", nombre);
         request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
     } else {
         request.setAttribute("errorMessage", "Índice de producto no válido.");
+        request.setAttribute("Id_Usuario", id);
+        request.setAttribute("Nombre", nombre);
         request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
     }
 break;
@@ -447,6 +471,8 @@ break;
     private void generarVenta(HttpServletRequest request, HttpServletResponse response)
         throws ServletException, IOException {
         HttpSession session = request.getSession();
+        String id = (String) session.getAttribute("IdUsuario");
+        String nombre = (String) session.getAttribute("Nombre");
         ArrayList<Venta> listaVentas = (ArrayList<Venta>) session.getAttribute("listaVentas");
    
         
@@ -459,12 +485,16 @@ break;
     if (idCliente == null || dniCliente == null || nombreCliente == null || apellidosCliente == null) {
         // Mostrar un mensaje de error indicando que es necesario seleccionar un cliente
         request.setAttribute("errorMessage", "Es necesario seleccionar un cliente.");
+        request.setAttribute("Id_Usuario", id);
+        request.setAttribute("Nombre", nombre);
         request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
         return;
         }
         
        if (listaVentas == null || listaVentas.isEmpty()) {
             request.setAttribute("mensajeSinProductos", "No hay productos en la venta.");
+            request.setAttribute("Id_Usuario", id);
+            request.setAttribute("Nombre", nombre);
             request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
             return;
         }
