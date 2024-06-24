@@ -10,77 +10,7 @@
         <title>Dashboard</title>
         <script src="https://kit.fontawesome.com/26a3cc7edf.js" crossorigin="anonymous"></script>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-        <style>
-            * {
-                margin: 0px;
-                padding: 0px;
-            }
-            .btnDesplegable {
-                height: 100vh;
-                width: 6%;
-                position: fixed;
-                transition: transform 0.5s ease;
-                z-index: 1;
-            }
-            .cajas {
-                height: 12vh;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                cursor: pointer;
-            }
-            .cajas:hover{
-                background-color: #87ceeb;
-            }
-            .cajas:nth-child(n+2) {
-                flex-direction: column;
-            }
-            .cajas:last-child {
-                width: 100%;
-                position: absolute;
-                bottom: 0;
-                margin-bottom: 2vh;
-            }
-            .cajas i {
-                font-size: 5vh;
-                padding: 0.2vh;
-            }
-            .cajas h1 {
-                font-size: 2.5vh;
-                padding: 0.2vh;
-                text-align: center;
-            }
-            .navMasContenido {
-                /*width: 94vw;*/
-                width: 100%;
-
-                /*margin-left: 6%;*/
-
-            }
-            .navegador {
-                height: 12vh;
-
-                display: flex;
-                justify-content: space-around;
-            }
-            .imagen {
-                width: 12wh;
-                height: 100%;
-            }
-            .imagen img {
-                width: 100%;
-                height: 100%;
-            }
-            .datos {
-                display: flex;
-                align-items: center;
-            }
-
-            .Aparecer {
-                transform: translateX(0);
-            }
-
-        </style>
+        <link rel="stylesheet" href="resources/css/Style.css">
     </head>
 
     <body style="display: flex; flex-direction: column; min-height: 100vh;">  
@@ -255,20 +185,6 @@
 
             </div>
         </div>
-
-        <script>
-            function toggleSidebar() {/*Para el menu*/
-                const sidebar1 = document.getElementById('sidebar1');
-                const sidebar2 = document.getElementById('sidebar2');
-                if (sidebar1.style.transform === 'translateX(-100%)') {
-                    sidebar1.style.transform = 'translateX(0)';
-                    sidebar2.style.transform = 'translateX(-100%)';
-                } else {
-                    sidebar1.style.transform = 'translateX(-100%)';
-                    sidebar2.style.transform = 'translateX(0)';
-                }
-            }
-        </script>    
 
         <%@ include file="ModalSesionExpirada.jsp" %>
         <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>

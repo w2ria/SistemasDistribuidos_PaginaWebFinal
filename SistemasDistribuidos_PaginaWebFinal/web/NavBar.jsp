@@ -91,8 +91,8 @@
             <h1 style="font-size: 3.5vh;">Ventas</h1>
         </a>
         <a class="cajas" href="ControlerDemanda?Op=VerPagina&id=<%= idUsuario%>&nom=<%= XD%>" style="flex-direction: row; text-decoration: none; color: black; <%= isVentas ? "background-color: #87ceeb" : ""%>">
-            <i class="fa-solid fa-clipboard"></i>
-            <h1 style="font-size: 3.5vh;">DemandaProductos</h1>
+            <i class="fa-solid fa-chart-bar"></i>
+            <h1 style="font-size: 3.5vh;">Demanda Productos</h1>
         </a>
         <% if (esAdmin) {%>
         <a class="cajas" href="ControlerUsuario?Op=Listar" style="flex-direction: row; text-decoration: none; color: black; <%= isUsuarios ? "background-color: #87ceeb" : ""%>">
@@ -116,3 +116,17 @@
                 <h1><%= XD%></h1>
             </div>
         </nav>
+
+        <script>
+            function toggleSidebar() {/*Para el menu*/
+                const sidebar1 = document.getElementById('sidebar1');
+                const sidebar2 = document.getElementById('sidebar2');
+                if (sidebar1.style.transform === 'translateX(-100%)') {
+                    sidebar1.style.transform = 'translateX(0)';
+                    sidebar2.style.transform = 'translateX(-100%)';
+                } else {
+                    sidebar1.style.transform = 'translateX(-100%)';
+                    sidebar2.style.transform = 'translateX(0)';
+                }
+            }
+        </script>    
