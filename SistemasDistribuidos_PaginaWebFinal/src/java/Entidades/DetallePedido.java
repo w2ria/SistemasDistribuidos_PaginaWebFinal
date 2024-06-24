@@ -7,6 +7,8 @@ public class DetallePedido {
     private int cantidad;
     private double precio;
     private double totalDeta;
+    private String descripcion; 
+
 
     public String getIdDetallePedido() {
         return idDetallePedido;
@@ -54,5 +56,13 @@ public class DetallePedido {
 
     public void setTotalDeta(double totalDeta) {
         this.totalDeta = totalDeta;
+    }
+
+    public String getDescripcion() {
+        return descripcion;
+    }
+
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
     }
 }

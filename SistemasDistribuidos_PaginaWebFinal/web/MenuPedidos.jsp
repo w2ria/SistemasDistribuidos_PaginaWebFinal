@@ -99,30 +99,31 @@
                     <thead>
                         <tr>
                             <th scope="col">Id_Pedido</th>
-                            <th scope="col">Id_Cliente</th>
-                            <th scope="col">Id_Usuario</th>
+                            <th scope="col">Cliente</th>
+                            <th scope="col">Usuario</th>
                             <th scope="col">Fecha</th>
                             <th scope="col">SubTotal</th>
                             <th scope="col">TotalVenta</th>
-                            <th scope="col">Detalles</th> <!-- Nueva columna -->
+                            <th scope="col">Detalles</th>
                         </tr>
-                    </thead>
-                    <tbody>
-                        <c:forEach var="pedido" items="${pedidos}">
-                            <tr>
-                                <td>${pedido.idPedido}</td>
-                                <td>${pedido.idCliente}</td>
-                                <td>${pedido.idUsuario}</td>
-                                <td>${pedido.fecha}</td>
-                                <td>${pedido.subTotal}</td>
-                                <td>${pedido.totalVenta}</td>
-                                <td>
-                                    <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#modalDetalles${pedido.idPedido}">
-                                        Ver Detalles
-                                    </button>
-                                </td>
-                            </tr>
-                        </c:forEach>
+                        </thead>
+                        <tbody>
+                            <c:forEach var="pedido" items="${pedidos}">
+                                <tr>
+                                    <td>${pedido.idPedido}</td>
+                                    <td>${pedido.idCliente}</td>
+                                    <td>${pedido.idUsuario}</td>
+                                    <td>${pedido.fecha}</td>
+                                    <td>${pedido.subTotal}</td>
+                                    <td>${pedido.totalVenta}</td>
+                                    <td>
+                                        <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#modalDetalles${pedido.idPedido}">
+                                            Ver Detalles
+                                        </button>
+                                    </td>
+                                </tr>
+                            </c:forEach>
+
                     </tbody>
                 </table>
                 
@@ -141,29 +142,36 @@
                                             <tr>
                                                 <th scope="col">Id_DetallePedido</th>
                                                 <th scope="col">Id_Pedido</th>
-                                                <th scope="col">Id_Prod</th>
+                                                <th scope="col">Productos</th>
                                                 <th scope="col">Cantidad</th>
                                                 <th scope="col">Precio</th>
                                                 <th scope="col">TotalDeta</th>
                                             </tr>
-                                        </thead>
-                                        <tbody>
-                                            <c:forEach var="detalle" items="${detalles}">
-                                                <c:if test="${detalle.idPedido eq pedido.idPedido}">
-                                                    <tr>
-                                                        <td>${detalle.idDetallePedido}</td>
-                                                        <td>${detalle.idPedido}</td>
-                                                        <td>${detalle.idProd}</td>
-                                                        <td>${detalle.cantidad}</td>
-                                                        <td>${detalle.precio}</td>
-                                                        <td>${detalle.totalDeta}</td>
-                                                    </tr>
-                                                </c:if>
-                                            </c:forEach>
+                                            </thead>
+                                            <tbody>
+                                                <c:forEach var="detalle" items="${detalles}">
+                                                    <c:if test="${detalle.idPedido eq pedido.idPedido}">
+                                                        <tr>
+                                                            <td>${detalle.idDetallePedido}</td>
+                                                            <td>${detalle.idPedido}</td>
+                                                            <td>${detalle.descripcion}</td>
+                                                            <td>${detalle.cantidad}</td>
+                                                            <td>${detalle.precio}</td>
+                                                            <td>${detalle.totalDeta}</td>
+                                                        </tr>
+                                                    </c:if>
+                                                </c:forEach>
+
                                         </tbody>
                                     </table>
                                 </div>
                                 <div class="modal-footer">
+                                    <form action="ControlerPedido" method="post" style="display:inline">
+                                        <input type="hidden" name="Id_Pedido" value="${pedido.idPedido}">
+                                        <button type="submit" name="Op" value="ExportarDetalles" class="btn btn-primary">
+                                            <i class="fa-solid fa-file-export" style="padding: 0px 0.5vh"></i> Exportar
+                                        </button>
+                                    </form>
                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                                 </div>
                             </div>

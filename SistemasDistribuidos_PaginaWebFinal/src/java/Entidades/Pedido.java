@@ -9,7 +9,25 @@ public class Pedido {
     private Date fecha;
     private double subTotal;
     private double totalVenta;
+    private String clienteNombre;
+    private String usuarioNombre;
+    
+        public String getClienteNombre() {
+        return clienteNombre;
+    }
 
+    public void setClienteNombre(String clienteNombre) {
+        this.clienteNombre = clienteNombre;
+    }
+
+    public String getUsuarioNombre() {
+        return usuarioNombre;
+    }
+
+    public void setUsuarioNombre(String usuarioNombre) {
+        this.usuarioNombre = usuarioNombre;
+    }
+    
     public String getIdPedido() {
         return idPedido;
     }

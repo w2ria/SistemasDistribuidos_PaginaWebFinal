@@ -34,26 +34,29 @@ public class ControlerPedido extends HttpServlet {
         ArrayList<DetallePedido> detalles = new ArrayList<>();
         Conexion conexion = new Conexion();
         Connection con = conexion.Conexion();
-        Pedido pedido = new Pedido();
+        
         try {
             Statement stmt = con.createStatement();
-            String sql = "SELECT * FROM t_pedido";
+            
+            String sql = "SELECT p.Id_Pedido, p.Fecha, p.SubTotal, p.TotalVenta, " +
+                         "c.Nombres AS ClienteNombre, u.Nombres AS UsuarioNombre " +
+                         "FROM t_pedido p " +
+                         "JOIN t_cliente c ON p.Id_Cliente = c.Id_Cliente " +
+                         "JOIN t_usuario u ON p.Id_Usuario = u.Id_usuario";
             ResultSet rs = stmt.executeQuery(sql);
             
             while (rs.next()) {
-                
+                Pedido pedido = new Pedido();
                 pedido.setIdPedido(rs.getString("Id_Pedido"));
-                pedido.setIdCliente(rs.getString("Id_Cliente"));
-                pedido.setIdUsuario(rs.getString("Id_Usuario"));
+                pedido.setIdCliente(rs.getString("ClienteNombre"));  
+                pedido.setIdUsuario(rs.getString("UsuarioNombre")); 
                 pedido.setFecha(rs.getDate("Fecha"));
                 pedido.setSubTotal(rs.getDouble("SubTotal"));
                 pedido.setTotalVenta(rs.getDouble("TotalVenta"));
                 pedidos.add(pedido);
             }
-            rs.close();
-            
-            
-            sql = "SELECT * FROM t_detalle_pedido";
+            sql = "SELECT dp.*, p.Descripcion FROM t_detalle_pedido dp " +
+                  "JOIN t_producto p ON dp.Id_Prod = p.Id_Prod";
             rs = stmt.executeQuery(sql);
 
             while (rs.next()) {
@@ -64,6 +67,7 @@ public class ControlerPedido extends HttpServlet {
                 detalle.setCantidad(rs.getInt("cantidad"));
                 detalle.setPrecio(rs.getDouble("precio"));
                 detalle.setTotalDeta(rs.getDouble("TotalDeta"));
+                detalle.setDescripcion(rs.getString("Descripcion")); 
                 detalles.add(detalle);
             }
             rs.close();
@@ -76,8 +80,8 @@ public class ControlerPedido extends HttpServlet {
         HttpSession session = request.getSession();
         String id = (String) session.getAttribute("IdUsuario");
         String nombre = (String) session.getAttribute("Nombre");
-        System.out.println("EL NOMBRE que llega al servlet es ES:" +nombre);
-        System.out.println("EL id traido es 500: "+id);
+        System.out.println("EL NOMBRE que llega al servlet es ES:" + nombre);
+        System.out.println("EL id traido es 500: " + id);
         System.out.println("Número de pedidos recuperados: " + pedidos.size());
 
         request.setAttribute("pedidos", pedidos);
@@ -86,8 +90,10 @@ public class ControlerPedido extends HttpServlet {
         String operation = request.getParameter("Op");
         if ("Exportar".equals(operation)) {
             exportarPDF(response, pedidos);
+        } else if ("ExportarDetalles".equals(operation)) {
+            String idPedido = request.getParameter("Id_Pedido");
+            exportarDetallesPDF(response, detalles, idPedido);
         } else {
-            
             request.setAttribute("Id_Usuario", id);
             request.setAttribute("Nombre", nombre);
             request.getRequestDispatcher("MenuPedidos.jsp").forward(request, response);
@@ -104,13 +110,13 @@ public class ControlerPedido extends HttpServlet {
             document.open();
             document.add(new Paragraph("Lista de Pedidos"));
 
-            PdfPTable table = new PdfPTable(6); // Número de columnas
+            PdfPTable table = new PdfPTable(6); 
             table.setWidthPercentage(100);
             table.setSpacingBefore(10f);
             table.setSpacingAfter(10f);
 
             // Encabezados de la tabla
-            String[] headers = {"Id_Pedido", "Id_Cliente", "Id_Usuario", "Fecha", "SubTotal", "TotalVenta"};
+            String[] headers = {"Id_Pedido", "Cliente", "Usuario", "Fecha", "SubTotal", "TotalVenta"};
             for (String header : headers) {
                 PdfPCell cell = new PdfPCell(new Phrase(header));
                 cell.setHorizontalAlignment(Element.ALIGN_CENTER);
@@ -125,6 +131,48 @@ public class ControlerPedido extends HttpServlet {
                 table.addCell(pedido.getFecha().toString());
                 table.addCell(String.valueOf(pedido.getSubTotal()));
                 table.addCell(String.valueOf(pedido.getTotalVenta()));
+            }
+
+            document.add(table);
+            document.close();
+        } catch (DocumentException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void exportarDetallesPDF(HttpServletResponse response, ArrayList<DetallePedido> detalles, String idPedido) throws IOException {
+        response.setContentType("application/pdf");
+        response.setHeader("Content-Disposition", "attachment; filename=detalles_pedido_" + idPedido + ".pdf");
+
+        Document document = new Document();
+        try {
+            PdfWriter.getInstance(document, response.getOutputStream());
+            document.open();
+            document.add(new Paragraph("Detalles del Pedido " + idPedido));
+
+            PdfPTable table = new PdfPTable(6); 
+            table.setWidthPercentage(100);
+            table.setSpacingBefore(10f);
+            table.setSpacingAfter(10f);
+
+            // Encabezados de la tabla
+            String[] headers = {"Id_DetallePedido", "Id_Pedido", "Productos", "Cantidad", "Precio", "TotalDeta"};
+            for (String header : headers) {
+                PdfPCell cell = new PdfPCell(new Phrase(header));
+                cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                table.addCell(cell);
+            }
+
+            // Datos de la tabla
+            for (DetallePedido detalle : detalles) {
+                if (detalle.getIdPedido().equals(idPedido)) {
+                    table.addCell(detalle.getIdDetallePedido());
+                    table.addCell(detalle.getIdPedido());
+                    table.addCell(detalle.getDescripcion());
+                    table.addCell(String.valueOf(detalle.getCantidad()));
+                    table.addCell(String.valueOf(detalle.getPrecio()));
+                    table.addCell(String.valueOf(detalle.getTotalDeta()));
+                }
             }
 
             document.add(table);
