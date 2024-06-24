@@ -53,48 +53,7 @@ public class ControlerDemanda extends HttpServlet {
                         
                 request.getRequestDispatcher("MenuDemandas.jsp").forward(request, response);
             break;
-             case "Listar":
-                HttpSession session = request.getSession();
-                String idUsuario = (String) session.getAttribute("IdUsuario");
-                String nombreUsuario = (String) session.getAttribute("Nombre");
-                System.out.println("EL NOMBRE que llega al servlet es ES:" + nombreUsuario);
-                System.out.println("EL id traido es: " + idUsuario);
-
-                List<Producto> listaProductosSinVentas = new ArrayList<>();
-
-                try {
-                     sql = "SELECT p.Id_Prod, p.Descripcion, p.costo, p.precio, p.cantidad " +
-                            "FROM t_producto p " +
-                            "LEFT JOIN t_detalle_pedido dp ON p.Id_Prod = dp.Id_Prod " +
-                            "WHERE dp.Id_Prod IS NULL OR dp.cantidad = 0";
-                    
-                    ps = conn.prepareStatement(sql);
-                    rs = ps.executeQuery();
-
-                    while (rs.next()) {
-                        Producto producto = new Producto();
-                        producto.setIdProd(rs.getString("Id_Prod"));
-                        producto.setDescripcion(rs.getString("Descripcion"));
-                        
-                        producto.setCosto(rs.getDouble("costo"));
-                        producto.setPrecio(rs.getDouble("precio"));
-                        producto.setCantidad(rs.getInt("cantidad"));
-                       
-                        listaProductosSinVentas.add(producto);
-                    }
-
-                    request.setAttribute("Id_Usuario", idUsuario);
-                    request.setAttribute("Nombre", nombreUsuario);
-                    request.setAttribute("Lista", listaProductosSinVentas);
-
-                    request.getRequestDispatcher("MenuProductos.jsp").forward(request, response);
-                } catch (SQLException ex) {
-                    System.out.println("Error de SQL..." + ex.getMessage());
-                } finally {
-                    conBD.Discconet();
-                }
-
-                break;
+             
                 
             case "generarGraficos":
                 generarGraficos(request, response, conn);
