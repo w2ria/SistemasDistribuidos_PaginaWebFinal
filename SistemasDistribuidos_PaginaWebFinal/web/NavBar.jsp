@@ -20,6 +20,7 @@
     boolean isProductos = currentPage.contains("MenuProductos.jsp");
     boolean isPedidos = currentPage.contains("MenuPedidos.jsp");
     boolean isVentas = currentPage.contains("MenuVentas.jsp");
+    boolean isDemandas = currentPage.contains("MenuDemandas.jsp");
     boolean isUsuarios = currentPage.contains("MenuUsuarios.jsp");
     
 %>
@@ -43,6 +44,10 @@
         <a class="cajas" href="ControlerVenta?Op=VerPagina" style="text-decoration: none; color: black; <%= isVentas ? "background-color: #87ceeb" : ""%>">
             <i class="fa-solid fa-clipboard"></i>
             <h1>Ventas</h1>
+        </a>
+        <a class="cajas" href="ControlerDemanda?Op=VerPagina&id=<%= idUsuario%>&nom=<%= XD%>" style="text-decoration: none; color: black; <%= isVentas ? "background-color: #87ceeb" : ""%>">
+            <i class="fas fa-chart-bar"></i>
+            <h1>Demanda Productos</h1>
         </a>
         <% if (esAdmin) {%>
         <a class="cajas" href="ControlerUsuario?Op=Listar" style="text-decoration: none; color: black; <%= isUsuarios ? "background-color: #87ceeb" : ""%>">
@@ -75,6 +80,10 @@
         <a class="cajas" href="ControlerVenta?Op=VerPagina" style="flex-direction: row; text-decoration: none; color: black; <%= isVentas ? "background-color: #87ceeb" : ""%>">
             <i class="fa-solid fa-clipboard"></i>
             <h1 style="font-size: 3.5vh;">Ventas</h1>
+        </a>
+        <a class="cajas" href="ControlerDemanda?Op=VerPagina&id=<%= idUsuario%>&nom=<%= XD%>" style="flex-direction: row; text-decoration: none; color: black; <%= isVentas ? "background-color: #87ceeb" : ""%>">
+            <i class="fa-solid fa-clipboard"></i>
+            <h1 style="font-size: 3.5vh;">DemandaProductos</h1>
         </a>
         <% if (esAdmin) {%>
         <a class="cajas" href="ControlerUsuario?Op=Listar" style="flex-direction: row; text-decoration: none; color: black; <%= isUsuarios ? "background-color: #87ceeb" : ""%>">
