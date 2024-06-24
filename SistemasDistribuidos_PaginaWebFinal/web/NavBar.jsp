@@ -8,29 +8,34 @@
     String idUsuario = (String) request.getAttribute("Id_Usuario");
 
     System.out.println("El nombre en jsp es: " + XD);
-    System.out.println("El ID USUARIOS ES==================================="+idUsuario);
+    System.out.println("El ID USUARIOS ES===================================" + idUsuario);
 
     // Verificar si el usuario es administrador
     boolean esAdmin = idUsuario != null && idUsuario.startsWith("A") || idUsuario.startsWith("a");
-    System.out.println("el admin es: "+ esAdmin);
+    System.out.println("el admin es: " + esAdmin);
 
     // Determinar la pÃ¡gina activa
     String currentPage = request.getRequestURI();
+    boolean isDashboard = currentPage.contains("Dashboard.jsp");
     boolean isClientes = currentPage.contains("MenuClientes.jsp");
     boolean isProductos = currentPage.contains("MenuProductos.jsp");
     boolean isPedidos = currentPage.contains("MenuPedidos.jsp");
     boolean isVentas = currentPage.contains("MenuVentas.jsp");
     boolean isDemandas = currentPage.contains("MenuDemandas.jsp");
     boolean isUsuarios = currentPage.contains("MenuUsuarios.jsp");
-    
+
 %>
 <body style="display: flex"> 
     <div id="sidebar1" class="btnDesplegable" style="background-color: #f0f0f0">
         <div class="cajas" onclick="toggleSidebar()" style="cursor: pointer;">
             <i class="fa-solid fa-bars"></i>
         </div>
+        <a class="cajas" href="ControlerDashboard?Op=Listar" style="text-decoration: none; color: black; <%= isDashboard ? "background-color: #87ceeb" : ""%>">
+            <i class="fa-solid fa-gauge"></i>
+            <h1>Dashboard</h1>
+        </a>
         <a class="cajas" href="ControlerCliente?Op=Listar" style="text-decoration: none; color: black; <%= isClientes ? "background-color: #87ceeb" : ""%>">
-            <i class="fa-solid fa-clipboard"></i>
+            <i class="fa-solid fa-users"></i>
             <h1>Clientes</h1>
         </a>
         <a class="cajas" href="ControlerProducto?Op=Listar" style="text-decoration: none; color: black; <%= isProductos ? "background-color: #87ceeb" : ""%>">
@@ -54,7 +59,7 @@
             <i class="fa-solid fa-user"></i>
             <h1>Usuarios</h1>
         </a>
-        <% } %>
+        <% }%>
         <a class="cajas" href="CerrarSesion" style="text-decoration: none; color: black;">
             <i class="fa-solid fa-power-off"></i>
             <h1>Cerrar Sesion</h1>
@@ -65,8 +70,12 @@
         <div class="cajas" onclick="toggleSidebar()" style="cursor: pointer;">
             <i class="fa-solid fa-bars"></i>
         </div>
+        <a class="cajas" href="ControlerDashboard?Op=Listar" style="flex-direction: row; text-decoration: none; color: black; <%= isDashboard ? "background-color: #87ceeb" : ""%>">
+            <i class="fa-solid fa-gauge"></i>
+            <h1 style="font-size: 3.5vh;">Dashboard</h1>
+        </a>
         <a class="cajas" href="ControlerCliente?Op=Listar" style="flex-direction: row; text-decoration: none; color: black; <%= isClientes ? "background-color: #87ceeb" : ""%>">
-            <i class="fa-solid fa-clipboard"></i>
+            <i class="fa-solid fa-users"></i>
             <h1 style="font-size: 3.5vh;">Clientes</h1>
         </a>
         <a class="cajas" href="ControlerProducto?Op=Listar" style="flex-direction: row; text-decoration: none; color: black; <%= isProductos ? "background-color: #87ceeb" : ""%>">
@@ -90,7 +99,7 @@
             <i class="fa-solid fa-user"></i>
             <h1 style="font-size: 3.5vh;">Usuarios</h1>
         </a>
-        <% } %>
+        <% }%>
         <a class="cajas" href="CerrarSesion" style="flex-direction: row; text-decoration: none; color: black;">
             <i class="fa-solid fa-power-off"></i>
             <h1 style="font-size: 3vh;">Cerrar Sesion</h1>
@@ -104,6 +113,6 @@
             </div>
             <div class="datos">
                 <h2>Bienvenido </h2>
-                <h1><%= XD %></h1>
+                <h1><%= XD%></h1>
             </div>
         </nav>

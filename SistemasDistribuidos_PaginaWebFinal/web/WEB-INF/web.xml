@@ -20,6 +20,10 @@
         <servlet-name>ControlerUsuario</servlet-name>
         <servlet-class>Controladores.ControlerUsuario</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>ControlerDashboard</servlet-name>
+        <servlet-class>Controladores.ControlerDashboard</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>ValidarLogin</servlet-name>
         <url-pattern>/ValidarLogin</url-pattern>
@@ -39,6 +43,10 @@
     <servlet-mapping>
         <servlet-name>ControlerUsuario</servlet-name>
         <url-pattern>/ControlerUsuario</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ControlerDashboard</servlet-name>
+        <url-pattern>/ControlerDashboard</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

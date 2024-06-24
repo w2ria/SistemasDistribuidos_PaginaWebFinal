@@ -78,7 +78,7 @@ public class ValidarLogin extends HttpServlet {
                         //session.setMaxInactiveInterval(5); // se le da 10 segundos, sino al hacer una accion se cierra, le di 5 segundos mas para q no haya problemas al contar y espere que llegue a 0 el contador de js                     
                         //request.getRequestDispatcher("MenuClientes.jsp").forward(request, response);
                         System.out.println("EL NOMBRE DESDE LA BD ES:" + nombre);
-                        response.sendRedirect("ControlerCliente?Op=Listar");
+                        response.sendRedirect("ControlerDashboard?Op=Listar");
                     } else {
                         // Contraseña incorrecta
                         intentosFallidos++;
