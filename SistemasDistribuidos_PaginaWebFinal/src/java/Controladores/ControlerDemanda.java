@@ -5,6 +5,7 @@
 package Controladores;
 
 import Entidades.Producto;
+import Entidades.ProductosDemandados;
 import Entidades.Usuario;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -43,7 +44,13 @@ public class ControlerDemanda extends HttpServlet {
         PreparedStatement ps = null;
         ResultSet rs = null;
         String sql;
-          
+        HttpSession session = request.getSession();
+       
+        List<ProductosDemandados> productosCeroVentas = (List<ProductosDemandados>) session.getAttribute("productosCeroVentas");
+            if (productosCeroVentas == null) {
+                productosCeroVentas = new ArrayList<>();
+           }  
+            
         switch (opcion) {
             case "VerPagina":
                 String id = request.getParameter("id");
@@ -58,7 +65,9 @@ public class ControlerDemanda extends HttpServlet {
             case "generarGraficos":
                 generarGraficos(request, response, conn);
                 break;
-                
+             case "obtenerProductosCeroVentas":
+                obtenerProductosCeroVentas(request, response, conn);
+                break;       
             default:
                 response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Opción no válida");
                 break;
@@ -173,6 +182,36 @@ public class ControlerDemanda extends HttpServlet {
         
     }
 
+    private void obtenerProductosCeroVentas(HttpServletRequest request, HttpServletResponse response, Connection conn) throws ServletException, IOException {
+        List<ProductosDemandados> productosCeroVentas = new ArrayList<>();
+            String sql = "SELECT t_producto.Id_Prod, t_producto.Descripcion, t_producto.cantidad " +
+                         "FROM t_producto LEFT JOIN t_detalle_pedido ON t_producto.Id_Prod = t_detalle_pedido.Id_Prod " +
+                         "WHERE t_detalle_pedido.Id_Prod IS NULL OR t_detalle_pedido.cantidad = 0";
+
+            try (PreparedStatement ps = conn.prepareStatement(sql);
+                 ResultSet rs = ps.executeQuery()) {
+
+                while (rs.next()) {
+                    ProductosDemandados producto = new ProductosDemandados();
+                    producto.setIdProducto(rs.getString("Id_Prod"));
+                    producto.setNombreProducto(rs.getString("Descripcion"));
+                    producto.setTotalCantidad(rs.getInt("cantidad"));
+                    productosCeroVentas.add(producto);
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+            // Guardar la lista en sesión
+            HttpSession session = request.getSession();
+            session.setAttribute("productosCeroVentas", productosCeroVentas);
+
+            // Redirigir a la página de demandas
+            request.getRequestDispatcher("MenuDemandas.jsp").forward(request, response);
+        }
+    
+}
+
    
 
-}
+
