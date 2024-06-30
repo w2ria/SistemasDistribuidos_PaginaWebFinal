@@ -11,7 +11,11 @@
     System.out.println("El ID USUARIOS ES===================================" + idUsuario);
 
     // Verificar si el usuario es administrador
-    boolean esAdmin = idUsuario != null && idUsuario.startsWith("A") || idUsuario.startsWith("a");
+
+   //CAMBIOOO
+boolean esAdmin = idUsuario != null && (idUsuario.startsWith("A") || idUsuario.startsWith("a"));
+    //FIN CAMBIO
+
     System.out.println("el admin es: " + esAdmin);
 
     // Determinar la pÃ¡gina activa
