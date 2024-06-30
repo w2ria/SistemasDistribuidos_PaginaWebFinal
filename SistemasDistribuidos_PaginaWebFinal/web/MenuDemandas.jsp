@@ -153,6 +153,8 @@
             flex: 1; 
             margin: 0 2%; /* Margen horizontal espacio entre cada grafico*/
         }
+        
+        
     </style>
 </head>
 <body style="display: flex">
@@ -203,7 +205,46 @@
                         <canvas id="graficoProductosMenosComprados"></canvas>
                     </div>
                 </div>
+                <br><br>
+                
+                
+                
+                
+               <div style="display: flex; justify-content: center;">
+                    <form action="ControlerDemanda" style="width: 50%;" method="get">
+                        <input type="hidden" name="Op" value="obtenerProductosCeroVentas">
+                        <button type="submit" >Ver productos con 0 ventas</button>
+                    </form>
+                </div>
 
+               
+
+                <!-- Contenedor para la tabla de productos con 0 ventas -->
+                <div id="productosCeroVentas" class="zero-sales-container">
+                    <h2 style="text-align: center;">Productos con 0 Ventas</h2>
+                    <table class="zero-sales-table">
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Nombre</th>
+                                <th>Stock</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <c:forEach var="producto" items="${productosCeroVentas}">
+                                <tr>
+                                    <td>${producto.idProducto}</td>
+                                    <td>${producto.nombreProducto}</td>
+                                    <td>${producto.totalCantidad}</td>
+                                    
+                                </tr>
+                            </c:forEach>
+                        </tbody>
+                    </table>
+                    <br>
+                </div>
+                
+                
             </div>
         </div>
     </div>
@@ -368,7 +409,49 @@
 
 
     </script>
+    
+    <style>
+        /* Estilo para centrar la tabla y ajustar el diseño */
+       .zero-sales-container {
+           width: 80%; /* Ancho deseado para la tabla */
+           margin: auto; /* Centra horizontalmente */
+           background-color: #ffffff; /* Color de fondo */
+           padding: 20px; /* Espaciado interior */
+           border: 1px solid #ffffff; /* Borde */
+           border-radius: 5px; /* Bordes redondeados */
+           box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Sombra */
+           margin-top: 20px; /* Espacio superior */
+       }
 
+       .zero-sales-table {
+           width: 100%; /* Ancho completo de la tabla */
+           border-collapse: collapse; /* Colapsar bordes de celda */
+       }
+
+       .zero-sales-table th,
+       .zero-sales-table td {
+           padding: 8px; /* Espaciado interior de celda */
+           text-align: left; /* Alineación del texto */
+       }
+
+       .zero-sales-table th {
+           background-color: #8767e0; /* Color de fondo para encabezado */
+           color: #f1f1f1; /* Color de texto */
+       }
+
+       .zero-sales-table tbody tr:nth-child(even) {
+           background-color: #ffffff; /* Color de fondo para filas pares */
+
+       }
+
+       .zero-sales-table tbody tr:nth-child(odd) {
+           background-color: #f2f1f3; /* Color de fondo para filas impares */
+       }
+
+       .zero-sales-table tbody tr:hover {
+           background-color: #e6e6e6; /* Color de fondo al pasar el mouse */
+       }
+   </style>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
