@@ -470,12 +470,11 @@ break;
     
     private void generarVenta(HttpServletRequest request, HttpServletResponse response)
         throws ServletException, IOException {
-        HttpSession session = request.getSession();
-        String id = (String) session.getAttribute("IdUsuario");
-        String nombre = (String) session.getAttribute("Nombre");
-        ArrayList<Venta> listaVentas = (ArrayList<Venta>) session.getAttribute("listaVentas");
+    HttpSession session = request.getSession();
+    String idUsuario = (String) session.getAttribute("IdUsuario");
+    String nombre = (String) session.getAttribute("Nombre");
+    ArrayList<Venta> listaVentas = (ArrayList<Venta>) session.getAttribute("listaVentas");
    
-        
     // Validar si se ha buscado previamente al cliente
     String idCliente = (String) session.getAttribute("idCliente");
     String dniCliente = (String) session.getAttribute("dniCliente");
@@ -485,110 +484,107 @@ break;
     if (idCliente == null || dniCliente == null || nombreCliente == null || apellidosCliente == null) {
         // Mostrar un mensaje de error indicando que es necesario seleccionar un cliente
         request.setAttribute("errorMessage", "Es necesario seleccionar un cliente.");
-        request.setAttribute("Id_Usuario", id);
+        request.setAttribute("Id_Usuario", idUsuario);
         request.setAttribute("Nombre", nombre);
         request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
         return;
-        }
+    }
         
-       if (listaVentas == null || listaVentas.isEmpty()) {
-            request.setAttribute("mensajeSinProductos", "No hay productos en la venta.");
-            request.setAttribute("Id_Usuario", id);
-            request.setAttribute("Nombre", nombre);
-            request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
-            return;
+    if (listaVentas == null || listaVentas.isEmpty()) {
+        request.setAttribute("mensajeSinProductos", "No hay productos en la venta.");
+        request.setAttribute("Id_Usuario", idUsuario);
+        request.setAttribute("Nombre", nombre);
+        request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
+        return;
+    }
+
+    Connection conn = null;
+    PreparedStatement psPedido = null;
+    PreparedStatement psDetalle = null;
+
+    try {
+        Conexion.Conexion conBD = new Conexion.Conexion();
+        conn = conBD.Conexion();
+        conn.setAutoCommit(false); // Deshabilitar el modo de autocommit
+
+        String idPedido = generarNuevoIdPedido();
+        idCliente = (String) session.getAttribute("idCliente"); // Obtener ID del cliente desde la sesión
+            
+        // Calcular subtotal y IGV
+        double subtotal = calcularSubtotal(listaVentas);
+        double igv = calcularIGV(subtotal);
+        double totalCompra = calcularTotal(subtotal, igv);
+
+        String sqlPedido = "INSERT INTO t_pedido (Id_Pedido, Id_Cliente, Id_Usuario, Fecha, SubTotal, TotalVenta) VALUES (?, ?, ?, NOW(), ?, ?)";
+        psPedido = conn.prepareStatement(sqlPedido);
+        psPedido.setString(1, idPedido);
+        psPedido.setString(2, idCliente);
+        psPedido.setString(3, idUsuario);
+        psPedido.setDouble(4, subtotal); // Subtotal sin IGV
+        psPedido.setDouble(5, totalCompra); // Total con IGV
+        psPedido.executeUpdate();
+
+        String sqlDetalle = "INSERT INTO t_detalle_pedido (Id_DetallePedido, Id_Pedido, Id_Prod, cantidad, precio, TotalDeta) VALUES (?, ?, ?, ?, ?, ?)";
+        psDetalle = conn.prepareStatement(sqlDetalle);
+
+        for (Venta venta : listaVentas) {
+            String idDetallePedido = generarIdDetallePedido();
+            psDetalle.setString(1, idDetallePedido);
+            psDetalle.setString(2, idPedido);
+            psDetalle.setString(3, venta.getCodigoProducto());
+            psDetalle.setInt(4, venta.getCantidadProducto());
+            psDetalle.setDouble(5, venta.getPrecioProducto());
+            psDetalle.setDouble(6, venta.getTotalDeta());
+            psDetalle.addBatch();
         }
 
+        psDetalle.executeBatch();
 
-        Connection conn = null;
-        PreparedStatement psPedido = null;
-        PreparedStatement psDetalle = null;
+        // Actualizar el stock de productos vendidos
+        actualizarStockProductos(listaVentas, conn);
 
+        conn.commit();
+            
+        request.getSession().setAttribute("idPedido", idPedido);
+
+        // Limpiar datos del cliente de la sesión
+        session.removeAttribute("idCliente");
+        session.removeAttribute("dniCliente");
+        session.removeAttribute("nombreCliente");
+        session.removeAttribute("apellidosCliente");
+
+        session.removeAttribute("listaVentas"); // Limpiar la lista de ventas
+        response.sendRedirect("MenuVentas.jsp?ventaGuardada=true"); // Redirigir con el parámetro
+
+    } catch (SQLException ex) {
         try {
-            Conexion.Conexion conBD = new Conexion.Conexion();
-            conn = conBD.Conexion();
-            conn.setAutoCommit(false); // Deshabilitar el modo de autocommit
-
-            String idPedido = generarNuevoIdPedido();
-            idCliente = (String) session.getAttribute("idCliente"); // Obtener ID del cliente desde la sesión
-            String idUsuario = request.getParameter("idUsuario");
-            
-             // Calcular subtotal y IGV
-            double subtotal = calcularSubtotal(listaVentas);
-            double igv = calcularIGV(subtotal);
-            double totalCompra = calcularTotal(subtotal, igv);
-
-            String sqlPedido = "INSERT INTO t_pedido (Id_Pedido, Id_Cliente, Id_Usuario, Fecha, SubTotal, TotalVenta) VALUES (?, ?, ?, NOW(), ?, ?)";
-            psPedido = conn.prepareStatement(sqlPedido);
-            psPedido.setString(1, idPedido);
-            psPedido.setString(2, idCliente);
-            psPedido.setString(3, idUsuario);
-            psPedido.setDouble(4, subtotal); //corregir por SubTotal sin IGV
-            psPedido.setDouble(5, totalCompra); //corregir por Total con IGV
-            psPedido.executeUpdate();
-
-            String sqlDetalle = "INSERT INTO t_detalle_pedido (Id_DetallePedido, Id_Pedido, Id_Prod, cantidad, precio, TotalDeta) VALUES (?, ?, ?, ?, ?, ?)";
-            psDetalle = conn.prepareStatement(sqlDetalle);
-
-            for (Venta venta : listaVentas) {
-                String idDetallePedido = generarIdDetallePedido();
-                psDetalle.setString(1, idDetallePedido);
-                psDetalle.setString(2, idPedido);
-                psDetalle.setString(3, venta.getCodigoProducto());
-                psDetalle.setInt(4, venta.getCantidadProducto());
-                psDetalle.setDouble(5, venta.getPrecioProducto());
-                psDetalle.setDouble(6, venta.getTotalDeta());
-                psDetalle.addBatch();
+            if (conn != null) {
+                conn.rollback();
             }
-
-            psDetalle.executeBatch();
-
-             // Actualizar el stock de productos vendidos
-            actualizarStockProductos(listaVentas, conn);
-
-
-            conn.commit();
-            
-            request.getSession().setAttribute("idPedido", idPedido);
-
-            // Limpiar datos del cliente de la sesión
-            session.removeAttribute("idCliente");
-            session.removeAttribute("dniCliente");
-            session.removeAttribute("nombreCliente");
-            session.removeAttribute("apellidosCliente");
-
-            session.removeAttribute("listaVentas"); // Limpiar la lista de ventas
-            response.sendRedirect("MenuVentas.jsp?ventaGuardada=true"); // Redirigir con el parámetro
-
-        } catch (SQLException ex) {
-            try {
-                if (conn != null) {
-                    conn.rollback();
-                }
-            } catch (SQLException rollbackEx) {
-                rollbackEx.printStackTrace();
-            }
-
-            ex.printStackTrace();
-            response.getWriter().println("Error en la aplicación: " + ex.getMessage());
-
-        } finally {
-            try {
-                if (psPedido != null) {
-                    psPedido.close();
-                }
-                if (psDetalle != null) {
-                    psDetalle.close();
-                }
-                if (conn != null) {
-                    conn.setAutoCommit(true);
-                    conn.close();
-                }
-            } catch (SQLException closeEx) {
-                closeEx.printStackTrace();
-            }
+        } catch (SQLException rollbackEx) {
+            rollbackEx.printStackTrace();
         }
-    } 
+
+        ex.printStackTrace();
+        response.getWriter().println("Error en la aplicación: " + ex.getMessage());
+
+    } finally {
+        try {
+            if (psPedido != null) {
+                psPedido.close();
+            }
+            if (psDetalle != null) {
+                psDetalle.close();
+            }
+            if (conn != null) {
+                conn.setAutoCommit(true);
+                conn.close();
+            }
+        } catch (SQLException closeEx) {
+            closeEx.printStackTrace();
+        }
+    }
+}
 
 
     private String generarNuevoIdPedido() {
