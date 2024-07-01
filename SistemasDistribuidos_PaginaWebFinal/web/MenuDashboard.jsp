@@ -160,7 +160,7 @@
                         </div>
                     </div>
 
-                    <div class="col-lg-4 style="padding-top: 1%;">
+                    <div class="col-lg-4" style="padding-top: 1%;">
                         <div class="card w-100">
                             <div class="card-body">
                                 <h3 class="card-title" style="font-size: 18px;">Seguimiento de Pedidos</h3>
@@ -169,7 +169,7 @@
                         </div>
                     </div>
 
-                    <div class="col-lg-6 style="padding-top: 1%;">
+                    <div class="col-lg-6" style="padding-top: 1%;">
                         <div class="card w-100">
                             <div class="card-body" style="max-height:440px;">
                                 <div class="d-flex align-items-center">

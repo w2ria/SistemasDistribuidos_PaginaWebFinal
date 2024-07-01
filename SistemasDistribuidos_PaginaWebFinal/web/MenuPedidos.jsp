@@ -9,6 +9,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <title>Listado de Pedidos</title>
+    <link rel="stylesheet" href="resources/css/Style.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://kit.fontawesome.com/26a3cc7edf.js" crossorigin="anonymous"></script>
     <style>
@@ -23,64 +24,6 @@
             background-color: white;
             border-radius: 0.5rem;
             padding: 1rem;
-        }
-        .btnDesplegable {
-            height: 100vh;
-            width: 6%;
-            position: fixed;
-            transition: transform 0.5s ease;
-            z-index: 1;
-        }
-        .cajas {
-            height: 12vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-        }
-        .cajas:hover {
-            background-color: #87ceeb;
-        }
-        .cajas:nth-child(n+2) {
-            flex-direction: column;
-        }
-        .cajas:last-child {
-            width: 100%;
-            position: absolute;
-            bottom: 0;
-            margin-bottom: 2vh;
-        }
-        .cajas i {
-            font-size: 5vh;
-            padding: 0.2vh;
-        }
-        .cajas h1 {
-            font-size: 2.5vh;
-            padding: 0.2vh;
-            text-align: center;
-        }
-        .navMasContenido {
-            width: 100%;
-        }
-        .navegador {
-            height: 12vh;
-            display: flex;
-            justify-content: space-around;
-        }
-        .imagen {
-            width: 12wh;
-            height: 100%;
-        }
-        .imagen img {
-            width: 100%;
-            height: 100%;
-        }
-        .datos {
-            display: flex;
-            align-items: center;
-        }
-        .Aparecer {
-            transform: translateX(0);
         }
     </style>
 </head>
