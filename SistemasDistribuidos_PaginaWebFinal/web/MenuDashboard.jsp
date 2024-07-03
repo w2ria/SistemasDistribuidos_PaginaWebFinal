@@ -6,8 +6,8 @@
 <%
     String ventasDataJson = (String) request.getAttribute("ventasData");
     String gananciasDataJson = (String) request.getAttribute("gananciasData");
-    String pedidosDataJson = (String) request.getAttribute("pedidosData");
     String empleadosDataJson = (String) request.getAttribute("empleadosData");
+    String pedidosDataJson = (String) request.getAttribute("pedidosData");
 %>
 
 <!DOCTYPE html>
@@ -160,16 +160,7 @@
                         </div>
                     </div>
 
-                    <div class="col-lg-4" style="padding-top: 1%;">
-                        <div class="card w-100">
-                            <div class="card-body">
-                                <h3 class="card-title" style="font-size: 18px;">Seguimiento de Pedidos</h3>
-                                <canvas id="pedidos-chart" style="width:100%;max-width:700px"></canvas>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="col-lg-6" style="padding-top: 1%;">
+                    <div class="col-sm-10 col-lg-10 mb-3 d-flex">
                         <div class="card w-100">
                             <div class="card-body" style="max-height:440px;">
                                 <div class="d-flex align-items-center">
@@ -185,7 +176,16 @@
                                         </div>
                                     </div>
                                 </div>
-                                <canvas id="empleados-chart" style="width:100%;max-height:356px;max-width:700px"></canvas>
+                                <canvas id="empleados-chart" style="width:100%;max-height:356px;"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-10" style="padding-top: 1%; display: none;">
+                        <div class="card w-100">
+                            <div class="card-body">
+                                <h3 class="card-title" style="font-size: 18px;">Seguimiento de Pedidos</h3>
+                                <canvas id="pedidos-chart" style="width:100%;max-width:700px"></canvas>
                             </div>
                         </div>
                     </div>
@@ -193,9 +193,9 @@
 
                 <script>
                     var ventasData = <%= ventasDataJson%>;
-                    var gananciasData = <%= gananciasDataJson%>;
-                    var pedidosData = <%= pedidosDataJson%>;
+                    var gananciasData = <%= gananciasDataJson%>; 
                     var empleadosData = <%= empleadosDataJson%>;
+                    var pedidosData = <%= pedidosDataJson%>;
                 </script>
             </div>
         </div>
