@@ -40,33 +40,35 @@ public class ControlerDashboard extends HttpServlet {
                 String nombre = (String) session.getAttribute("Nombre");
                 request.setAttribute("Id_Usuario", id);
                 request.setAttribute("Nombre", nombre);
+                request.setAttribute("jsonDatos", obtenerDatosComoJSON());
+                System.out.println("jsonDatos: " + obtenerDatosComoJSON());
 
                 Map<String, Object> ventasData = obtenerVentas();
-                System.out.println("ventasData: " + ventasData);
+                //System.out.println("ventasData: " + ventasData);
                 Gson gson = new Gson();
                 String ventasDataJson = gson.toJson(ventasData);
-                System.out.println("ventasDataJson: " + ventasDataJson);
+                //System.out.println("ventasDataJson: " + ventasDataJson);
                 request.setAttribute("ventasData", ventasDataJson);
 
                 Map<String, Object> gananciasData = obtenerGanancias();
-                System.out.println("gananciasData: " + gananciasData);
+                //System.out.println("gananciasData: " + gananciasData);
                 gson = new Gson();
                 String gananciasDataJson = gson.toJson(gananciasData);
-                System.out.println("gananciasDataJson: " + gananciasDataJson);
+                //System.out.println("gananciasDataJson: " + gananciasDataJson);
                 request.setAttribute("gananciasData", gananciasDataJson);
 
                 Map<String, Object> pedidosData = obtenerPedidos();
-                System.out.println("pedidosData: " + pedidosData);
+                //System.out.println("pedidosData: " + pedidosData);
                 gson = new Gson();
                 String pedidosDataJson = gson.toJson(pedidosData);
-                System.out.println("pedidosDataJson: " + pedidosDataJson);
+                //System.out.println("pedidosDataJson: " + pedidosDataJson);
                 request.setAttribute("pedidosData", pedidosDataJson);
 
                 Map<String, Object> empleadosData = obtenerEmpleados();
-                System.out.println("empleadosData: " + empleadosData);
+                //System.out.println("empleadosData: " + empleadosData);
                 gson = new Gson();
                 String empleadosDataJson = gson.toJson(empleadosData);
-                System.out.println("empleadosDataJson: " + empleadosDataJson);
+                //System.out.println("empleadosDataJson: " + empleadosDataJson);
                 request.setAttribute("empleadosData", empleadosDataJson);
 
                 request.getRequestDispatcher("MenuDashboard.jsp").forward(request, response);
@@ -901,5 +903,590 @@ public class ControlerDashboard extends HttpServlet {
         }
         return -1;
     }
-    
+
+    public String obtenerDatosComoJSON() {
+        Map<String, Object> datos = new HashMap<>();
+        datos.put("ventas7Valor", obtenerVentasSemanalesValor());
+        datos.put("ventas30Valor", obtenerVentasMensualesValor());
+        datos.put("ventas365Valor", obtenerVentasAnualesValor());
+        datos.put("ganancias7Valor", obtenerGananciasSemanalesValor());
+        datos.put("ganancias30Valor", obtenerGananciasMensualesValor());
+        datos.put("ganancias365Valor", obtenerGananciasAnualesValor());
+        datos.put("txtPedidosValor", obtenerPedidosValor());
+        datos.put("txtPedidosPromedioValor", obtenerPedidosPromedioValor());
+        datos.put("txtProductosValor", obtenerProductosValor());
+        datos.put("txtProductosVendidosValor", obtenerProductosVendidosValor());
+        datos.put("txtClientesValor", obtenerClientesValor());
+        datos.put("txtClientesActivosValor", obtenerClientesActivosValor());
+        datos.put("txtEmpleadosValor", obtenerEmpleadosValor());
+        datos.put("txtEmpleadosActivosValor", obtenerEmpleadosActivosValor());
+
+        Gson gson = new Gson();
+        return gson.toJson(datos);
+    }
+
+    public double obtenerVentasSemanalesValor() {
+        Conexion.Conexion conBD = new Conexion.Conexion();
+        Connection conn = conBD.Conexion();
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        double sumaVentasSemanales = 0;
+
+        try {
+            String sql = "SELECT COALESCE(SUM(p.TotalVenta), 0) AS SumaTotalVentasSemanales "
+                    + "FROM t_pedido p "
+                    + "WHERE p.Fecha >= DATE_SUB(CURDATE(), INTERVAL (WEEKDAY(CURDATE()) + 7) % 7 DAY) "
+                    + "AND p.Fecha <= CURDATE()";
+
+            ps = conn.prepareStatement(sql);
+            rs = ps.executeQuery();
+
+            if (rs.next()) {
+                sumaVentasSemanales = rs.getDouble("SumaTotalVentasSemanales");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return sumaVentasSemanales;
+    }
+
+    public double obtenerVentasMensualesValor() {
+        Conexion.Conexion conBD = new Conexion.Conexion();
+        Connection conn = conBD.Conexion();
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        double sumaVentasMensuales = 0;
+
+        try {
+            String sql = "SELECT COALESCE(SUM(p.TotalVenta), 0) AS SumaTotalVentasMensuales "
+                    + "FROM t_pedido p "
+                    + "WHERE p.Fecha >= DATE_SUB(CURDATE(), INTERVAL DAYOFMONTH(CURDATE()) - 1 DAY) "
+                    + "AND p.Fecha <= LAST_DAY(CURDATE())";
+
+            ps = conn.prepareStatement(sql);
+            rs = ps.executeQuery();
+
+            if (rs.next()) {
+                sumaVentasMensuales = rs.getDouble("SumaTotalVentasMensuales");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return sumaVentasMensuales;
+    }
+
+    public double obtenerVentasAnualesValor() {
+        Conexion.Conexion conBD = new Conexion.Conexion();
+        Connection conn = conBD.Conexion();
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        double sumaVentasAnuales = 0;
+
+        try {
+            String sql = "SELECT COALESCE(SUM(p.TotalVenta), 0) AS SumaTotalVentasAnuales "
+                    + "FROM t_pedido p "
+                    + "WHERE p.Fecha >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR) "
+                    + "AND p.Fecha <= CURDATE()";
+
+            ps = conn.prepareStatement(sql);
+            rs = ps.executeQuery();
+
+            if (rs.next()) {
+                sumaVentasAnuales = rs.getDouble("SumaTotalVentasAnuales");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return sumaVentasAnuales;
+    }
+
+    public double obtenerGananciasSemanalesValor() {
+        Conexion.Conexion conBD = new Conexion.Conexion();
+        Connection conn = conBD.Conexion();
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        double gananciasSemanales = 0;
+
+        try {
+            String sql = "SELECT COALESCE(SUM(dp.cantidad * (prod.precio - prod.costo)), 0) AS GananciasSemanales "
+                    + "FROM ( "
+                    + "    SELECT dp.Id_Pedido, dp.Id_Prod, dp.cantidad, t_producto.precio, t_producto.costo "
+                    + "    FROM t_detalle_pedido dp "
+                    + "    INNER JOIN t_pedido ON dp.Id_Pedido = t_pedido.Id_Pedido "
+                    + "    INNER JOIN t_producto ON dp.Id_Prod = t_producto.Id_Prod "
+                    + "    WHERE t_pedido.Fecha >= DATE_SUB(CURDATE(), INTERVAL (WEEKDAY(CURDATE()) + 7) % 7 DAY) "
+                    + "      AND t_pedido.Fecha <= CURDATE() "
+                    + ") dp "
+                    + "LEFT JOIN t_producto prod ON dp.Id_Prod = prod.Id_Prod";
+
+            ps = conn.prepareStatement(sql);
+            rs = ps.executeQuery();
+
+            if (rs.next()) {
+                gananciasSemanales = rs.getDouble("GananciasSemanales");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return gananciasSemanales;
+    }
+
+    public double obtenerGananciasMensualesValor() {
+        Conexion.Conexion conBD = new Conexion.Conexion();
+        Connection conn = conBD.Conexion();
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        double gananciasMensuales = 0;
+
+        try {
+            String sql = "SELECT COALESCE(SUM(dp.cantidad * (prod.precio - prod.costo)), 0) AS GananciasMensuales "
+                    + "FROM t_detalle_pedido dp "
+                    + "INNER JOIN t_pedido ON dp.Id_Pedido = t_pedido.Id_Pedido "
+                    + "INNER JOIN t_producto prod ON dp.Id_Prod = prod.Id_Prod "
+                    + "WHERE t_pedido.Fecha >= DATE_SUB(CURDATE(), INTERVAL 1 MONTH) "
+                    + "  AND t_pedido.Fecha <= LAST_DAY(CURDATE())";
+
+            ps = conn.prepareStatement(sql);
+            rs = ps.executeQuery();
+
+            if (rs.next()) {
+                gananciasMensuales = rs.getDouble("GananciasMensuales");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return gananciasMensuales;
+    }
+
+    public double obtenerGananciasAnualesValor() {
+        Conexion.Conexion conBD = new Conexion.Conexion();
+        Connection conn = conBD.Conexion();
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        double gananciasAnuales = 0;
+
+        try {
+            String sql = "SELECT COALESCE(SUM(dp.cantidad * (prod.precio - prod.costo)), 0) AS GananciasAnuales "
+                    + "FROM t_detalle_pedido dp "
+                    + "INNER JOIN t_pedido ON dp.Id_Pedido = t_pedido.Id_Pedido "
+                    + "INNER JOIN t_producto prod ON dp.Id_Prod = prod.Id_Prod "
+                    + "WHERE t_pedido.Fecha >= DATE_SUB(CURDATE(), INTERVAL 1 YEAR) "
+                    + "  AND t_pedido.Fecha <= CURDATE()";
+
+            ps = conn.prepareStatement(sql);
+            rs = ps.executeQuery();
+
+            if (rs.next()) {
+                gananciasAnuales = rs.getDouble("GananciasAnuales");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return gananciasAnuales;
+    }
+
+    public int obtenerPedidosValor() {
+        Conexion.Conexion conBD = new Conexion.Conexion();
+        Connection conn = conBD.Conexion();
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        int totalPedidos = 0;
+
+        try {
+            String sql = "SELECT COUNT(*) AS TotalPedidos FROM t_pedido";
+            ps = conn.prepareStatement(sql);
+            rs = ps.executeQuery();
+
+            if (rs.next()) {
+                totalPedidos = rs.getInt("TotalPedidos");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return totalPedidos;
+    }
+
+    public double obtenerPedidosPromedioValor() {
+        Conexion.Conexion conBD = new Conexion.Conexion();
+        Connection conn = conBD.Conexion();
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        double promedioPedidosDiarios = 0;
+
+        try {
+            String sql = "SELECT AVG(TotalPedidos) AS PromedioPedidosDiarios "
+                    + "FROM ( "
+                    + "    SELECT COUNT(*) AS TotalPedidos "
+                    + "    FROM t_pedido "
+                    + "    GROUP BY Fecha "
+                    + ") AS PedidosDiarios";
+
+            ps = conn.prepareStatement(sql);
+            rs = ps.executeQuery();
+
+            if (rs.next()) {
+                promedioPedidosDiarios = rs.getDouble("PromedioPedidosDiarios");
+            } else {
+                System.out.println("No se encontraron datos para calcular el promedio de pedidos diarios.");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return promedioPedidosDiarios;
+    }
+
+    public int obtenerProductosValor() {
+        Conexion.Conexion conBD = new Conexion.Conexion();
+        Connection conn = conBD.Conexion();
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        int totalProductos = 0;
+
+        try {
+            String sql = "SELECT COUNT(*) AS TotalProductos FROM t_producto";
+
+            ps = conn.prepareStatement(sql);
+            rs = ps.executeQuery();
+
+            if (rs.next()) {
+                totalProductos = rs.getInt("TotalProductos");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return totalProductos;
+    }
+
+    public int obtenerProductosVendidosValor() {
+        Conexion.Conexion conBD = new Conexion.Conexion();
+        Connection conn = conBD.Conexion();
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        int totalUnidadesProductosVendidos = 0;
+
+        try {
+            String sql = "SELECT SUM(dp.cantidad) AS TotalUnidadesProductosVendidos FROM t_detalle_pedido dp";
+
+            ps = conn.prepareStatement(sql);
+            rs = ps.executeQuery();
+
+            if (rs.next()) {
+                totalUnidadesProductosVendidos = rs.getInt("TotalUnidadesProductosVendidos");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return totalUnidadesProductosVendidos;
+    }
+
+    public int obtenerClientesValor() {
+        Conexion.Conexion conBD = new Conexion.Conexion();
+        Connection conn = conBD.Conexion();
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        int totalClientes = 0;
+
+        try {
+            String sql = "SELECT COUNT(*) AS TotalClientes FROM t_cliente";
+
+            ps = conn.prepareStatement(sql);
+            rs = ps.executeQuery();
+
+            if (rs.next()) {
+                totalClientes = rs.getInt("TotalClientes");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return totalClientes;
+    }
+
+    public int obtenerClientesActivosValor() {
+        Conexion.Conexion conBD = new Conexion.Conexion();
+        Connection conn = conBD.Conexion();
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        int clientesActivos = 0;
+
+        try {
+            String sql = "SELECT COUNT(*) AS ClientesActivos FROM t_cliente WHERE estado = 'Activo'";
+            ps = conn.prepareStatement(sql);
+            rs = ps.executeQuery();
+
+            if (rs.next()) {
+                clientesActivos = rs.getInt("ClientesActivos");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return clientesActivos;
+    }
+
+    public int obtenerEmpleadosValor() {
+        int totalEmpleados = 0;
+        Conexion.Conexion conBD = new Conexion.Conexion();
+        Connection conn = conBD.Conexion();
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            String sql = "SELECT COUNT(*) AS TotalEmpleados FROM t_usuario WHERE Id_Usuario LIKE 'u%'";
+            ps = conn.prepareStatement(sql);
+            rs = ps.executeQuery();
+
+            if (rs.next()) {
+                totalEmpleados = rs.getInt("TotalEmpleados");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return totalEmpleados;
+    }
+
+    public int obtenerEmpleadosActivosValor() {
+        int totalEmpleadosActivos = 0;
+        Conexion.Conexion conBD = new Conexion.Conexion();
+        Connection conn = conBD.Conexion();
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+
+        try {
+            String sql = "SELECT COUNT(*) AS TotalEmpleadosActivos FROM t_usuario WHERE Id_Usuario LIKE 'u%' AND Estado = 'Activo'";
+            ps = conn.prepareStatement(sql);
+            rs = ps.executeQuery();
+
+            if (rs.next()) {
+                totalEmpleadosActivos = rs.getInt("TotalEmpleadosActivos");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return totalEmpleadosActivos;
+    }
+
 }
