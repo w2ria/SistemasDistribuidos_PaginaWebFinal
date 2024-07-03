@@ -1,3 +1,14 @@
+document.addEventListener('DOMContentLoaded', function () {
+    document.getElementById('txtPedidosValor').innerText = `${datos.txtPedidosValor} Pedidos`;
+    document.getElementById('txtPedidosPromedioValor').innerText = `${datos.txtPedidosPromedioValor} Pedidos diarios promedio`;
+    document.getElementById('txtProductosValor').innerText = `${datos.txtProductosValor} Productos`;
+    document.getElementById('txtProductosVendidosValor').innerText = `${datos.txtProductosVendidosValor} Productos vendidos`;
+    document.getElementById('txtClientesValor').innerText = `${datos.txtClientesValor} Clientes`;
+    document.getElementById('txtClientesActivosValor').innerText = `${datos.txtClientesActivosValor} Clientes activos`;
+    document.getElementById('txtEmpleadosValor').innerText = `${datos.txtEmpleadosValor} Empleados`;
+    document.getElementById('txtEmpleadosActivosValor').innerText = `${datos.txtEmpleadosActivosValor} Empleados Activos`;
+});
+
 // grafico de ventas 
 let ventasChartChart = document.getElementById("ventas-chart").getContext("2d");
 
@@ -35,31 +46,41 @@ const updateVentasChart = (data, labels) => {
     ventasChart.update();
 };
 
-document.querySelectorAll('#ventasDropdown .dropdown-item').forEach(item => {
-    item.addEventListener('click', event => {
-        event.preventDefault();
-        const days = event.target.getAttribute('data-value');
-        let newData, newLabels;
+document.addEventListener('DOMContentLoaded', function () {
+    var newValue = datos.ventas7Valor;
+    document.getElementById('ventasValor').innerText = `S/ ${newValue.toLocaleString()}`;
+    document.querySelectorAll('#ventasDropdown .dropdown-item').forEach(item => {
+        item.addEventListener('click', event => {
+            event.preventDefault();
+            const days = event.target.getAttribute('data-value');
+            let newData, newLabels, newValue;
+            ;
 
-        switch (days) {
-            case '7':
-                newData = ventasData['7'].data;
-                newLabels = ventasData['7'].label;
-                break;
-            case '30':
-                newData = ventasData['30'].data;
-                newLabels = ventasData['30'].label;
-                break;
-            case '365':
-                newData = ventasData['365'].data;
-                newLabels = ventasData['365'].label;
-                break;
-            default:
-                return;
-        }
+            switch (days) {
+                case '7':
+                    newData = ventasData['7'].data;
+                    newLabels = ventasData['7'].label;
+                    newValue = datos.ventas7Valor;
+                    break;
+                case '30':
+                    newData = ventasData['30'].data;
+                    newLabels = ventasData['30'].label;
+                    newValue = datos.ventas30Valor;
+                    break;
+                case '365':
+                    newData = ventasData['365'].data;
+                    newLabels = ventasData['365'].label;
+                    newValue = datos.ventas365Valor;
+                    break;
+                default:
+                    return;
+            }
 
-        document.getElementById('dropdownMenuLinkVentas').innerText = event.target.innerText;
-        updateVentasChart(newData, newLabels);
+            document.getElementById('dropdownMenuLinkVentas').innerText = event.target.innerText;
+            console.log(`Updating value to: S/ ${newValue.toLocaleString()}`);
+            document.getElementById('ventasValor').innerText = `S/ ${newValue.toLocaleString()}`;
+            updateVentasChart(newData, newLabels);
+        });
     });
 });
 
@@ -99,31 +120,40 @@ const updateGananciasChart = (data, labels) => {
     gananciasChart.update();
 };
 
-document.querySelectorAll('#gananciasDropdown .dropdown-item').forEach(item => {
-    item.addEventListener('click', event => {
-        event.preventDefault();
-        const days = event.target.getAttribute('data-value');
-        let newData, newLabels;
+document.addEventListener('DOMContentLoaded', function () {
+    var newValue = datos.ganancias7Valor;
+    document.getElementById('gananciasValor').innerText = `S/ ${newValue.toLocaleString()}`;
+    document.querySelectorAll('#gananciasDropdown .dropdown-item').forEach(item => {
+        item.addEventListener('click', event => {
+            event.preventDefault();
+            const days = event.target.getAttribute('data-value');
+            let newData, newLabels, newValue;
 
-        switch (days) {
-            case '7':
-                newData = gananciasData['7'].data;
-                newLabels = gananciasData['7'].label;
-                break;
-            case '30':
-                newData = gananciasData['30'].data;
-                newLabels = gananciasData['30'].label;
-                break;
-            case '365':
-                newData = gananciasData['365'].data;
-                newLabels = gananciasData['365'].label;
-                break;
-            default:
-                return;
-        }
+            switch (days) {
+                case '7':
+                    newData = gananciasData['7'].data;
+                    newLabels = gananciasData['7'].label;
+                    newValue = datos.ganancias7Valor;
+                    break;
+                case '30':
+                    newData = gananciasData['30'].data;
+                    newLabels = gananciasData['30'].label;
+                    newValue = datos.ganancias30Valor;
+                    break;
+                case '365':
+                    newData = gananciasData['365'].data;
+                    newLabels = gananciasData['365'].label;
+                    newValue = datos.ganancias365Valor;
+                    break;
+                default:
+                    return;
+            }
 
-        document.getElementById('dropdownMenuLinkGanancias').innerText = event.target.innerText;
-        updateGananciasChart(newData, newLabels);
+            document.getElementById('dropdownMenuLinkGanancias').innerText = event.target.innerText;
+            console.log(`Updating value to: S/ ${newValue.toLocaleString()}`);
+            document.getElementById('gananciasValor').innerText = `S/ ${newValue.toLocaleString()}`;
+            updateGananciasChart(newData, newLabels);
+        });
     });
 });
 

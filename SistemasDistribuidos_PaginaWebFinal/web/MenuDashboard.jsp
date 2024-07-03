@@ -8,6 +8,7 @@
     String gananciasDataJson = (String) request.getAttribute("gananciasData");
     String empleadosDataJson = (String) request.getAttribute("empleadosData");
     String pedidosDataJson = (String) request.getAttribute("pedidosData");
+    String datos = (String) request.getAttribute("jsonDatos");
 %>
 
 <!DOCTYPE html>
@@ -44,7 +45,7 @@
                                     </div>
                                 </div>
                                 <div class="d-flex align-items-baseline">
-                                    <div class="h1 mb-0 me-2">$4,300</div>
+                                    <div class="h1 mb-0 me-2" id="ventasValor">S/ 0</div>
                                 </div>
                                 <div style="min-height: 40px;"> <canvas id="ventas-chart" style="width:100%;max-width:700px"></canvas> </div>
                             </div>
@@ -67,13 +68,7 @@
                                     </div>
                                 </div>
                                 <div class="d-flex align-items-baseline">
-                                    <div class="h1 mb-0 me-2">$4,300</div>
-                                    <div class="me-auto">
-                                        <span class="text-green d-inline-flex align-items-center lh-1">
-                                            8% <!-- Download SVG icon from http://tabler-icons.io/i/trending-up -->
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon ms-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M3 17l6 -6l4 4l8 -8"></path><path d="M14 7l7 0l0 7"></path></svg>
-                                        </span>
-                                    </div>
+                                    <div class="h1 mb-0 me-2" id="gananciasValor">S/ 0</div>
                                 </div>
                                 <div class="chart-sm" style="min-height: 40px;"> <canvas id="ganancias-chart" style="width:100%;max-width:700px"></canvas> </div>
                             </div>
@@ -89,11 +84,11 @@
                                                 <i class="fa-solid fa-truck" style="font-size: 35px;"></i>
                                             </div>
                                             <div class="col">
-                                                <div class="font-weight-medium">
+                                                <div class="font-weight-medium" id="txtPedidosValor">
                                                     132 Pedidos
                                                 </div>
-                                                <div class="text-secondary">
-                                                    12 Pedido completados
+                                                <div class="text-secondary" id="txtPedidosPromedioValor">
+                                                    12 Pedidos diarios promedio
                                                 </div>
                                             </div>
                                         </div>
@@ -108,10 +103,10 @@
                                                 <i class="fa-solid fa-basket-shopping" style="font-size: 35px;"></i>
                                             </div>
                                             <div class="col">
-                                                <div class="font-weight-medium">
+                                                <div class="font-weight-medium" id="txtProductosValor">
                                                     78 Productos
                                                 </div>
-                                                <div class="text-secondary">
+                                                <div class="text-secondary" id="txtProductosVendidosValor">
                                                     32 Productos vendidos
                                                 </div>
                                             </div>
@@ -127,10 +122,10 @@
                                                 <i class="fa-solid fa-user-group" style="font-size: 35px;"></i>
                                             </div>
                                             <div class="col">
-                                                <div class="font-weight-medium">
+                                                <div class="font-weight-medium" id="txtClientesValor">
                                                     623 Clientes
                                                 </div>
-                                                <div class="text-secondary">
+                                                <div class="text-secondary" id="txtClientesActivosValor">
                                                     16 Clientes activos
                                                 </div>
                                             </div>
@@ -146,10 +141,10 @@
                                                 <i class="fa-solid fa-user-tie" style="font-size: 35px;"></i>
                                             </div>
                                             <div class="col">
-                                                <div class="font-weight-medium">
+                                                <div class="font-weight-medium" id="txtEmpleadosValor">
                                                     132 Empleados
                                                 </div>
-                                                <div class="text-secondary">
+                                                <div class="text-secondary" id="txtEmpleadosActivosValor">
                                                     21 Empleados Activos
                                                 </div>
                                             </div>
@@ -180,7 +175,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="col-lg-10" style="padding-top: 1%; display: none;">
                         <div class="card w-100">
                             <div class="card-body">
@@ -192,8 +187,9 @@
                 </div>
 
                 <script>
+                    var datos = JSON.parse('<%= datos%>');
                     var ventasData = <%= ventasDataJson%>;
-                    var gananciasData = <%= gananciasDataJson%>; 
+                    var gananciasData = <%= gananciasDataJson%>;
                     var empleadosData = <%= empleadosDataJson%>;
                     var pedidosData = <%= pedidosDataJson%>;
                 </script>
