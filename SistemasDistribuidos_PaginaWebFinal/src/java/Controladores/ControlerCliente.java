@@ -33,11 +33,18 @@ public class ControlerCliente extends HttpServlet {
         String sql;
         switch (opcion) {
             case "Listar":
+//                HttpSession session = request.getSession();
+//                String id = (String) session.getAttribute("IdUsuario");
+//                String nombre = (String) session.getAttribute("Nombre");
+//                System.out.println("EL NOMBRE que llega al servlet es ES:" + nombre);
+//                System.out.println("EL id traido es: " + id);
+                
                 HttpSession session = request.getSession();
-                String id = (String) session.getAttribute("IdUsuario");
+                String id = (String) session.getAttribute("Id_Usuario");
                 String nombre = (String) session.getAttribute("Nombre");
-                System.out.println("EL NOMBRE que llega al servlet es ES:" + nombre);
-                System.out.println("EL id traido es: " + id);
+                request.setAttribute("Id_Usuario", id);
+                request.setAttribute("Nombre", nombre);
+                
                 try {
                     sql = "SELECT * FROM t_cliente";
                     ps = conn.prepareStatement(sql);
@@ -57,8 +64,8 @@ public class ControlerCliente extends HttpServlet {
                         Lista.add(client);
 
                     }
-                    request.setAttribute("Nombre", nombre);
-                    request.setAttribute("Id_Usuario", id);
+//                    request.setAttribute("Nombre", nombre);
+//                    request.setAttribute("Id_Usuario", id);
                     request.setAttribute("Lista", Lista);
                     request.getRequestDispatcher("MenuClientes.jsp").forward(request, response);
                 } catch (SQLException ex) {

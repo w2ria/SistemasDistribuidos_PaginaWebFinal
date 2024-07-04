@@ -103,7 +103,7 @@
             <i class="fa-solid fa-clipboard"></i>
             <h1 style="font-size: 3.5vh;">Ventas</h1>
         </a>
-        <a class="cajas" href="ControlerDemanda?Op=VerPagina&id=<%= idUsuario%>&nom=<%= XD%>" style="flex-direction: row; text-decoration: none; color: black; <%= isDemandas ? "background-color: #87ceeb" : ""%>">
+        <a class="cajas" href="ControlerDemanda?Op=VerPagina&Id_Usuario=<%= idUsuario%>&Nombre=<%= XD%>" style="flex-direction: row; text-decoration: none; color: black; <%= isDemandas ? "background-color: #87ceeb" : ""%>">
             <i class="fa-solid fa-chart-bar"></i>
             <h1 style="font-size: 3.5vh;">Demanda Productos</h1>
         </a>

@@ -23,6 +23,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.Locale;
 
 /**
  *
@@ -32,12 +34,14 @@ import java.text.DecimalFormat;
 public class ControlerVenta extends HttpServlet {
 
     private String formatearDecimal(double valor) {
-        DecimalFormat df = new DecimalFormat("#.00");
+        DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+        DecimalFormat df = new DecimalFormat(".00", symbols);
         return df.format(valor);
     }
 
     private double redondearDecimal(double valor) {
-        DecimalFormat df = new DecimalFormat("#.00");
+        DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+        DecimalFormat df = new DecimalFormat("#.00", symbols);
         return Double.valueOf(df.format(valor));
     }
 

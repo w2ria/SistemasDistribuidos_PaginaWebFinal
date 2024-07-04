@@ -20,7 +20,7 @@
         <%@ include file="NavBar.jsp" %>
         <div class="navMasContenido">
             <div class="Contenido" style="padding-left: 6%; background-color: #87ceeb; display: flex; justify-content: center; width: 100%;"><!--Poner TODO ACA-->            
-                <div class="tabla" style=" width: 90%">
+                <div class="tabla" style=" width: 97%">
                     <div class="titulo" style="font-size: 10vh; text-align: center">LISTA USUARIOS</div>
                     <a  style="margin: 1vh" href="#" class="Agregar btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal" data-id="" data-tipo="" data-raza="" data-nombre="" data-fecha="" data-edad="" data-color="" data-peso="" data-tamano="" data-genero=""><i class="fa-solid fa-user-plus" style="padding: 0px 0.5vh"></i>Agregar</a>
                     <div class="table-responsive">

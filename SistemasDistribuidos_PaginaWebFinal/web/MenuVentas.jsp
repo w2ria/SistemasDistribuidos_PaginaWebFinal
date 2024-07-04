@@ -63,7 +63,7 @@
                     <div class="titulo">Ventas</div>
                     <div class="content-container">
                         <div class="col-sm-4">
-                            <div class="card">
+                            <div class="card" >
                                 <div class="card-body">
                                     <div class="form-group">
                                         <label>Datos del Cliente</label>

@@ -79,11 +79,16 @@ public class ControlerPedido extends HttpServlet {
         } catch (Exception e) {
             e.printStackTrace();
         }
+//        HttpSession session = request.getSession();
+//        String id = (String) session.getAttribute("IdUsuario");
+//        String nombre = (String) session.getAttribute("Nombre");
+//        System.out.println("EL NOMBRE que llega al servlet es ES:" + nombre);
+//        System.out.println("EL id traido es 500: " + id);
         HttpSession session = request.getSession();
-        String id = (String) session.getAttribute("IdUsuario");
+        String id = (String) session.getAttribute("Id_Usuario");
         String nombre = (String) session.getAttribute("Nombre");
-        System.out.println("EL NOMBRE que llega al servlet es ES:" + nombre);
-        System.out.println("EL id traido es 500: " + id);
+        request.setAttribute("Id_Usuario", id);
+        request.setAttribute("Nombre", nombre);
         System.out.println("Número de pedidos recuperados: " + pedidos.size());
 
         request.setAttribute("pedidos", pedidos);

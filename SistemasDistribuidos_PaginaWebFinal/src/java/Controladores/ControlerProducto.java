@@ -60,11 +60,17 @@ public class ControlerProducto extends HttpServlet {
 
         switch (opcion) {
             case "Listar":
+//                HttpSession session = request.getSession();
+//                String id = (String) session.getAttribute("IdUsuario");
+//                String nombre = (String) session.getAttribute("Nombre");
+//                System.out.println("EL NOMBRE que llega al servlet es ES:" + nombre);
+//                System.out.println("EL id traido es 500: " + id);
+                
                 HttpSession session = request.getSession();
-                String id = (String) session.getAttribute("IdUsuario");
+                String id = (String) session.getAttribute("Id_Usuario");
                 String nombre = (String) session.getAttribute("Nombre");
-                System.out.println("EL NOMBRE que llega al servlet es ES:" + nombre);
-                System.out.println("EL id traido es 500: " + id);
+                request.setAttribute("Id_Usuario", id);
+                request.setAttribute("Nombre", nombre);
                 try {
                     sql = "SELECT * FROM t_producto";
                     ps = conn.prepareStatement(sql);
@@ -80,8 +86,8 @@ public class ControlerProducto extends HttpServlet {
                         producto.setEstado(rs.getString("estado"));
                         Lista.add(producto);
                     }
-                    request.setAttribute("Id_Usuario", id);
-                    request.setAttribute("Nombre", nombre);
+//                    request.setAttribute("Id_Usuario", id);
+//                    request.setAttribute("Nombre", nombre);
                     request.setAttribute("Lista", Lista);
 
                     request.getRequestDispatcher("MenuProductos.jsp").forward(request, response);

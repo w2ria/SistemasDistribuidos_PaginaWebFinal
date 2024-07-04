@@ -35,8 +35,8 @@
 </style>
 
 <script>
-    var totalInactiveTime = 100000; // 10 segundos
-    var warningTime = 5; // 5 segundos antes del logout
+    var totalInactiveTime = 7; // 10 segundos totales
+    var warningTime = 5; // 5 segundos antes del logout, osea es la cosa blanca "Modal"
     var time, warningTimer;
 
     window.onload = function () {
