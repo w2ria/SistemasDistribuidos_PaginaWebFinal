@@ -191,7 +191,7 @@ public class ControlerProducto extends HttpServlet {
                 String extensionImagen = obtenerExtensionImagen(imagenPartGuardar);
                 String rutaImagen = guardarImagen(imagenPartGuardar, nuevoNombreImagen, extensionImagen);
                 String imag = nuevoNombreImagen + extensionImagen;
-
+                // hola 
                 sql = "INSERT INTO t_producto (Id_Prod, Descripcion, imagen, costo, precio, cantidad, estado) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
                 try {
