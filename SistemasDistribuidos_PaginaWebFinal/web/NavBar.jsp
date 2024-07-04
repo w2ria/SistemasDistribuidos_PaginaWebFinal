@@ -3,17 +3,26 @@
     if (session.getAttribute("user") == null) {
         response.sendRedirect("Login.jsp");
     }
+    String idUsuario55 = (String) session.getAttribute("Id_Usuario55");
+        System.out.println("id de usuarioooooo" +idUsuario55);
+    String nombre55 = (String) session.getAttribute("Nombre55");
+    System.out.println("nombreeeeeeee"+nombre55);
 
     String XD = (String) request.getAttribute("Nombre");
+
     String idUsuario = (String) request.getAttribute("Id_Usuario");
+
+    if (idUsuario55 != null && nombre55 != null) {
+        idUsuario = idUsuario55;
+        XD = nombre55;
+    }
 
     System.out.println("El nombre en jsp es: " + XD);
     System.out.println("El ID USUARIOS ES===================================" + idUsuario);
 
     // Verificar si el usuario es administrador
-
-   //CAMBIOOO
-boolean esAdmin = idUsuario != null && (idUsuario.startsWith("A") || idUsuario.startsWith("a"));
+    //CAMBIOOO
+    boolean esAdmin = idUsuario != null && (idUsuario.startsWith("A") || idUsuario.startsWith("a"));
     //FIN CAMBIO
 
     System.out.println("el admin es: " + esAdmin);
@@ -54,7 +63,7 @@ boolean esAdmin = idUsuario != null && (idUsuario.startsWith("A") || idUsuario.s
             <i class="fa-solid fa-clipboard"></i>
             <h1>Ventas</h1>
         </a>
-        <a class="cajas" href="ControlerDemanda?Op=VerPagina&id=<%= idUsuario%>&nom=<%= XD%>" style="text-decoration: none; color: black; <%= isDemandas ? "background-color: #87ceeb" : ""%>">
+        <a class="cajas" href="ControlerDemanda?Op=VerPagina&Id_Usuario=<%= idUsuario%>&Nombre=<%= XD%>" style="text-decoration: none; color: black; <%= isDemandas ? "background-color: #87ceeb" : ""%>">
             <i class="fas fa-chart-bar"></i>
             <h1>Demanda Productos</h1>
         </a>

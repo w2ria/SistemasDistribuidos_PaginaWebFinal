@@ -81,7 +81,7 @@ public class ControlerVenta extends HttpServlet {
             case "BuscarCliente":
                 String dniCliente = request.getParameter("dni");
                 try {
-                    sql = "SELECT Id_Cliente, Nombres, Apellidos FROM t_cliente WHERE DNI = ?";
+                    sql = "SELECT Id_Cliente, Nombres, Apellidos FROM t_cliente WHERE NumeroDocumento = ?";
                     ps = conn.prepareStatement(sql);
                     ps.setString(1, dniCliente);
                     rs = ps.executeQuery();
@@ -667,7 +667,7 @@ public class ControlerVenta extends HttpServlet {
         }
     }
 
-    private void cancelarVenta(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    private void cancelarVenta(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
         HttpSession session = request.getSession();
         // Limpiar los datos de la sesión relacionados con la venta
         session.removeAttribute("listaVentas");
@@ -681,10 +681,18 @@ public class ControlerVenta extends HttpServlet {
         session.removeAttribute("stockProducto");
 
         // Redirigir a la página de ventas o la página inicial
-        String idUsuario = (String) session.getAttribute("Id_Usuario");
-        String nombre = (String) session.getAttribute("Nombre");
-        request.getSession().setAttribute("Id_Usuario", idUsuario);
-        request.getSession().setAttribute("Nombre", nombre);
+        /**
+         * String idUsuario = (String) session.getAttribute("Id_Usuario");
+         * String nombre = (String) session.getAttribute("Nombre");
+         * request.getSession().setAttribute("Id_Usuario", idUsuario);
+         * request.getSession().setAttribute("Nombre", nombre);
+         * response.sendRedirect("MenuVentas.jsp");
+        *
+         */
+        String id_2 = request.getParameter("Id_Usuario");
+        String nom = request.getParameter("Nombre");
+        request.getSession().setAttribute("Nombre55", nom);
+        request.getSession().setAttribute("Id_Usuario55", id_2);
         response.sendRedirect("MenuVentas.jsp");
     }
 

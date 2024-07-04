@@ -47,7 +47,8 @@ public class ControlerCliente extends HttpServlet {
                         client.setId(rs.getString("Id_Cliente"));
                         client.setApellidos(rs.getString("Apellidos"));
                         client.setNombres(rs.getString("Nombres"));
-                        client.setDNI(rs.getString("DNI"));
+                        client.setNumeroDocumento(rs.getString("NumeroDocumento"));
+                        client.setTipoDocumento(rs.getString("TipoDocumento"));
                         client.setDireccion(rs.getString("Direccion"));
                         client.setTelefono(rs.getString("Telefono"));
                         client.setMovil(rs.getString("Movil"));
@@ -108,7 +109,8 @@ public class ControlerCliente extends HttpServlet {
                 String Apellidos = request.getParameter("apellidos");
                 String Nombres = request.getParameter("nombres");
                 String Direccion = request.getParameter("direccion");
-                String DNI = request.getParameter("dni");
+                String Numero = request.getParameter("numeroDocumento");
+                String Tipo = request.getParameter("tipoDocumento");
                 String Telefono = request.getParameter("telefono");
                 String Movil = request.getParameter("movil");
                 Cliente client = new Cliente();
@@ -116,22 +118,25 @@ public class ControlerCliente extends HttpServlet {
                 client.setId(Id);
                 client.setApellidos(Apellidos);
                 client.setNombres(Nombres);
-                client.setDNI(DNI);
+                client.setNumeroDocumento(Numero);
+                client.setTipoDocumento(Tipo);
                 client.setDireccion(Direccion);
                 client.setTelefono(Telefono);
                 client.setMovil(Movil);
 
-                sql = "update t_cliente set apellidos=?, nombres=?, DNI=?, direccion=?, telefono=?, movil=? where Id_Cliente=?";
+                sql = "update t_cliente set apellidos=?, nombres=?, Direccion=?, NumeroDocumento=?, TipoDocumento=?, direccion=?, telefono=?, movil=? where Id_Cliente=?";
 
                 try {
                     ps = conn.prepareStatement(sql);
                     ps.setString(1, client.getApellidos());
                     ps.setString(2, client.getNombres());
-                    ps.setString(3, client.getDNI());
-                    ps.setString(4, client.getDireccion());
-                    ps.setString(5, client.getTelefono());
-                    ps.setString(6, client.getMovil());
-                    ps.setString(7, client.getId());
+                    ps.setString(3, client.getDireccion());
+                    ps.setString(4, client.getNumeroDocumento());
+                    ps.setString(5, client.getTipoDocumento());
+                    ps.setString(6, client.getDireccion());
+                    ps.setString(7, client.getTelefono());
+                    ps.setString(8, client.getMovil());
+                    ps.setString(9, client.getId());
                     ps.executeUpdate();
                 } catch (SQLException ex) {
                     System.out.println("Error actualizando tabla..." + ex.getMessage());
@@ -148,12 +153,13 @@ public class ControlerCliente extends HttpServlet {
                 String apellidos = request.getParameter("apellidos");
                 String nombres = request.getParameter("nombres");
                 String direccion = request.getParameter("direccion");
-                String dni = request.getParameter("dni");
+                String numeroDocumento = request.getParameter("numeroDocumento");
+                String tipoDocumento = request.getParameter("tipoDocumento");
                 String telefono = request.getParameter("telefono");
                 String movil = request.getParameter("movil");
                 String estado = "activo";
 
-                sql = "INSERT INTO t_cliente (Id_Cliente, Apellidos, Nombres, Direccion, DNI, Telefono, Movil, Estado, EnLinea) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                sql = "INSERT INTO t_cliente (Id_Cliente, Apellidos, Nombres, Direccion, NumeroDocumento, TipoDocumento, Telefono, Movil, Estado, EnLinea) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
                 try {
                     ps = conn.prepareStatement(sql);
@@ -161,11 +167,12 @@ public class ControlerCliente extends HttpServlet {
                     ps.setString(2, apellidos);
                     ps.setString(3, nombres);
                     ps.setString(4, direccion);
-                    ps.setString(5, dni);
-                    ps.setString(6, telefono);
-                    ps.setString(7, movil);
-                    ps.setString(8, estado);
-                    ps.setInt(9, 0);
+                    ps.setString(5, numeroDocumento);
+                    ps.setString(6, tipoDocumento);
+                    ps.setString(7, telefono);
+                    ps.setString(8, movil);
+                    ps.setString(9, estado);
+                    ps.setInt(10, 0);
 
                     int rowsAffected = ps.executeUpdate();
                     if (rowsAffected > 0) {
@@ -193,7 +200,7 @@ public class ControlerCliente extends HttpServlet {
             case "BuscarCliente":
                 String dniCliente = request.getParameter("dni");
                 try {
-                    sql = "SELECT Nombres, Apellidos FROM t_cliente WHERE DNI = ?";
+                    sql = "SELECT Nombres, Apellidos FROM t_cliente WHERE NumeroDocumento = ?";
                     ps = conn.prepareStatement(sql);
                     ps.setString(1, dniCliente);
                     rs = ps.executeQuery();

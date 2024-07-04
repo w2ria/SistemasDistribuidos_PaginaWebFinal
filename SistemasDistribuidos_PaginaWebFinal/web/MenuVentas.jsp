@@ -54,7 +54,7 @@
 
     <body>
         <%String idUsuario4 = (String) request.getAttribute("Id_Usuario");
-        System.out.println("Usuario traido hacia jsp" + idUsuario4);%>
+            System.out.println("Usuario traido hacia jsp" + idUsuario4);%>
         <%@ include file="NavBar.jsp" %>
 
         <div class="navMasContenido">
@@ -225,6 +225,9 @@
 
                                     <form action="ControlerVenta" method="post" style="margin-left: 10px;">
                                         <input type="hidden" name="Op" value="CancelarVenta">
+                                        
+                                        <input type="hidden" name="Id_Usuario" value="<%= idUsuario%>">
+                                        <input type="hidden" name="Nombre" value="<%= XD%>">
                                         <input type="submit" value="Cancelar" class="btn btn-danger">
                                     </form>
                                     <div class="col-sm-3 ml-auto">

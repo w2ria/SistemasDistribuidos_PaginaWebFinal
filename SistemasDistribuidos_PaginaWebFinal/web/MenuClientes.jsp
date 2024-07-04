@@ -35,7 +35,8 @@
                                     <th scope="col">Apellidos</th>
                                     <th scope="col">Nombres</th>
                                     <th scope="col">Direccion</th>
-                                    <th scope="col">Dni</th>
+                                    <th scope="col">Número de documento</th>
+                                    <th scope="col">Tipo de Documento</th>
                                     <th scope="col">Telefono</th>
                                     <th scope="col">Movil</th>
                                     <th scope="col">Estado</th>
@@ -51,13 +52,14 @@
                                         <td>${campo.apellidos}</td>
                                         <td>${campo.nombres}</td>
                                         <td>${campo.direccion}</td>
-                                        <td>${campo.DNI}</td>
+                                        <td>${campo.numeroDocumento}</td>
+                                        <td>${campo.tipoDocumento}</td>
                                         <td>${campo.telefono}</td>
                                         <td>${campo.movil}</td>
                                         <td>${campo.estado}</td>
                                         <td>${campo.enLinea}</td>
                                         <td>
-                                            <a href="#" class="Actualizar btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal" data-id="${campo.id}" data-ape="${campo.apellidos}" data-nom="${campo.nombres}" data-direc="${campo.direccion}" data-dni="${campo.DNI}" data-telef="${campo.telefono}" data-movil="${campo.movil}"><i class="fas fa-edit"></i>Actualizar</a>
+                                            <a href="#" class="Actualizar btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal" data-id="${campo.id}" data-ape="${campo.apellidos}" data-nom="${campo.nombres}" data-direc="${campo.direccion}" data-numeroDocumento="${campo.numeroDocumento}" data-tipoDocumento="${campo.tipoDocumento}" data-telef="${campo.telefono}" data-movil="${campo.movil}"><i class="fas fa-edit"></i>Actualizar</a>
                                         </td>
                                         <td>
                                             <a href="ControlerCliente?Op=Eliminar&Id=${campo.id}" class="btn btn-danger" onclick="return confirm('¿Estás seguro de que deseas cambiar el estado del cliente con id: ${campo.id}?');">
@@ -104,8 +106,21 @@
                             </div>
 
                             <div class="mb-3">
-                                <label for="fechaNacimiento" class="form-label">DNI</label>
-                                <input type="number" class="form-control" id="dni" name="dni" step="1" min="1" required>
+                                <label for="tipoDocumento" class="form-label">Tipo Documento</label>
+                                <select class="form-select" id="tipoDocumento" name="tipoDocumento" required>
+                                    <option value="" disabled selected>Seleccionar tipo de documento</option>
+                                    <option value="DNI">DNI</option>
+                                    <option value="RUC">RUC</option>
+                                    <option value="Pasaporte">Pasaporte</option>
+                                    <option value="Carnet de Extranjería">Carnet de Extranjería</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label for="numeroDocumento" class="form-label">Número de Documento</label>
+                                <input type="text" class="form-control" id="numeroDocumento" name="numeroDocumento" required>
+                                <div class="invalid-feedback">
+                                    El número de documento no es válido.
+                                </div>
                             </div>
                             <div class="mb-3">
                                 <label for="edad" class="form-label">Telefono</label>
@@ -154,7 +169,8 @@
                     document.getElementById('apellidos').value = "";
                     document.getElementById('nombres').value = "";
                     document.getElementById('direccion').value = "";
-                    document.getElementById('dni').value = "";
+                    document.getElementById('numeroDocumento').value = "";
+                    document.getElementById('tipoDocumento').value = "";
                     document.getElementById('telefono').value = "";
                     document.getElementById('movil').value = "";
                 });
@@ -172,7 +188,8 @@
                         const ape = enlace.getAttribute('data-ape');
                         const nom = enlace.getAttribute('data-nom');
                         const direc = enlace.getAttribute('data-direc');
-                        const dni = enlace.getAttribute('data-dni');
+                        const num = enlace.getAttribute('data-numeroDocumento');
+                        const tipo = enlace.getAttribute('data-tipoDocumento');
                         const telef = enlace.getAttribute('data-telef');
                         const movil = enlace.getAttribute('data-movil');
 
@@ -181,11 +198,46 @@
                         document.getElementById('apellidos').value = ape;
                         document.getElementById('nombres').value = nom;
                         document.getElementById('direccion').value = direc;
-                        document.getElementById('dni').value = dni;
+                        document.getElementById('numeroDocumento').value = num;
+                        document.getElementById('tipoDocumento').value = tipo;
                         document.getElementById('telefono').value = telef;
                         document.getElementById('movil').value = movil;
                     });
                 });
+            });
+
+            document.getElementById('tipoDocumento').addEventListener('change', function () {
+                var tipoDocumento = this.value;
+                var numeroDocumentoInput = document.getElementById('numeroDocumento');
+
+                switch (tipoDocumento) {
+                    case 'DNI':
+                        numeroDocumentoInput.setAttribute('maxlength', '8');
+                        numeroDocumentoInput.setAttribute('pattern', '\\d{8}');
+                        numeroDocumentoInput.setAttribute('title', 'El DNI debe tener 8 dígitos. Ejemplo: 12345678');
+                        break;
+                    case 'RUC':
+                        numeroDocumentoInput.setAttribute('maxlength', '11');
+                        numeroDocumentoInput.setAttribute('pattern', '\\d{11}');
+                        numeroDocumentoInput.setAttribute('title', 'El RUC debe tener 11 dígitos. Ejemplo: 12345678901');
+                        break;
+                    case 'Pasaporte':
+                        numeroDocumentoInput.setAttribute('maxlength');
+                        numeroDocumentoInput.setAttribute('pattern', '[a-zA-Z0-9]{8,9}');
+                        numeroDocumentoInput.setAttribute('title', 'El Pasaporte puede tener entre 8 y 9 caracteres alfanuméricos. Ejemplo: A1234567 o AB1234567');
+                        break;
+                    case 'Carnet de Extranjería':
+                        numeroDocumentoInput.setAttribute('maxlength', '9');
+                        numeroDocumentoInput.setAttribute('pattern', '[a-zA-Z0-9]{9}');
+                        numeroDocumentoInput.setAttribute('title', 'El Carnet de Extranjería debe tener 9 caracteres. Ejemplo: X12345678');
+                        break;
+                    default:
+                        numeroDocumentoInput.removeAttribute('maxlength');
+                        numeroDocumentoInput.removeAttribute('pattern');
+                        numeroDocumentoInput.removeAttribute('title');
+                }
+
+                numeroDocumentoInput.value = ''; // Clear the input field on change
             });
 
             function toggleSidebar() {/*Para el menu*/

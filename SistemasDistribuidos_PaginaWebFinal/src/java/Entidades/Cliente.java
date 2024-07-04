@@ -1,24 +1,28 @@
 package Entidades;
 
-public class Cliente {    
+public class Cliente {
+
     private String Id;
     private String apellidos;
     private String nombres;
     private String direccion;
-    private String DNI;
+    private String numeroDocumento;
+    private String tipoDocumento;
     private String telefono;
     private String movil;
-    private String estado; 
+    private String estado;
     private String enLinea;
 
-    public Cliente(){}
+    public Cliente() {
+    }
 
-    public Cliente(String Id, String apellidos, String nombres, String direccion, String DNI, String telefono, String movil, String estado, String enLinea) {
+    public Cliente(String Id, String apellidos, String nombres, String direccion, String numeroDocumento, String tipoDocumento, String telefono, String movil, String estado, String enLinea) {
         this.Id = Id;
         this.apellidos = apellidos;
         this.nombres = nombres;
         this.direccion = direccion;
-        this.DNI = DNI;
+        this.numeroDocumento = numeroDocumento;
+        this.tipoDocumento = tipoDocumento;
         this.telefono = telefono;
         this.movil = movil;
         this.estado = estado;
@@ -57,12 +61,20 @@ public class Cliente {
         this.direccion = direccion;
     }
 
-    public String getDNI() {
-        return DNI;
+    public String getNumeroDocumento() {
+        return numeroDocumento;
     }
 
-    public void setDNI(String DNI) {
-        this.DNI = DNI;
+    public void setNumeroDocumento(String numeroDocumento) {
+        this.numeroDocumento = numeroDocumento;
+    }
+
+    public String getTipoDocumento() {
+        return tipoDocumento;
+    }
+
+    public void setTipoDocumento(String tipoocumento) {
+        this.tipoDocumento = tipoocumento;
     }
 
     public String getTelefono() {
@@ -97,5 +109,4 @@ public class Cliente {
         this.enLinea = enLinea;
     }
 
-   
 }

@@ -156,6 +156,8 @@
                     <div style="display: flex; justify-content: center;">
                         <form action="ControlerDemanda" style="width: 50%;" method="get">
                             <input type="hidden" name="Op" value="obtenerProductosCeroVentas">
+                            <input type="hidden" name="Id_Usuario" value="<%= idUsuario%>">
+                            <input type="hidden" name="Nombre" value="<%= XD%>">
                             <button type="submit" >Ver productos con 0 ventas</button>
                         </form>
                     </div>
