@@ -45,7 +45,7 @@
                                 <tr>
                                     <td>${campo.idProd}</td>
                                     <td>${campo.descripcion}</td>
-                                    <td>${campo.imagen}</td>
+                                    <td><img src="${pageContext.request.contextPath}/resources/img/${campo.imagen}" class="imagen-producto" style="width: 100px;"></td>
                                     <td>${campo.costo}</td>
                                     <td>${campo.precio}</td>
                                     <td>${campo.cantidad}</td>
@@ -72,7 +72,7 @@
 </div>
 
 <!-- Modal -->
-<form action="ControlerProducto" method="Post" class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" style="z-index: 1000000"> <!--enctype="multipart/form-data"-->
+<form action="ControlerProducto" method="Post" class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" style="z-index: 1000000" enctype="multipart/form-data">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -92,7 +92,8 @@
                     </div>
                     <div class="mb-3">
                         <label for="raza" class="form-label">Imagen</label>
-                        <input type="text" class="form-control" id="imag"  name="imagen">
+                        <input type="file" class="form-control" id="imag"  name="imagen">
+                        <input type="hidden" name="imagenActual" id="editImagenActual">
                     </div>
                     <div class="mb-3">
                         <label for="nombre" class="form-label">Costo</label>
@@ -172,7 +173,7 @@
                 // Asignar los datos a los campos del formulario
                 document.getElementById('idProd').value = idProd;
                 document.getElementById('desc').value = desc;
-                document.getElementById('imag').value = imag;
+                document.getElementById('editImagenActual').value = imag;
                 document.getElementById('costo').value = costo;
                 document.getElementById('prec').value = prec;
                 document.getElementById('cant').value = cant;
