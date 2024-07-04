@@ -19,6 +19,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.sql.Types;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.http.HttpServlet;
@@ -180,25 +181,36 @@ public class ControlerProducto extends HttpServlet {
             case "Guardar":
                 String idProd = GenerarnuevoId();
                 String descri = request.getParameter("descripcion");
-                Part imagenPartGuardar = request.getPart("imagen");
-                String imagenNombreGuardar = getFilename(imagenPartGuardar);
+                String img = request.getParameter("imagen");
                 String cost = request.getParameter("costo");
                 String preci = request.getParameter("precio");
                 String cantida = request.getParameter("cantidad");
                 String estado = "activo";
+                String imag = null;
 
-                String nuevoNombreImagen = generarNuevoNombreImagen(obtenerUltimoNumeroImagen());
-                String extensionImagen = obtenerExtensionImagen(imagenPartGuardar);
-                String rutaImagen = guardarImagen(imagenPartGuardar, nuevoNombreImagen, extensionImagen);
-                String imag = nuevoNombreImagen + extensionImagen;
-                // hola 
+                if (img != null) {
+                    Part imagenPartGuardar = request.getPart("imagen");
+                    String imagenNombreGuardar = getFilename(imagenPartGuardar);
+                    String extensionImagen = obtenerExtensionImagen(imagenPartGuardar);
+                    String nuevoNombreImagen = generarNuevoNombreImagen(obtenerUltimoNumeroImagen());
+                    String rutaImagen = guardarImagen(imagenPartGuardar, nuevoNombreImagen, extensionImagen);
+                    nuevoNombreImagen = generarNuevoNombreImagen(obtenerUltimoNumeroImagen());
+                    extensionImagen = obtenerExtensionImagen(imagenPartGuardar);
+                    rutaImagen = guardarImagen(imagenPartGuardar, nuevoNombreImagen, extensionImagen);
+                    imag = nuevoNombreImagen + extensionImagen;
+                }
+                
                 sql = "INSERT INTO t_producto (Id_Prod, Descripcion, imagen, costo, precio, cantidad, estado) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
                 try {
                     ps = conn.prepareStatement(sql);
                     ps.setString(1, idProd);
                     ps.setString(2, descri);
-                    ps.setString(3, imag);
+                    if (imag != null) {
+                        ps.setString(3, imag);
+                    } else {
+                        ps.setNull(3, Types.VARCHAR); 
+                    }
                     ps.setString(4, cost);
                     ps.setString(5, preci);
                     ps.setString(6, cantida);

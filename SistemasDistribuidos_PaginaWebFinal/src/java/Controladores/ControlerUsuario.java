@@ -6,22 +6,35 @@ package Controladores;
 
 import Entidades.Usuario;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.sql.Types;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.servlet.http.Part;
 
 /**
  *
  * @author danie
  */
+@MultipartConfig(fileSizeThreshold = 1024 * 1024 * 2, // 2MB
+        maxFileSize = 1024 * 1024 * 10, // 10MB
+        maxRequestSize = 1024 * 1024 * 50) // 50MB
 public class ControlerUsuario extends HttpServlet {
 
     /**
@@ -167,23 +180,34 @@ public class ControlerUsuario extends HttpServlet {
 
                 String apellido = request.getParameter("apellidos");
                 nombre = request.getParameter("nombres");
-                String image = request.getParameter("imagen");
+                Part imagenPart = request.getPart("imagen");
+                String imagenActual = request.getParameter("imagenActual");
                 String direccio = request.getParameter("direccion");
                 String dn = request.getParameter("dni");
                 String telefon = request.getParameter("telefono");
                 String movi = request.getParameter("movil");
+                String imagenNombre = getFilename(imagenPart);
                 Usuario usuario = new Usuario();
 
                 usuario.setId_usuario(idUsuari);
                 usuario.setContraseña(contrena);
                 usuario.setApellidos(apellido);
                 usuario.setNombres(nombre);
-                usuario.setImagen(image);
-
                 usuario.setDireccion(direccio);
                 usuario.setDNI(dn);
                 usuario.setTelefono(telefon);
                 usuario.setMovil(movi);
+
+                if (imagenNombre != null && !imagenNombre.isEmpty()) {
+                    // Se ha cargado una nueva imagen
+                    String nuevoNombreImagen = generarNuevoNombreImagen(obtenerUltimoNumeroImagen());
+                    String extensionImagen = obtenerExtensionImagen(imagenPart);
+                    String rutaImagen = guardarImagen(imagenPart, nuevoNombreImagen, extensionImagen);
+                    usuario.setImagen(nuevoNombreImagen + extensionImagen);
+                } else {
+                    // No se ha cargado una nueva imagen, mantener la imagen actual
+                    usuario.setImagen(imagenActual);
+                }
 
                 sql = "update t_usuario set Passwd=?, apellidos=?, nombres=?, imagen=?, direccion=?, DNI=?, telefono=?, movil=? where Id_Usuario=?";
 
@@ -215,12 +239,25 @@ public class ControlerUsuario extends HttpServlet {
                 String passwordEncriptad = EncriptadorAES.encriptarAES(contraseña);
                 String apellidos = request.getParameter("apellidos");
                 String nombres = request.getParameter("nombres");
-                String imagen = request.getParameter("imagen");
+                String img = request.getParameter("imagen");
                 String direccion = request.getParameter("direccion");
                 String dni = request.getParameter("dni");
                 String telefono = request.getParameter("telefono");
                 String movil = request.getParameter("movil");
                 String estado = "activo";
+                String imag = null;
+
+                if (img != null) {
+                    Part imagenPartGuardar = request.getPart("imagen");
+                    String imagenNombreGuardar = getFilename(imagenPartGuardar);
+                    String extensionImagen = obtenerExtensionImagen(imagenPartGuardar);
+                    String nuevoNombreImagen = generarNuevoNombreImagen(obtenerUltimoNumeroImagen());
+                    String rutaImagen = guardarImagen(imagenPartGuardar, nuevoNombreImagen, extensionImagen);
+                    nuevoNombreImagen = generarNuevoNombreImagen(obtenerUltimoNumeroImagen());
+                    extensionImagen = obtenerExtensionImagen(imagenPartGuardar);
+                    rutaImagen = guardarImagen(imagenPartGuardar, nuevoNombreImagen, extensionImagen);
+                    imag = nuevoNombreImagen + extensionImagen;
+                }
 
                 sql = "INSERT INTO t_usuario (Id_Usuario, Passwd, Apellidos, Nombres,imagen, Direccion, DNI, Telefono, Movil, Estado, EnLinea) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,?,?)";
 
@@ -230,7 +267,11 @@ public class ControlerUsuario extends HttpServlet {
                     ps.setString(2, passwordEncriptad);
                     ps.setString(3, apellidos);
                     ps.setString(4, nombres);
-                    ps.setString(5, imagen);
+                    if (imag != null) {
+                        ps.setString(5, imag);
+                    } else {
+                        ps.setNull(5, Types.VARCHAR);
+                    }
                     ps.setString(6, direccion);
                     ps.setString(7, dni);
                     ps.setString(8, telefono);
@@ -241,6 +282,11 @@ public class ControlerUsuario extends HttpServlet {
                     int rowsAffected = ps.executeUpdate();
                     if (rowsAffected > 0) {
                         //response.sendRedirect("MenuClientes.jsp");
+                        try {
+                            Thread.sleep(3000);
+                        } catch (InterruptedException ex) {
+                            Logger.getLogger(ControlerUsuario.class.getName()).log(Level.SEVERE, null, ex);
+                        }
                         response.sendRedirect("ControlerUsuario?Op=Listar");
 
                     } else {
@@ -265,6 +311,73 @@ public class ControlerUsuario extends HttpServlet {
 
         }
 
+    }
+
+    private String getFilename(Part part) {
+        String contentDisposition = part.getHeader("content-disposition");
+        for (String cd : contentDisposition.split(";")) {
+            if (cd.trim().startsWith("filename")) {
+                return cd.substring(cd.indexOf('=') + 1).trim().replace("\"", "");
+            }
+        }
+        return null;
+    }
+
+    private String obtenerExtensionImagen(Part part) {
+        String fileName = getFilename(part);
+        if (fileName != null) {
+            return fileName.substring(fileName.lastIndexOf('.')).toLowerCase();
+        }
+        return null;
+    }
+
+    private String guardarImagen(Part part, String nuevoNombreImagen, String extension) throws IOException {
+        String directory = getServletContext().getRealPath("/resources/img/");
+        Files.createDirectories(Paths.get(directory));
+        Path filePath = Paths.get(directory, nuevoNombreImagen + extension);
+        try (InputStream input = part.getInputStream()) {
+            Files.copy(input, filePath, StandardCopyOption.REPLACE_EXISTING);
+        }
+        return filePath.toString();
+    }
+
+    private String generarNuevoNombreImagen(int ultimoNumeroImagen) {
+        return "usuario" + (ultimoNumeroImagen + 1);
+    }
+
+    public int obtenerUltimoNumeroImagen() {
+        Conexion.Conexion conBD = new Conexion.Conexion();
+        Connection conn = conBD.Conexion();
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        String sql = "SELECT MAX(CAST(SUBSTRING(imagen, 7, LENGTH(imagen) - 10) AS UNSIGNED)) AS ultimoNumero FROM t_usuario WHERE imagen LIKE 'usuario%'";
+        int ultimoNumero = 0;
+
+        try {
+            ps = conn.prepareStatement(sql);
+            rs = ps.executeQuery();
+
+            if (rs.next()) {
+                ultimoNumero = rs.getInt("ultimoNumero");
+            }
+        } catch (Exception e) {
+            System.out.println("ERROR en obtenerUltimoNumeroImagen: " + e.getMessage());
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (Exception e) {
+                System.out.println("ERROR cerrando recursos: " + e.getMessage());
+            }
+        }
+        return ultimoNumero;
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

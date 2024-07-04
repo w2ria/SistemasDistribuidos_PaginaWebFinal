@@ -51,7 +51,7 @@
                                         <td>${campo.contraseña}</td>
                                         <td>${campo.apellidos}</td>
                                         <td>${campo.nombres}</td>
-                                        <td>${campo.imagen}</td>
+                                        <td><img src="${pageContext.request.contextPath}/resources/img/${campo.imagen}" class="imagen-producto" style="width: 100px;height:110px;object-fit: cover;"></td>
                                         <td>${campo.direccion}</td>                                    
                                         <td>${campo.DNI}</td>
                                         <td>${campo.telefono}</td>
@@ -79,7 +79,7 @@
         </div>
 
         <!-- Modal -->
-        <form action="ControlerUsuario" method="Post" class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" style="z-index: 1000000"> <!--enctype="multipart/form-data"-->
+        <form action="ControlerUsuario" method="Post" class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" style="z-index: 1000000" enctype="multipart/form-data">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -107,7 +107,8 @@
                             </div>
                             <div class="mb-3">
                                 <label for="raza" class="form-label">Imagen</label>
-                                <input type="text" class="form-control" id="imagen"  name="imagen" required>
+                                <input type="file" class="form-control" id="imagen"  name="imagen">
+                                <input type="hidden" name="imagenActual" id="editImagenActual">
                             </div>
                             <div class="mb-3">
                                 <label for="nombre" class="form-label">Direccion</label>
@@ -196,7 +197,7 @@
                         document.getElementById('contraseña').value = contraseña;
                         document.getElementById('apellidos').value = ape;
                         document.getElementById('nombres').value = nom;
-                        document.getElementById('imagen').value = imagen;
+                        document.getElementById('editImagenActual').value = imagen;
                         document.getElementById('direccion').value = direc;
                         document.getElementById('dni').value = dni;
                         document.getElementById('telefono').value = telef;
