@@ -21,6 +21,8 @@ public class ControlerCliente extends HttpServlet {
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
 
         String opcion = request.getParameter("Op");
         ArrayList<Cliente> Lista = new ArrayList<>();
@@ -34,37 +36,37 @@ public class ControlerCliente extends HttpServlet {
                 HttpSession session = request.getSession();
                 String id = (String) session.getAttribute("IdUsuario");
                 String nombre = (String) session.getAttribute("Nombre");
-                System.out.println("EL NOMBRE que llega al servlet es ES:" +nombre);
-                System.out.println("EL id traido es: "+id);
+                System.out.println("EL NOMBRE que llega al servlet es ES:" + nombre);
+                System.out.println("EL id traido es: " + id);
                 try {
-                sql = "SELECT * FROM t_cliente";
-                ps = conn.prepareStatement(sql);
-                rs = ps.executeQuery();
-                while (rs.next()) {
-                    Cliente client = new Cliente();
-                    client.setId(rs.getString("Id_Cliente"));
-                    client.setApellidos(rs.getString("Apellidos"));
-                    client.setNombres(rs.getString("Nombres"));
-                    client.setDNI(rs.getString("DNI"));
-                    client.setDireccion(rs.getString("Direccion"));
-                    client.setTelefono(rs.getString("Telefono"));
-                    client.setMovil(rs.getString("Movil"));
-                    client.setEstado(rs.getString("Estado"));
-                    client.setEnLinea(rs.getString("EnLinea"));
-                    Lista.add(client);
-                    
-                }
-                request.setAttribute("Nombre", nombre);
-                request.setAttribute("Id_Usuario", id);
-                request.setAttribute("Lista", Lista);
-                request.getRequestDispatcher("MenuClientes.jsp").forward(request, response);
-            } catch (SQLException ex) {
-                System.out.println("Error de SQL..." + ex.getMessage());
-            } finally {
-                conBD.Discconet();
-            }
+                    sql = "SELECT * FROM t_cliente";
+                    ps = conn.prepareStatement(sql);
+                    rs = ps.executeQuery();
+                    while (rs.next()) {
+                        Cliente client = new Cliente();
+                        client.setId(rs.getString("Id_Cliente"));
+                        client.setApellidos(rs.getString("Apellidos"));
+                        client.setNombres(rs.getString("Nombres"));
+                        client.setDNI(rs.getString("DNI"));
+                        client.setDireccion(rs.getString("Direccion"));
+                        client.setTelefono(rs.getString("Telefono"));
+                        client.setMovil(rs.getString("Movil"));
+                        client.setEstado(rs.getString("Estado"));
+                        client.setEnLinea(rs.getString("EnLinea"));
+                        Lista.add(client);
 
-            break;
+                    }
+                    request.setAttribute("Nombre", nombre);
+                    request.setAttribute("Id_Usuario", id);
+                    request.setAttribute("Lista", Lista);
+                    request.getRequestDispatcher("MenuClientes.jsp").forward(request, response);
+                } catch (SQLException ex) {
+                    System.out.println("Error de SQL..." + ex.getMessage());
+                } finally {
+                    conBD.Discconet();
+                }
+
+                break;
             case "Eliminar":
                 try {
                 String Id = request.getParameter("Id");
@@ -188,8 +190,7 @@ public class ControlerCliente extends HttpServlet {
                 }
                 break;
 
-                
-                case "BuscarCliente":
+            case "BuscarCliente":
                 String dniCliente = request.getParameter("dni");
                 try {
                     sql = "SELECT Nombres, Apellidos FROM t_cliente WHERE DNI = ?";
@@ -200,12 +201,12 @@ public class ControlerCliente extends HttpServlet {
                         String nombreCliente = rs.getString("Nombres");
                         String apellidosCliente = rs.getString("Apellidos");
                         request.setAttribute("nombreCliente", nombreCliente);
-                        request.setAttribute("apellidosCliente", apellidosCliente); 
+                        request.setAttribute("apellidosCliente", apellidosCliente);
                     } else {
-                        request.setAttribute("nombreCliente", ""); 
-                        request.setAttribute("apellidosCliente", ""); 
+                        request.setAttribute("nombreCliente", "");
+                        request.setAttribute("apellidosCliente", "");
                     }
-                    
+
                     request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
                 } catch (SQLException ex) {
                     System.out.println("Error de SQL..." + ex.getMessage());
@@ -213,7 +214,7 @@ public class ControlerCliente extends HttpServlet {
                     conBD.Discconet();
                 }
                 break;
-                
+
             default:
 
         }

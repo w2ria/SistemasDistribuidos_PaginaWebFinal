@@ -29,34 +29,36 @@ public class ControlerPedido extends HttpServlet {
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
         response.setContentType("text/html;charset=UTF-8");
         ArrayList<Pedido> pedidos = new ArrayList<>();
         ArrayList<DetallePedido> detalles = new ArrayList<>();
         Conexion conexion = new Conexion();
         Connection con = conexion.Conexion();
-        
+
         try {
             Statement stmt = con.createStatement();
-            
-            String sql = "SELECT p.Id_Pedido, p.Fecha, p.SubTotal, p.TotalVenta, " +
-                         "c.Nombres AS ClienteNombre, u.Nombres AS UsuarioNombre " +
-                         "FROM t_pedido p " +
-                         "JOIN t_cliente c ON p.Id_Cliente = c.Id_Cliente " +
-                         "JOIN t_usuario u ON p.Id_Usuario = u.Id_usuario";
+
+            String sql = "SELECT p.Id_Pedido, p.Fecha, p.SubTotal, p.TotalVenta, "
+                    + "c.Nombres AS ClienteNombre, u.Nombres AS UsuarioNombre "
+                    + "FROM t_pedido p "
+                    + "JOIN t_cliente c ON p.Id_Cliente = c.Id_Cliente "
+                    + "JOIN t_usuario u ON p.Id_Usuario = u.Id_usuario";
             ResultSet rs = stmt.executeQuery(sql);
-            
+
             while (rs.next()) {
                 Pedido pedido = new Pedido();
                 pedido.setIdPedido(rs.getString("Id_Pedido"));
-                pedido.setIdCliente(rs.getString("ClienteNombre"));  
-                pedido.setIdUsuario(rs.getString("UsuarioNombre")); 
+                pedido.setIdCliente(rs.getString("ClienteNombre"));
+                pedido.setIdUsuario(rs.getString("UsuarioNombre"));
                 pedido.setFecha(rs.getDate("Fecha"));
                 pedido.setSubTotal(rs.getDouble("SubTotal"));
                 pedido.setTotalVenta(rs.getDouble("TotalVenta"));
                 pedidos.add(pedido);
             }
-            sql = "SELECT dp.*, p.Descripcion FROM t_detalle_pedido dp " +
-                  "JOIN t_producto p ON dp.Id_Prod = p.Id_Prod";
+            sql = "SELECT dp.*, p.Descripcion FROM t_detalle_pedido dp "
+                    + "JOIN t_producto p ON dp.Id_Prod = p.Id_Prod";
             rs = stmt.executeQuery(sql);
 
             while (rs.next()) {
@@ -67,7 +69,7 @@ public class ControlerPedido extends HttpServlet {
                 detalle.setCantidad(rs.getInt("cantidad"));
                 detalle.setPrecio(rs.getDouble("precio"));
                 detalle.setTotalDeta(rs.getDouble("TotalDeta"));
-                detalle.setDescripcion(rs.getString("Descripcion")); 
+                detalle.setDescripcion(rs.getString("Descripcion"));
                 detalles.add(detalle);
             }
             rs.close();
@@ -110,7 +112,7 @@ public class ControlerPedido extends HttpServlet {
             document.open();
             document.add(new Paragraph("Lista de Pedidos"));
 
-            PdfPTable table = new PdfPTable(6); 
+            PdfPTable table = new PdfPTable(6);
             table.setWidthPercentage(100);
             table.setSpacingBefore(10f);
             table.setSpacingAfter(10f);
@@ -150,7 +152,7 @@ public class ControlerPedido extends HttpServlet {
             document.open();
             document.add(new Paragraph("Detalles del Pedido " + idPedido));
 
-            PdfPTable table = new PdfPTable(6); 
+            PdfPTable table = new PdfPTable(6);
             table.setWidthPercentage(100);
             table.setSpacingBefore(10f);
             table.setSpacingAfter(10f);

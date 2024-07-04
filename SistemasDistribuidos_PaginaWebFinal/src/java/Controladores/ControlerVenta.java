@@ -30,21 +30,24 @@ import java.text.DecimalFormat;
  */
 @WebServlet(name = "ControlerVenta", urlPatterns = {"/ControlerVenta"})
 public class ControlerVenta extends HttpServlet {
-    
+
     private String formatearDecimal(double valor) {
         DecimalFormat df = new DecimalFormat("#.00");
         return df.format(valor);
     }
-    
+
     private double redondearDecimal(double valor) {
         DecimalFormat df = new DecimalFormat("#.00");
         return Double.valueOf(df.format(valor));
     }
-    
+
     private int detallePedidoCounter = 0;
+
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException, SQLException {
-        
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
+
         String opcion = request.getParameter("Op");
         ArrayList<Venta> listaVentas = new ArrayList<>();
         Conexion.Conexion conBD = new Conexion.Conexion();
@@ -52,15 +55,15 @@ public class ControlerVenta extends HttpServlet {
         PreparedStatement ps = null;
         ResultSet rs = null;
         String sql;
-        
+
         HttpSession session = request.getSession();
-        String id = (String) session.getAttribute("IdUsuario");
+        String id = (String) session.getAttribute("Id_Usuario");
         String nombre = (String) session.getAttribute("Nombre");
         listaVentas = (ArrayList<Venta>) session.getAttribute("listaVentas");
         if (listaVentas == null) {
             listaVentas = new ArrayList<>();
         }
-        
+
         double subtotal = calcularSubtotal(listaVentas);
         double igv = calcularIGV(subtotal);
         double totalCompra = calcularTotal(subtotal, igv);
@@ -70,92 +73,88 @@ public class ControlerVenta extends HttpServlet {
         request.setAttribute("totalCompra", formatearDecimal(totalCompra));
 
         switch (opcion) {
-                case "VerPagina":
-                        request.setAttribute("Id_Usuario", id);
-                        request.setAttribute("Nombre", nombre);
-                        request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
+            case "VerPagina":
+                request.setAttribute("Id_Usuario", id);
+                request.setAttribute("Nombre", nombre);
+                request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
                 break;
-                case "BuscarCliente":
-                    String dniCliente = request.getParameter("dni");
-                    try {
-                        sql = "SELECT Id_Cliente, Nombres, Apellidos FROM t_cliente WHERE DNI = ?";
-                        ps = conn.prepareStatement(sql);
-                        ps.setString(1, dniCliente);
-                        rs = ps.executeQuery();
-                        if (rs.next()) {
-                            String idCliente = rs.getString("Id_Cliente");
-                            String nombreCliente = rs.getString("Nombres");
-                            String apellidosCliente = rs.getString("Apellidos");
+            case "BuscarCliente":
+                String dniCliente = request.getParameter("dni");
+                try {
+                    sql = "SELECT Id_Cliente, Nombres, Apellidos FROM t_cliente WHERE DNI = ?";
+                    ps = conn.prepareStatement(sql);
+                    ps.setString(1, dniCliente);
+                    rs = ps.executeQuery();
+                    if (rs.next()) {
+                        String idCliente = rs.getString("Id_Cliente");
+                        String nombreCliente = rs.getString("Nombres");
+                        String apellidosCliente = rs.getString("Apellidos");
 
-                            session.setAttribute("idCliente", idCliente);
-                            session.setAttribute("dniCliente", dniCliente);
-                            session.setAttribute("nombreCliente", nombreCliente);
-                            session.setAttribute("apellidosCliente", apellidosCliente);
-                            
-                        } else {
-                            request.setAttribute("mensajeClienteNoRegistrado", "Cliente no encontrado con DNI: " + dniCliente);
-                            // Limpiar datos del cliente de la sesión en caso de no encontrarlo
-                            session.removeAttribute("idCliente");
-                            session.removeAttribute("dniCliente");
-                            session.removeAttribute("nombreCliente");
-                            session.removeAttribute("apellidosCliente");
-                        }
-                        request.setAttribute("Id_Usuario", id);
-                        request.setAttribute("Nombre", nombre);
-                        request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
-                    } catch (SQLException ex) {
-                        System.out.println("Error de SQL..." + ex.getMessage());
-                    } finally {
-                        conBD.Discconet();
+                        session.setAttribute("idCliente", idCliente);
+                        session.setAttribute("dniCliente", dniCliente);
+                        session.setAttribute("nombreCliente", nombreCliente);
+                        session.setAttribute("apellidosCliente", apellidosCliente);
+
+                    } else {
+                        request.setAttribute("mensajeClienteNoRegistrado", "Cliente no encontrado con DNI: " + dniCliente);
+                        // Limpiar datos del cliente de la sesión en caso de no encontrarlo
+                        session.removeAttribute("idCliente");
+                        session.removeAttribute("dniCliente");
+                        session.removeAttribute("nombreCliente");
+                        session.removeAttribute("apellidosCliente");
                     }
+                    request.setAttribute("Id_Usuario", id);
+                    request.setAttribute("Nombre", nombre);
+                    request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
+                } catch (SQLException ex) {
+                    System.out.println("Error de SQL..." + ex.getMessage());
+                } finally {
+                    conBD.Discconet();
+                }
                 break;
 
-
-                
             case "BuscarProducto":
-                    String nombreProducto = request.getParameter("nombreProducto");
+                String nombreProducto = request.getParameter("nombreProducto");
 
-                    try {
-                        conn.createStatement().execute("SET CHARACTER SET utf8");
+                try {
+                    conn.createStatement().execute("SET CHARACTER SET utf8");
 
-                        sql = "SELECT Id_Prod, precio, cantidad FROM t_producto WHERE LOWER(Descripcion) = ?";
-                        ps = conn.prepareStatement(sql);
+                    sql = "SELECT Id_Prod, precio, cantidad FROM t_producto WHERE LOWER(Descripcion) = ?";
+                    ps = conn.prepareStatement(sql);
 
-                        ps.setString(1, nombreProducto.toLowerCase());
-                        rs = ps.executeQuery();
+                    ps.setString(1, nombreProducto.toLowerCase());
+                    rs = ps.executeQuery();
 
-                        if (rs.next()) {
-                            String codigoProducto = rs.getString("Id_Prod");
-                            String precioProducto = rs.getString("precio");
-                            int stockProducto = rs.getInt("cantidad");
+                    if (rs.next()) {
+                        String codigoProducto = rs.getString("Id_Prod");
+                        String precioProducto = rs.getString("precio");
+                        int stockProducto = rs.getInt("cantidad");
 
-                            Integer stockTemporal = (Integer) session.getAttribute("stock_" + codigoProducto);
-                            if (stockTemporal != null) {
-                                stockProducto = stockTemporal;
-                            }
-
-                            request.setAttribute("nombreProducto", nombreProducto);
-                            request.setAttribute("codigoProducto", codigoProducto);
-                            request.setAttribute("precioProducto", precioProducto);
-                            request.setAttribute("stockProducto", stockProducto);
-                        } else {
-                            request.setAttribute("mensajeProductoNoRegistrado", "Producto no encontrado");
-                            request.setAttribute("codigoProducto", "");
-                            request.setAttribute("precioProducto", "");
-                            request.setAttribute("stockProducto", "");
+                        Integer stockTemporal = (Integer) session.getAttribute("stock_" + codigoProducto);
+                        if (stockTemporal != null) {
+                            stockProducto = stockTemporal;
                         }
-                        request.setAttribute("Id_Usuario", id);
-                        request.setAttribute("Nombre", nombre);
-                        request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
-                    } catch (SQLException ex) {
-                        System.out.println("Error de SQL..." + ex.getMessage());
-                    } finally {
-                        conBD.Discconet();
+
+                        request.setAttribute("nombreProducto", nombreProducto);
+                        request.setAttribute("codigoProducto", codigoProducto);
+                        request.setAttribute("precioProducto", precioProducto);
+                        request.setAttribute("stockProducto", stockProducto);
+                    } else {
+                        request.setAttribute("mensajeProductoNoRegistrado", "Producto no encontrado");
+                        request.setAttribute("codigoProducto", "");
+                        request.setAttribute("precioProducto", "");
+                        request.setAttribute("stockProducto", "");
                     }
+                    request.setAttribute("Id_Usuario", id);
+                    request.setAttribute("Nombre", nombre);
+                    request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
+                } catch (SQLException ex) {
+                    System.out.println("Error de SQL..." + ex.getMessage());
+                } finally {
+                    conBD.Discconet();
+                }
                 break;
 
-
-            
             case "AgregarProducto":
                 String codigoProducto = request.getParameter("codigoProducto");
                 String nombreProductoAgregar = request.getParameter("nombreProducto");
@@ -223,19 +222,16 @@ public class ControlerVenta extends HttpServlet {
                 request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
                 break;
 
-
             case "Listar":
                 session = request.getSession();
                 listaVentas = (ArrayList<Venta>) session.getAttribute("listaVentas");
                 request.setAttribute("listaVentas", listaVentas);
-                
-                
+
                 request.setAttribute("Id_Usuario", id);
                 request.setAttribute("Nombre", nombre);
                 request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
                 break;
-            
-                
+
             case "EditarProducto":
                 String indexParameter = request.getParameter("index");
                 if (indexParameter != null && !indexParameter.isEmpty()) {
@@ -317,10 +313,8 @@ public class ControlerVenta extends HttpServlet {
                     request.setAttribute("Nombre", nombre);
                     request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
                 }
-            break;
+                break;
 
-            
-            
             case "ActualizarProducto":
                 String indexActualizarParameter = request.getParameter("indexEditar");
                 if (indexActualizarParameter != null && !indexActualizarParameter.isEmpty()) {
@@ -384,208 +378,205 @@ public class ControlerVenta extends HttpServlet {
                     request.setAttribute("Nombre", nombre);
                     request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
                 }
-            break;
-
-
-
+                break;
 
             case "EliminarProducto":
-    int indexEliminar = Integer.parseInt(request.getParameter("index"));
+                int indexEliminar = Integer.parseInt(request.getParameter("index"));
 
-    HttpSession sessionEliminar = request.getSession();
-    listaVentas = (ArrayList<Venta>) sessionEliminar.getAttribute("listaVentas");
+                HttpSession sessionEliminar = request.getSession();
+                listaVentas = (ArrayList<Venta>) sessionEliminar.getAttribute("listaVentas");
 
-    if (listaVentas != null && indexEliminar > 0 && indexEliminar <= listaVentas.size()) {
-        Venta ventaEliminar = listaVentas.remove(indexEliminar - 1); // Elimina el elemento en base al índice de usuario
+                if (listaVentas != null && indexEliminar > 0 && indexEliminar <= listaVentas.size()) {
+                    Venta ventaEliminar = listaVentas.remove(indexEliminar - 1); // Elimina el elemento en base al índice de usuario
 
-        // Restaurar el stock al valor original guardado en la sesión
-        String codigoProductoEliminar = ventaEliminar.getCodigoProducto();
-        Integer stockOriginal = (Integer) sessionEliminar.getAttribute("stockOriginal_" + codigoProductoEliminar);
-        if (stockOriginal != null) {
-            sessionEliminar.setAttribute("stock_" + codigoProductoEliminar, stockOriginal);
-        }
+                    // Restaurar el stock al valor original guardado en la sesión
+                    String codigoProductoEliminar = ventaEliminar.getCodigoProducto();
+                    Integer stockOriginal = (Integer) sessionEliminar.getAttribute("stockOriginal_" + codigoProductoEliminar);
+                    if (stockOriginal != null) {
+                        sessionEliminar.setAttribute("stock_" + codigoProductoEliminar, stockOriginal);
+                    }
 
-        // Actualizar índices después de eliminar
-        for (int i = 0; i < listaVentas.size(); i++) {
-            listaVentas.get(i).setIndex(i + 1); // Actualiza el índice para que comience desde 1
-        }
+                    // Actualizar índices después de eliminar
+                    for (int i = 0; i < listaVentas.size(); i++) {
+                        listaVentas.get(i).setIndex(i + 1); // Actualiza el índice para que comience desde 1
+                    }
 
-        sessionEliminar.setAttribute("listaVentas", listaVentas);
+                    sessionEliminar.setAttribute("listaVentas", listaVentas);
 
-        // Recalcular subtotal, IGV y total de la compra
-        double subtotalActualizar = calcularSubtotal(listaVentas);
-        double igvActualizar = calcularIGV(subtotalActualizar);
-        double totalCompraActualizar = calcularTotal(subtotalActualizar, igvActualizar);
+                    // Recalcular subtotal, IGV y total de la compra
+                    double subtotalActualizar = calcularSubtotal(listaVentas);
+                    double igvActualizar = calcularIGV(subtotalActualizar);
+                    double totalCompraActualizar = calcularTotal(subtotalActualizar, igvActualizar);
 
-        // Agregar estos valores como atributos de la solicitud para la vista
-        request.setAttribute("subtotal", formatearDecimal(subtotalActualizar));
-        request.setAttribute("igv", formatearDecimal(igvActualizar));
-        request.setAttribute("totalCompra", formatearDecimal(totalCompraActualizar));
+                    // Agregar estos valores como atributos de la solicitud para la vista
+                    request.setAttribute("subtotal", formatearDecimal(subtotalActualizar));
+                    request.setAttribute("igv", formatearDecimal(igvActualizar));
+                    request.setAttribute("totalCompra", formatearDecimal(totalCompraActualizar));
 
-        // Redirigir a la página de ventas con los nuevos cálculos
-        request.setAttribute("Id_Usuario", id);
-        request.setAttribute("Nombre", nombre);
-        request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
-    } else {
-        request.setAttribute("errorMessage", "Índice de producto no válido.");
-        request.setAttribute("Id_Usuario", id);
-        request.setAttribute("Nombre", nombre);
-        request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
-    }
-break;
-     
+                    // Redirigir a la página de ventas con los nuevos cálculos
+                    request.setAttribute("Id_Usuario", id);
+                    request.setAttribute("Nombre", nombre);
+                    request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
+                } else {
+                    request.setAttribute("errorMessage", "Índice de producto no válido.");
+                    request.setAttribute("Id_Usuario", id);
+                    request.setAttribute("Nombre", nombre);
+                    request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
+                }
+                break;
 
-                
             case "GenerarVenta":
                 detallePedidoCounter = 0;
                 generarVenta(request, response);
-            break;
-                
+                break;
+
             case "CancelarVenta":
                 cancelarVenta(request, response);
-            break;
-            
+                break;
+
             case "LimpiarCliente":
-                 request.getSession().removeAttribute("dniCliente");
+                request.getSession().removeAttribute("dniCliente");
                 request.getSession().removeAttribute("nombreCliente");
                 request.getSession().removeAttribute("apellidosCliente");
+                request.getSession().setAttribute("Id_Usuario", id);
+                request.getSession().setAttribute("Nombre", nombre);
                 response.getWriter().write("Datos del cliente limpiados");
-                
-            break;
-            
-            
-            
+
+                break;
+
             case "BuscarProductosAutocompletado":
+                request.getSession().setAttribute("Id_Usuario", id);
+                request.getSession().setAttribute("Nombre", nombre);
                 String term = request.getParameter("term");
                 JSONArray productos = buscarProductosPorNombre(term, conn);
                 response.setContentType("application/json");
                 response.getWriter().write(productos.toString());
-            break;
+                break;
 
-
-                default:
-                    break;
-            }
+            default:
+                break;
         }
-    
+    }
+
     private void generarVenta(HttpServletRequest request, HttpServletResponse response)
-        throws ServletException, IOException {
-    HttpSession session = request.getSession();
-    String idUsuario = (String) session.getAttribute("IdUsuario");
-    String nombre = (String) session.getAttribute("Nombre");
-    ArrayList<Venta> listaVentas = (ArrayList<Venta>) session.getAttribute("listaVentas");
-   
-    // Validar si se ha buscado previamente al cliente
-    String idCliente = (String) session.getAttribute("idCliente");
-    String dniCliente = (String) session.getAttribute("dniCliente");
-    String nombreCliente = (String) session.getAttribute("nombreCliente");
-    String apellidosCliente = (String) session.getAttribute("apellidosCliente");
+            throws ServletException, IOException {
+        HttpSession session = request.getSession();
+        String idUsuario = (String) session.getAttribute("Id_Usuario");
+        String nombre = (String) session.getAttribute("Nombre");
+        ArrayList<Venta> listaVentas = (ArrayList<Venta>) session.getAttribute("listaVentas");
 
-    if (idCliente == null || dniCliente == null || nombreCliente == null || apellidosCliente == null) {
-        // Mostrar un mensaje de error indicando que es necesario seleccionar un cliente
-        request.setAttribute("errorMessage", "Es necesario seleccionar un cliente.");
-        request.setAttribute("Id_Usuario", idUsuario);
-        request.setAttribute("Nombre", nombre);
-        request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
-        return;
-    }
-        
-    if (listaVentas == null || listaVentas.isEmpty()) {
-        request.setAttribute("mensajeSinProductos", "No hay productos en la venta.");
-        request.setAttribute("Id_Usuario", idUsuario);
-        request.setAttribute("Nombre", nombre);
-        request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
-        return;
-    }
+        // Validar si se ha buscado previamente al cliente
+        String idCliente = (String) session.getAttribute("idCliente");
+        String dniCliente = (String) session.getAttribute("dniCliente");
+        String nombreCliente = (String) session.getAttribute("nombreCliente");
+        String apellidosCliente = (String) session.getAttribute("apellidosCliente");
 
-    Connection conn = null;
-    PreparedStatement psPedido = null;
-    PreparedStatement psDetalle = null;
-
-    try {
-        Conexion.Conexion conBD = new Conexion.Conexion();
-        conn = conBD.Conexion();
-        conn.setAutoCommit(false); // Deshabilitar el modo de autocommit
-
-        String idPedido = generarNuevoIdPedido();
-        idCliente = (String) session.getAttribute("idCliente"); // Obtener ID del cliente desde la sesión
-            
-        // Calcular subtotal y IGV
-        double subtotal = calcularSubtotal(listaVentas);
-        double igv = calcularIGV(subtotal);
-        double totalCompra = calcularTotal(subtotal, igv);
-
-        String sqlPedido = "INSERT INTO t_pedido (Id_Pedido, Id_Cliente, Id_Usuario, Fecha, SubTotal, TotalVenta) VALUES (?, ?, ?, NOW(), ?, ?)";
-        psPedido = conn.prepareStatement(sqlPedido);
-        psPedido.setString(1, idPedido);
-        psPedido.setString(2, idCliente);
-        psPedido.setString(3, idUsuario);
-        psPedido.setDouble(4, subtotal); // Subtotal sin IGV
-        psPedido.setDouble(5, totalCompra); // Total con IGV
-        psPedido.executeUpdate();
-
-        String sqlDetalle = "INSERT INTO t_detalle_pedido (Id_DetallePedido, Id_Pedido, Id_Prod, cantidad, precio, TotalDeta) VALUES (?, ?, ?, ?, ?, ?)";
-        psDetalle = conn.prepareStatement(sqlDetalle);
-
-        for (Venta venta : listaVentas) {
-            String idDetallePedido = generarIdDetallePedido();
-            psDetalle.setString(1, idDetallePedido);
-            psDetalle.setString(2, idPedido);
-            psDetalle.setString(3, venta.getCodigoProducto());
-            psDetalle.setInt(4, venta.getCantidadProducto());
-            psDetalle.setDouble(5, venta.getPrecioProducto());
-            psDetalle.setDouble(6, venta.getTotalDeta());
-            psDetalle.addBatch();
+        if (idCliente == null || dniCliente == null || nombreCliente == null || apellidosCliente == null) {
+            // Mostrar un mensaje de error indicando que es necesario seleccionar un cliente
+            request.setAttribute("errorMessage", "Es necesario seleccionar un cliente.");
+            request.setAttribute("Id_Usuario", idUsuario);
+            request.setAttribute("Nombre", nombre);
+            request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
+            return;
         }
 
-        psDetalle.executeBatch();
+        if (listaVentas == null || listaVentas.isEmpty()) {
+            request.setAttribute("mensajeSinProductos", "No hay productos en la venta.");
+            request.setAttribute("Id_Usuario", idUsuario);
+            request.setAttribute("Nombre", nombre);
+            request.getRequestDispatcher("MenuVentas.jsp").forward(request, response);
+            return;
+        }
 
-        // Actualizar el stock de productos vendidos
-        actualizarStockProductos(listaVentas, conn);
+        Connection conn = null;
+        PreparedStatement psPedido = null;
+        PreparedStatement psDetalle = null;
 
-        conn.commit();
-            
-        request.getSession().setAttribute("idPedido", idPedido);
-
-        // Limpiar datos del cliente de la sesión
-        session.removeAttribute("idCliente");
-        session.removeAttribute("dniCliente");
-        session.removeAttribute("nombreCliente");
-        session.removeAttribute("apellidosCliente");
-
-        session.removeAttribute("listaVentas"); // Limpiar la lista de ventas
-        response.sendRedirect("MenuVentas.jsp?ventaGuardada=true"); // Redirigir con el parámetro
-
-    } catch (SQLException ex) {
         try {
-            if (conn != null) {
-                conn.rollback();
-            }
-        } catch (SQLException rollbackEx) {
-            rollbackEx.printStackTrace();
-        }
+            Conexion.Conexion conBD = new Conexion.Conexion();
+            conn = conBD.Conexion();
+            conn.setAutoCommit(false); // Deshabilitar el modo de autocommit
 
-        ex.printStackTrace();
-        response.getWriter().println("Error en la aplicación: " + ex.getMessage());
+            String idPedido = generarNuevoIdPedido();
+            idCliente = (String) session.getAttribute("idCliente"); // Obtener ID del cliente desde la sesión
 
-    } finally {
-        try {
-            if (psPedido != null) {
-                psPedido.close();
+            // Calcular subtotal y IGV
+            double subtotal = calcularSubtotal(listaVentas);
+            double igv = calcularIGV(subtotal);
+            double totalCompra = calcularTotal(subtotal, igv);
+
+            String sqlPedido = "INSERT INTO t_pedido (Id_Pedido, Id_Cliente, Id_Usuario, Fecha, SubTotal, TotalVenta) VALUES (?, ?, ?, NOW(), ?, ?)";
+            psPedido = conn.prepareStatement(sqlPedido);
+            psPedido.setString(1, idPedido);
+            psPedido.setString(2, idCliente);
+            psPedido.setString(3, idUsuario);
+            psPedido.setDouble(4, subtotal); // Subtotal sin IGV
+            psPedido.setDouble(5, totalCompra); // Total con IGV
+            psPedido.executeUpdate();
+
+            String sqlDetalle = "INSERT INTO t_detalle_pedido (Id_DetallePedido, Id_Pedido, Id_Prod, cantidad, precio, TotalDeta) VALUES (?, ?, ?, ?, ?, ?)";
+            psDetalle = conn.prepareStatement(sqlDetalle);
+
+            for (Venta venta : listaVentas) {
+                String idDetallePedido = generarIdDetallePedido();
+                psDetalle.setString(1, idDetallePedido);
+                psDetalle.setString(2, idPedido);
+                psDetalle.setString(3, venta.getCodigoProducto());
+                psDetalle.setInt(4, venta.getCantidadProducto());
+                psDetalle.setDouble(5, venta.getPrecioProducto());
+                psDetalle.setDouble(6, venta.getTotalDeta());
+                psDetalle.addBatch();
             }
-            if (psDetalle != null) {
-                psDetalle.close();
+
+            psDetalle.executeBatch();
+
+            // Actualizar el stock de productos vendidos
+            actualizarStockProductos(listaVentas, conn);
+
+            conn.commit();
+
+            request.getSession().setAttribute("idPedido", idPedido);
+            request.getSession().setAttribute("Id_Usuario", idUsuario);
+            request.getSession().setAttribute("Nombre", nombre);
+
+            // Limpiar datos del cliente de la sesión
+            session.removeAttribute("idCliente");
+            session.removeAttribute("dniCliente");
+            session.removeAttribute("nombreCliente");
+            session.removeAttribute("apellidosCliente");
+
+            session.removeAttribute("listaVentas"); // Limpiar la lista de ventas
+            response.sendRedirect("MenuVentas.jsp?ventaGuardada=true"); // Redirigir con el parámetro
+
+        } catch (SQLException ex) {
+            try {
+                if (conn != null) {
+                    conn.rollback();
+                }
+            } catch (SQLException rollbackEx) {
+                rollbackEx.printStackTrace();
             }
-            if (conn != null) {
-                conn.setAutoCommit(true);
-                conn.close();
+
+            ex.printStackTrace();
+            response.getWriter().println("Error en la aplicación: " + ex.getMessage());
+
+        } finally {
+            try {
+                if (psPedido != null) {
+                    psPedido.close();
+                }
+                if (psDetalle != null) {
+                    psDetalle.close();
+                }
+                if (conn != null) {
+                    conn.setAutoCommit(true);
+                    conn.close();
+                }
+            } catch (SQLException closeEx) {
+                closeEx.printStackTrace();
             }
-        } catch (SQLException closeEx) {
-            closeEx.printStackTrace();
         }
     }
-}
-
 
     private String generarNuevoIdPedido() {
         Conexion.Conexion conBD = new Conexion.Conexion();
@@ -622,7 +613,6 @@ break;
         }
     }
 
-
     private String generarIdDetallePedido() {
         Conexion.Conexion conBD = new Conexion.Conexion();
         Connection conexion = conBD.Conexion();
@@ -657,7 +647,7 @@ break;
             }
         }
     }
-    
+
     private void actualizarStockProductos(ArrayList<Venta> listaVentas, Connection conn) throws SQLException {
         PreparedStatement psStock = null;
         String sqlStock = "UPDATE t_producto SET cantidad = cantidad - ? WHERE Id_Prod = ?";
@@ -676,7 +666,7 @@ break;
             }
         }
     }
-    
+
     private void cancelarVenta(HttpServletRequest request, HttpServletResponse response) throws IOException {
         HttpSession session = request.getSession();
         // Limpiar los datos de la sesión relacionados con la venta
@@ -691,28 +681,31 @@ break;
         session.removeAttribute("stockProducto");
 
         // Redirigir a la página de ventas o la página inicial
+        String idUsuario = (String) session.getAttribute("Id_Usuario");
+        String nombre = (String) session.getAttribute("Nombre");
+        request.getSession().setAttribute("Id_Usuario", idUsuario);
+        request.getSession().setAttribute("Nombre", nombre);
         response.sendRedirect("MenuVentas.jsp");
     }
-
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-         try {
-             processRequest(request, response);
-         } catch (SQLException ex) {
-             Logger.getLogger(ControlerVenta.class.getName()).log(Level.SEVERE, null, ex);
-         }
+        try {
+            processRequest(request, response);
+        } catch (SQLException ex) {
+            Logger.getLogger(ControlerVenta.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-         try {
-             processRequest(request, response);
-         } catch (SQLException ex) {
-             Logger.getLogger(ControlerVenta.class.getName()).log(Level.SEVERE, null, ex);
-         }
+        try {
+            processRequest(request, response);
+        } catch (SQLException ex) {
+            Logger.getLogger(ControlerVenta.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     @Override
@@ -738,7 +731,7 @@ break;
         return redondearDecimal(total);
     }
 
-     // Funcionalidad para mostrar las coincidencias de los productos 
+    // Funcionalidad para mostrar las coincidencias de los productos 
     private JSONArray buscarProductosPorNombre(String term, Connection conn) {
         JSONArray productos = new JSONArray();
         PreparedStatement ps = null;
@@ -758,8 +751,12 @@ break;
             e.printStackTrace();
         } finally {
             try {
-                if (rs != null) rs.close();
-                if (ps != null) ps.close();
+                if (rs != null) {
+                    rs.close();
+                }
+                if (ps != null) {
+                    ps.close();
+                }
             } catch (SQLException e) {
                 e.printStackTrace();
             }
@@ -767,6 +764,5 @@ break;
 
         return productos;
     }
-
 
 }

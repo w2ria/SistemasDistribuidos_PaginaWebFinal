@@ -29,12 +29,16 @@ public class CerrarSesion extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
         response.setContentType("text/html;charset=UTF-8");
-        
-        HttpSession session=request.getSession();
+
+        HttpSession session = request.getSession();
         session.removeAttribute("user");
+        session.removeAttribute("Nombre");
+        session.removeAttribute("Id_Usuario");
         request.getRequestDispatcher("Login.jsp").forward(request, response);
-        
+
     }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

@@ -35,7 +35,9 @@ public class ControlerUsuario extends HttpServlet {
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-                String opcion = request.getParameter("Op");
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
+        String opcion = request.getParameter("Op");
         ArrayList<Usuario> Lista = new ArrayList<>();
         Conexion.Conexion conBD = new Conexion.Conexion();
         Connection conn = conBD.Conexion();
@@ -47,43 +49,41 @@ public class ControlerUsuario extends HttpServlet {
                 HttpSession session = request.getSession();
                 String id = (String) session.getAttribute("IdUsuario");
                 String nombre = (String) session.getAttribute("Nombre");
-                System.out.println("EL NOMBRE que llega al servlet es ES:" +nombre);
-                System.out.println("EL id traido es: "+id);
+                System.out.println("EL NOMBRE que llega al servlet es ES:" + nombre);
+                System.out.println("EL id traido es: " + id);
                 try {
-                sql = "SELECT * FROM t_usuario";
-                ps = conn.prepareStatement(sql);
-                rs = ps.executeQuery();
-                while (rs.next()) {
-                    Usuario usuario = new Usuario();
-                    usuario.setId_usuario(rs.getString("Id_Usuario"));
-                    usuario.setContraseña(rs.getString("Passwd"));
-                    usuario.setApellidos(rs.getString("Apellidos"));
-                    usuario.setNombres(rs.getString("Nombres"));
-                    usuario.setImagen(rs.getString("imagen"));
-                    usuario.setDireccion(rs.getString("Direccion"));
-                    usuario.setDNI(rs.getString("DNI"));
-                    usuario.setTelefono(rs.getString("Telefono"));
-                    usuario.setMovil(rs.getString("Movil"));
-                    usuario.setEnLinea(rs.getString("EnLinea"));
-                    usuario.setEstado(rs.getString("Estado"));
-                    
-                    Lista.add(usuario);
+                    sql = "SELECT * FROM t_usuario";
+                    ps = conn.prepareStatement(sql);
+                    rs = ps.executeQuery();
+                    while (rs.next()) {
+                        Usuario usuario = new Usuario();
+                        usuario.setId_usuario(rs.getString("Id_Usuario"));
+                        usuario.setContraseña(rs.getString("Passwd"));
+                        usuario.setApellidos(rs.getString("Apellidos"));
+                        usuario.setNombres(rs.getString("Nombres"));
+                        usuario.setImagen(rs.getString("imagen"));
+                        usuario.setDireccion(rs.getString("Direccion"));
+                        usuario.setDNI(rs.getString("DNI"));
+                        usuario.setTelefono(rs.getString("Telefono"));
+                        usuario.setMovil(rs.getString("Movil"));
+                        usuario.setEnLinea(rs.getString("EnLinea"));
+                        usuario.setEstado(rs.getString("Estado"));
+
+                        Lista.add(usuario);
+                    }
+
+                    request.setAttribute("Id_Usuario", id);
+                    request.setAttribute("Nombre", nombre);
+
+                    request.setAttribute("Lista", Lista);
+                    request.getRequestDispatcher("MenuUsuarios.jsp").forward(request, response);
+                } catch (SQLException ex) {
+                    System.out.println("Error de SQL..." + ex.getMessage());
+                } finally {
+                    conBD.Discconet();
                 }
-                
-                
-                request.setAttribute("Id_Usuario", id);
-                request.setAttribute("Nombre", nombre);
 
-                
-                request.setAttribute("Lista", Lista);
-                request.getRequestDispatcher("MenuUsuarios.jsp").forward(request, response);
-            } catch (SQLException ex) {
-                System.out.println("Error de SQL..." + ex.getMessage());
-            } finally {
-                conBD.Discconet();
-            }
-
-            break;
+                break;
             case "Eliminar":
                 try {
                 String Id = request.getParameter("Id");
@@ -123,51 +123,48 @@ public class ControlerUsuario extends HttpServlet {
             case "Actualizar":
                 String idUsuari = request.getParameter("cod");
                 String contraseñ = request.getParameter("contra");
-                
-                String passwordEncriptado = EncriptadorAES.encriptarAES(contraseñ);          
-                
-                String contrena="";
-                
+
+                String passwordEncriptado = EncriptadorAES.encriptarAES(contraseñ);
+
+                String contrena = "";
+
                 try {
-                PreparedStatement ps1 = null;
-                ResultSet rs1;
-                String sql1;
-                sql1 = "SELECT * FROM t_usuario where Id_Usuario='"+idUsuari+"'";
-                ps1 = conn.prepareStatement(sql1);
-                rs1 = ps1.executeQuery();
-                id=null;
-                while (rs1.next()) {
-                    Usuario usuario = new Usuario();
-                    usuario.setId_usuario(rs1.getString("Passwd"));   
-                    id=usuario.getId_usuario();
+                    PreparedStatement ps1 = null;
+                    ResultSet rs1;
+                    String sql1;
+                    sql1 = "SELECT * FROM t_usuario where Id_Usuario='" + idUsuari + "'";
+                    ps1 = conn.prepareStatement(sql1);
+                    rs1 = ps1.executeQuery();
+                    id = null;
+                    while (rs1.next()) {
+                        Usuario usuario = new Usuario();
+                        usuario.setId_usuario(rs1.getString("Passwd"));
+                        id = usuario.getId_usuario();
+                    }
+
+                    if (id.equals(contraseñ)) {
+                        contrena = contraseñ;
+
+                        System.out.println("Contra venida de jsp: " + contraseñ);
+                        System.out.println("Contra venida de de BD: " + id);
+                        System.out.println("La contra es iwal q la BD");
+                        System.out.println("Contra encriptada: " + passwordEncriptado);
+
+                        System.out.println("Contra que se enviará a BD: " + contrena);
+                    } else {
+                        contrena = passwordEncriptado;
+
+                        System.out.println("Contra venida de jsp: " + contraseñ);
+                        System.out.println("Contra venida de de BD: " + id);
+                        System.out.println("La contra NOOOO es iwal q la BD");
+                        System.out.println("Contra encriptada: " + passwordEncriptado);
+
+                        System.out.println("Contra que se enviará a BD: " + contrena);
+                    }
+                } catch (SQLException ex) {
+                    System.out.println("Error de SQL..." + ex.getMessage());
                 }
-                
-                if (id.equals(contraseñ)) {
-                    contrena=contraseñ;                 
-                    
-                    System.out.println("Contra venida de jsp: "+contraseñ);
-                    System.out.println("Contra venida de de BD: "+id);
-                    System.out.println("La contra es iwal q la BD");
-                    System.out.println("Contra encriptada: "+passwordEncriptado);
-                    
-                    System.out.println("Contra que se enviará a BD: "+contrena);
-                } else {
-                    contrena=passwordEncriptado;
-                    
-                    
-                    System.out.println("Contra venida de jsp: "+contraseñ);
-                    System.out.println("Contra venida de de BD: "+id);
-                    System.out.println("La contra NOOOO es iwal q la BD");
-                    System.out.println("Contra encriptada: "+passwordEncriptado);
-                    
-                    System.out.println("Contra que se enviará a BD: "+contrena);
-                }
-            } catch (SQLException ex) {
-                System.out.println("Error de SQL..." + ex.getMessage());
-            } 
-                
-                
-                
+
                 String apellido = request.getParameter("apellidos");
                 nombre = request.getParameter("nombres");
                 String image = request.getParameter("imagen");
@@ -182,14 +179,11 @@ public class ControlerUsuario extends HttpServlet {
                 usuario.setApellidos(apellido);
                 usuario.setNombres(nombre);
                 usuario.setImagen(image);
-                
+
                 usuario.setDireccion(direccio);
                 usuario.setDNI(dn);
                 usuario.setTelefono(telefon);
                 usuario.setMovil(movi);
-                
-                
-                
 
                 sql = "update t_usuario set Passwd=?, apellidos=?, nombres=?, imagen=?, direccion=?, DNI=?, telefono=?, movil=? where Id_Usuario=?";
 
@@ -200,7 +194,7 @@ public class ControlerUsuario extends HttpServlet {
                     ps.setString(3, usuario.getNombres());
                     ps.setString(4, usuario.getImagen());
                     ps.setString(5, usuario.getDireccion());
-                    ps.setString(6, usuario.getDNI());                    
+                    ps.setString(6, usuario.getDNI());
                     ps.setString(7, usuario.getTelefono());
                     ps.setString(8, usuario.getMovil());
                     ps.setString(9, usuario.getId_usuario());
@@ -266,17 +260,13 @@ public class ControlerUsuario extends HttpServlet {
                     }
                 }
                 break;
-            
+
             default:
 
         }
-        
 
     }
 
-        
-        
-    
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.

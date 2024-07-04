@@ -31,12 +31,14 @@ public class ControlerDashboard extends HttpServlet {
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
         String opcion = request.getParameter("Op");
 
         switch (opcion) {
             case "Listar":
                 HttpSession session = request.getSession();
-                String id = (String) session.getAttribute("IdUsuario");
+                String id = (String) session.getAttribute("Id_Usuario");
                 String nombre = (String) session.getAttribute("Nombre");
                 request.setAttribute("Id_Usuario", id);
                 request.setAttribute("Nombre", nombre);

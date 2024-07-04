@@ -28,6 +28,8 @@ public class ValidarLogin extends HttpServlet {
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
         Conexion.Conexion conBD = new Conexion.Conexion();
         Connection conn = conBD.Conexion();
         PreparedStatement ps;
@@ -70,7 +72,7 @@ public class ValidarLogin extends HttpServlet {
                         // Autenticación exitosa
                         Usuario nuser = new Usuario(usuario, contraseña);
                         session.setAttribute("user", nuser);
-                        session.setAttribute("IdUsuario", usuario); // Asegúrate de que el ID del usuario se configura en la sesión
+                        session.setAttribute("Id_Usuario", usuario); // Asegúrate de que el ID del usuario se configura en la sesión
                         session.setAttribute("Nombre", nombre);
                         session.removeAttribute("intentosFallidos_" + usuario);
                         session.removeAttribute("tiempoBloqueo_" + usuario);

@@ -19,54 +19,56 @@
 
     <body style="display: flex">    
         <%String idUsuario4 = (String) request.getAttribute("Id_Usuario");
-        System.out.println("Usuario traido hacia jsp"+idUsuario4);%>
+            System.out.println("Usuario traido hacia jsp" + idUsuario4);%>
         <%@ include file="NavBar.jsp" %>
         <div class="navMasContenido">
             <div class="Contenido" style="padding-left: 6%; background-color: #87ceeb; display: flex; justify-content: center"><!--Poner TODO ACA-->            
                 <div class="tabla" style=" width: 70%">
                     <div class="titulo" style="font-size: 10vh; text-align: center">LISTA CLIENTES</div>
                     <a  style="margin: 1vh" href="#" class="Agregar btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal" data-id="" data-tipo="" data-raza="" data-nombre="" data-fecha="" data-edad="" data-color="" data-peso="" data-tamano="" data-genero=""><i class="fa-solid fa-user-plus" style="padding: 0px 0.5vh"></i>Agregar</a>
-                    <table class="table table-striped">
-                        <thead>
-                            <tr>
-
-                                <th scope="col">idCliente </th>
-                                <th scope="col">Apellidos</th>
-                                <th scope="col">Nombres</th>
-                                <th scope="col">Direccion</th>
-                                <th scope="col">Dni</th>
-                                <th scope="col">Telefono</th>
-                                <th scope="col">Movil</th>
-                                <th scope="col">Estado</th>
-                                <th scope="col">En Linea</th>
-                                <th scope="col">Editar</th>
-                                <th scope="col">Eliminar</th>
-                            </tr>
-                        </thead>
-                        <c:forEach var="campo" items="${Lista}">
-                            <tbody>   
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
                                 <tr>
-                                    <td>${campo.id}</td>
-                                    <td>${campo.apellidos}</td>
-                                    <td>${campo.nombres}</td>
-                                    <td>${campo.direccion}</td>
-                                    <td>${campo.DNI}</td>
-                                    <td>${campo.telefono}</td>
-                                    <td>${campo.movil}</td>
-                                    <td>${campo.estado}</td>
-                                    <td>${campo.enLinea}</td>
-                                    <td>
-                                        <a href="#" class="Actualizar btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal" data-id="${campo.id}" data-ape="${campo.apellidos}" data-nom="${campo.nombres}" data-direc="${campo.direccion}" data-dni="${campo.DNI}" data-telef="${campo.telefono}" data-movil="${campo.movil}"><i class="fas fa-edit"></i>Actualizar</a>
-                                    </td>
-                                    <td>
-                                        <a href="ControlerCliente?Op=Eliminar&Id=${campo.id}" class="btn btn-danger" onclick="return confirm('¿Estás seguro de que deseas eliminar este cliente?');">
-                                            <i class="fas fa-trash-alt"></i> Eliminar
-                                        </a>
-                                    </td>
-                                </tr>        
-                            </tbody>
-                        </c:forEach>
-                    </table>
+
+                                    <th scope="col">idCliente </th>
+                                    <th scope="col">Apellidos</th>
+                                    <th scope="col">Nombres</th>
+                                    <th scope="col">Direccion</th>
+                                    <th scope="col">Dni</th>
+                                    <th scope="col">Telefono</th>
+                                    <th scope="col">Movil</th>
+                                    <th scope="col">Estado</th>
+                                    <th scope="col">En Linea</th>
+                                    <th scope="col">Editar</th>
+                                    <th scope="col">Cambiar estado</th>
+                                </tr>
+                            </thead>
+                            <c:forEach var="campo" items="${Lista}">
+                                <tbody>   
+                                    <tr>
+                                        <td>${campo.id}</td>
+                                        <td>${campo.apellidos}</td>
+                                        <td>${campo.nombres}</td>
+                                        <td>${campo.direccion}</td>
+                                        <td>${campo.DNI}</td>
+                                        <td>${campo.telefono}</td>
+                                        <td>${campo.movil}</td>
+                                        <td>${campo.estado}</td>
+                                        <td>${campo.enLinea}</td>
+                                        <td>
+                                            <a href="#" class="Actualizar btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal" data-id="${campo.id}" data-ape="${campo.apellidos}" data-nom="${campo.nombres}" data-direc="${campo.direccion}" data-dni="${campo.DNI}" data-telef="${campo.telefono}" data-movil="${campo.movil}"><i class="fas fa-edit"></i>Actualizar</a>
+                                        </td>
+                                        <td>
+                                            <a href="ControlerCliente?Op=Eliminar&Id=${campo.id}" class="btn btn-danger" onclick="return confirm('¿Estás seguro de que deseas cambiar el estado del cliente con id: ${campo.id}?');">
+                                                <i class="fas fa-trash-alt"></i> Cambiar estado
+                                            </a>
+                                        </td>
+                                    </tr>        
+                                </tbody>
+                            </c:forEach>
+                        </table>
+                    </div>
 
                 </div>
 
@@ -90,28 +92,28 @@
                             </div>
                             <div class="mb-3">
                                 <label for="tipoMascota" class="form-label">Apellidos</label>
-                                <input type="text" class="form-control" id="apellidos" name="apellidos">
+                                <input type="text" class="form-control" id="apellidos" name="apellidos" required>
                             </div>
                             <div class="mb-3">
                                 <label for="raza" class="form-label">Nombres</label>
-                                <input type="text" class="form-control" id="nombres"  name="nombres">
+                                <input type="text" class="form-control" id="nombres"  name="nombres" required>
                             </div>
                             <div class="mb-3">
                                 <label for="nombre" class="form-label">Direccion</label>
-                                <input type="text" class="form-control" id="direccion" name="direccion">
+                                <input type="text" class="form-control" id="direccion" name="direccion" required>
                             </div>
 
                             <div class="mb-3">
                                 <label for="fechaNacimiento" class="form-label">DNI</label>
-                                <input type="text" class="form-control" id="dni" name="dni">
+                                <input type="number" class="form-control" id="dni" name="dni" step="1" min="1" required>
                             </div>
                             <div class="mb-3">
                                 <label for="edad" class="form-label">Telefono</label>
-                                <input type="text" class="form-control" id="telefono" name="telefono">
+                                <input type="number" class="form-control" id="telefono" name="telefono" step="1" min="1" required>
                             </div>
                             <div class="mb-3">
                                 <label for="color" class="form-label">Movil</label>
-                                <input type="text" class="form-control" id="movil" name="movil">
+                                <input type="number" class="form-control" id="movil" name="movil"  step="1" min="1" required>
                             </div>   
                         </div>
                     </div>
