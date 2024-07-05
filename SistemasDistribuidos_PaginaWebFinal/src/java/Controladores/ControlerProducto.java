@@ -65,7 +65,7 @@ public class ControlerProducto extends HttpServlet {
 //                String nombre = (String) session.getAttribute("Nombre");
 //                System.out.println("EL NOMBRE que llega al servlet es ES:" + nombre);
 //                System.out.println("EL id traido es 500: " + id);
-                
+
                 HttpSession session = request.getSession();
                 String id = (String) session.getAttribute("Id_Usuario");
                 String nombre = (String) session.getAttribute("Nombre");
@@ -187,35 +187,32 @@ public class ControlerProducto extends HttpServlet {
             case "Guardar":
                 String idProd = GenerarnuevoId();
                 String descri = request.getParameter("descripcion");
-                String img = request.getParameter("imagen");
+                imagenPart = request.getPart("imagen");
+                imagenNombre = getFilename(imagenPart);
                 String cost = request.getParameter("costo");
                 String preci = request.getParameter("precio");
                 String cantida = request.getParameter("cantidad");
                 String estado = "activo";
                 String imag = null;
 
-                if (img != null) {
-                    Part imagenPartGuardar = request.getPart("imagen");
-                    String imagenNombreGuardar = getFilename(imagenPartGuardar);
-                    String extensionImagen = obtenerExtensionImagen(imagenPartGuardar);
+                if (imagenNombre != null && !imagenNombre.isEmpty()) {
+                    // Se ha cargado una nueva imagen
                     String nuevoNombreImagen = generarNuevoNombreImagen(obtenerUltimoNumeroImagen());
-                    String rutaImagen = guardarImagen(imagenPartGuardar, nuevoNombreImagen, extensionImagen);
-                    nuevoNombreImagen = generarNuevoNombreImagen(obtenerUltimoNumeroImagen());
-                    extensionImagen = obtenerExtensionImagen(imagenPartGuardar);
-                    rutaImagen = guardarImagen(imagenPartGuardar, nuevoNombreImagen, extensionImagen);
+                    String extensionImagen = obtenerExtensionImagen(imagenPart);
+                    String rutaImagen = guardarImagen(imagenPart, nuevoNombreImagen, extensionImagen);
                     imag = nuevoNombreImagen + extensionImagen;
                 }
-                
+
                 sql = "INSERT INTO t_producto (Id_Prod, Descripcion, imagen, costo, precio, cantidad, estado) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
                 try {
                     ps = conn.prepareStatement(sql);
                     ps.setString(1, idProd);
                     ps.setString(2, descri);
-                    if (imag != null) {
+                    if (imagenNombre != null && !imagenNombre.isEmpty()) {
                         ps.setString(3, imag);
                     } else {
-                        ps.setNull(3, Types.VARCHAR); 
+                        ps.setNull(3, Types.VARCHAR);
                     }
                     ps.setString(4, cost);
                     ps.setString(5, preci);
